@@ -6,7 +6,7 @@ This repo does not yet contain application code, so the practical way to connect
 
 - Workspace: existing product workspace
 - Team: `OpenAux`
-- Team key: `RAD`
+- Team key: `AUX`
 - Project: `OpenAux V1`
 
 ## Recommended workflow
@@ -32,9 +32,9 @@ If you add preview or staging environments later, add `In QA` between `In Review
 
 Use Linear issue IDs in both branches and pull requests.
 
-- Branch name example: `rad-123-open-aux-lifecycle`
-- PR title example: `RAD-123: implement open aux lifecycle state machine`
-- PR description example: `Implements RAD-123`
+- Branch name example: `aux-123-open-aux-lifecycle`
+- PR title example: `AUX-123: implement open aux lifecycle state machine`
+- PR description example: `Implements AUX-123`
 
 Linear can link issues from:
 
@@ -46,7 +46,7 @@ Recommended convention for this repo:
 
 - use the issue ID in the branch name
 - use the issue ID at the start of the PR title
-- use `Implements RAD-123` or `Refs RAD-123` in the PR description
+- use `Implements AUX-123` or `Refs AUX-123` in the PR description
 
 ## Configure status automation
 
@@ -70,12 +70,12 @@ Recommended default for this repo:
 
 ## Optional GitHub autolink
 
-If you want GitHub to turn `RAD-123` into a clickable Linear link in PRs and comments, add a GitHub autolink reference in the repository settings.
+If you want GitHub to turn `AUX-123` into a clickable Linear link in PRs and comments, add a GitHub autolink reference in the repository settings.
 
 Use this pattern:
 
-- key prefix: `RAD`
-- target URL: `https://linear.app/<workspace>/issue/RAD-<num>`
+- key prefix: `AUX`
+- target URL: `https://linear.app/<workspace>/issue/AUX-<num>`
 
 Replace `<workspace>` with your actual Linear workspace slug.
 
@@ -87,14 +87,14 @@ The current product direction calls for Vercel hosting. Once the app exists and 
 
 Create the `OpenAux V1` project in Linear and seed it with the following parent issues:
 
-1. `RAD-1` Open Aux lifecycle and state machine
-2. `RAD-2` Access control, identities, and invites
-3. `RAD-3` Entry submission and required sample validation
-4. `RAD-4` Ranked ballots, scoring, and tie-breaking
-5. `RAD-5` Blind judging and post-results reveal
-6. `RAD-6` Host controls for cancel and deadline extension
-7. `RAD-7` Platform foundations: Next.js, Auth0, Prisma, Neon, R2, Inngest
-8. `RAD-8` Test harness: Vitest, Playwright, test database, CI
+1. `AUX-1` Open Aux lifecycle and state machine
+2. `AUX-2` Access control, identities, and invites
+3. `AUX-3` Entry submission and required sample validation
+4. `AUX-4` Ranked ballots, scoring, and tie-breaking
+5. `AUX-5` Blind judging and post-results reveal
+6. `AUX-6` Host controls for cancel and deadline extension
+7. `AUX-7` Platform foundations: Next.js, Auth0, Prisma, Neon, R2, Inngest
+8. `AUX-8` Test harness: Vitest, Playwright, test database, CI
 
 ## Suggested first implementation issues
 
