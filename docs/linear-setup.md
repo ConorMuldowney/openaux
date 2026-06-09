@@ -32,8 +32,8 @@ If you add preview or staging environments later, add `In QA` between `In Review
 
 Use Linear issue IDs in both branches and pull requests.
 
-- Branch name example: `aux-123-open-aux-lifecycle`
-- PR title example: `AUX-123: implement open aux lifecycle state machine`
+- Branch name example: `aux-123-showcase-lifecycle`
+- PR title example: `AUX-123: implement showcase lifecycle state machine`
 - PR description example: `Implements AUX-123`
 
 Linear can link issues from:
@@ -87,7 +87,7 @@ The current product direction calls for Vercel hosting. Once the app exists and 
 
 Create the `OpenAux V1` project in Linear and seed it with the following parent issues:
 
-1. `AUX-1` Open Aux lifecycle and state machine
+1. `AUX-1` Showcase lifecycle and state machine
 2. `AUX-2` Access control, identities, and invites
 3. `AUX-3` Entry submission and required sample validation
 4. `AUX-4` Ranked ballots, scoring, and tie-breaking
@@ -102,10 +102,10 @@ Start with a narrow set of tracer-bullet issues under the project:
 
 1. Create Next.js app shell with Tailwind, shadcn, and route handler support.
 2. Add Auth0 login flow and verified-email enforcement middleware.
-3. Model `OpenAux`, `Invite`, `Participant`, `Entry`, and `Ballot` in Prisma.
-4. Implement the Open Aux state machine with guarded transitions.
+3. Model `Showcase`, `Invite`, `Participant`, `Entry`, and `Ballot` in Prisma.
+4. Implement the showcase state machine with guarded transitions.
 5. Add policy checks for hosting, invite acceptance, submission, listening, and voting.
-6. Build a host flow for creating an Open Aux with participation, listener, voter, and blind-judging scopes.
+6. Build a host flow for creating a showcase with participation, listener, voter, and blind-judging scopes.
 
 ## Definition of done for Linear-connected work
 
