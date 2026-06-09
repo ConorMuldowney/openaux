@@ -40,6 +40,49 @@ Health endpoint:
 
 - http://localhost:3000/api/health
 
+## Route Handler API Baseline
+
+All module boundaries now expose a baseline Route Handler with Zod-validated
+request contracts and typed response shapes.
+
+### Boundary Endpoints
+
+- POST /api/lifecycle/transition
+- POST /api/policy/submit-entry
+- POST /api/submissions/required-samples
+- POST /api/ballots/validate-ranked-ballot
+- POST /api/scoring/ranked-ballot
+- POST /api/visibility/participant-identity
+
+### Shared Error Taxonomy
+
+All non-success responses follow the same envelope:
+
+```json
+{
+	"ok": false,
+	"error": {
+		"code": "validation-error | policy-denied | state-invalid",
+		"message": "...",
+		"details": {
+			"validationIssues": [
+				{
+					"path": "field.path",
+					"message": "Expected string",
+					"issueCode": "invalid_type"
+				}
+			]
+		}
+	}
+}
+```
+
+Status mapping:
+
+- `validation-error`: 400
+- `policy-denied`: 403
+- `state-invalid`: 409
+
 ## Useful Commands
 
 ```bash
