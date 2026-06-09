@@ -2,11 +2,11 @@
 
 ## Linear
 
-Issue: RP-###
+Issue: AUX-###
 
 Project: Open Aux V1
 
-Linking note: Implements RP-###
+Linking note: Implements AUX-###
 
 ## Testing
 
