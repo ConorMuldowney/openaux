@@ -1,8 +1,8 @@
-import type { OpenAuxLifecycleState } from "@/src/modules/lifecycle/public";
+import type { ShowcaseLifecycleState } from "@/src/modules/lifecycle/public";
 
 export type VisibilityContext = {
   isBlindJudgingEnabled: boolean;
-  lifecycleState: OpenAuxLifecycleState;
+  lifecycleState: ShowcaseLifecycleState;
 };
 
 export function shouldRevealParticipantIdentity(context: VisibilityContext): boolean {

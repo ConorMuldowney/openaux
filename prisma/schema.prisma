@@ -18,7 +18,7 @@ enum InviteScope {
   VOTER
 }
 
-enum OpenAuxLifecycleState {
+enum ShowcaseLifecycleState {
   CREATION
   SUBMISSION_OPEN
   VOTING_OPEN
@@ -27,16 +27,16 @@ enum OpenAuxLifecycleState {
   CANCELED
 }
 
-model OpenAux {
-  id                  String                @id @default(uuid()) @db.Uuid
-  slug                String                @unique
+model Showcase {
+  id                  String                 @id @default(uuid()) @db.Uuid
+  slug                String                 @unique
   title               String
   hostUserId          String
-  lifecycleState      OpenAuxLifecycleState @default(CREATION)
+  lifecycleState      ShowcaseLifecycleState @default(CREATION)
   participationScope  AccessScope
   listenerScope       AccessScope
   voterScope          AccessScope
-  blindJudgingEnabled Boolean               @default(true)
+  blindJudgingEnabled Boolean                @default(true)
   maxRankedPicks      Int
   requiredSampleIds   Json
   submissionOpensAt   DateTime?
@@ -44,8 +44,8 @@ model OpenAux {
   votingOpensAt       DateTime?
   votingClosesAt      DateTime?
   finalizedAt         DateTime?
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
 
   invites                Invite[]
   participants           Participant[]
@@ -60,7 +60,7 @@ model OpenAux {
 
 model Invite {
   id               String      @id @default(uuid()) @db.Uuid
-  openAuxId        String      @db.Uuid
+  showcaseId       String      @db.Uuid
   scope            InviteScope
   tokenHash        String      @unique
   invitedByUserId  String
@@ -71,30 +71,30 @@ model Invite {
   revokedAt        DateTime?
   createdAt        DateTime    @default(now())
 
-  openAux OpenAux @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
+  showcase Showcase @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
 
-  @@unique([openAuxId, scope, acceptedByUserId], map: "invite_single_use_per_identity_scope")
-  @@index([openAuxId, scope])
+  @@unique([showcaseId, scope, acceptedByUserId], map: "invite_single_use_per_identity_scope")
+  @@index([showcaseId, scope])
 }
 
 model Participant {
-  id        String   @id @default(uuid()) @db.Uuid
-  openAuxId String   @db.Uuid
-  userId    String
-  joinedAt  DateTime @default(now())
+  id         String   @id @default(uuid()) @db.Uuid
+  showcaseId String   @db.Uuid
+  userId     String
+  joinedAt   DateTime @default(now())
 
-  openAux                OpenAux                 @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
+  showcase               Showcase                @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
   entry                  Entry?
   disqualificationEvents DisqualificationEvent[]
 
-  @@unique([openAuxId, userId], map: "participant_unique_identity_per_open_aux")
-  @@unique([id, openAuxId], map: "participant_id_open_aux_unique")
+  @@unique([showcaseId, userId], map: "participant_unique_identity_per_showcase")
+  @@unique([id, showcaseId], map: "participant_id_showcase_unique")
   @@index([userId])
 }
 
 model Entry {
   id                String   @id @default(uuid()) @db.Uuid
-  openAuxId         String   @db.Uuid
+  showcaseId        String   @db.Uuid
   participantId     String   @db.Uuid
   storageKey        String
   submittedAt       DateTime @default(now())
@@ -102,29 +102,29 @@ model Entry {
   isValid           Boolean  @default(false)
   validationDetails Json?
 
-  openAux                OpenAux                 @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
-  participant            Participant             @relation(fields: [participantId, openAuxId], references: [id, openAuxId], onDelete: Cascade)
+  showcase               Showcase                @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+  participant            Participant             @relation(fields: [participantId, showcaseId], references: [id, showcaseId], onDelete: Cascade)
   disqualificationEvents DisqualificationEvent[]
 
-  @@unique([participantId, openAuxId], map: "entry_one_final_per_participant")
-  @@unique([id, openAuxId], map: "entry_id_open_aux_unique")
-  @@index([openAuxId, isValid])
+  @@unique([participantId, showcaseId], map: "entry_one_final_per_participant")
+  @@unique([id, showcaseId], map: "entry_id_showcase_unique")
+  @@index([showcaseId, isValid])
 }
 
 model Ballot {
   id               String   @id @default(uuid()) @db.Uuid
-  openAuxId        String   @db.Uuid
+  showcaseId       String   @db.Uuid
   voterUserId      String
   currentVersionId String?  @unique @db.Uuid
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  openAux        OpenAux         @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
+  showcase       Showcase        @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
   versions       BallotVersion[] @relation("BallotVersions")
   currentVersion BallotVersion?  @relation("CurrentBallotVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
 
-  @@unique([openAuxId, voterUserId], map: "ballot_single_root_per_voter")
-  @@index([openAuxId])
+  @@unique([showcaseId, voterUserId], map: "ballot_single_root_per_voter")
+  @@index([showcaseId])
   @@index([voterUserId])
 }
 
@@ -143,23 +143,23 @@ model BallotVersion {
 }
 
 model TransitionAuditEvent {
-  id          String                 @id @default(uuid()) @db.Uuid
-  openAuxId   String                 @db.Uuid
+  id          String                  @id @default(uuid()) @db.Uuid
+  showcaseId  String                  @db.Uuid
   actorUserId String?
-  fromState   OpenAuxLifecycleState?
-  toState     OpenAuxLifecycleState
+  fromState   ShowcaseLifecycleState?
+  toState     ShowcaseLifecycleState
   reason      String?
   metadata    Json?
-  occurredAt  DateTime               @default(now())
+  occurredAt  DateTime                @default(now())
 
-  openAux OpenAux @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
+  showcase Showcase @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
 
-  @@index([openAuxId, occurredAt])
+  @@index([showcaseId, occurredAt])
 }
 
 model DisqualificationEvent {
   id            String   @id @default(uuid()) @db.Uuid
-  openAuxId     String   @db.Uuid
+  showcaseId    String   @db.Uuid
   entryId       String   @db.Uuid
   participantId String   @db.Uuid
   actorUserId   String
@@ -167,11 +167,11 @@ model DisqualificationEvent {
   notes         String?
   occurredAt    DateTime @default(now())
 
-  openAux     OpenAux     @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
-  entry       Entry       @relation(fields: [entryId, openAuxId], references: [id, openAuxId], onDelete: Restrict)
-  participant Participant @relation(fields: [participantId, openAuxId], references: [id, openAuxId], onDelete: Restrict)
+  showcase    Showcase    @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+  entry       Entry       @relation(fields: [entryId, showcaseId], references: [id, showcaseId], onDelete: Restrict)
+  participant Participant @relation(fields: [participantId, showcaseId], references: [id, showcaseId], onDelete: Restrict)
 
-  @@index([openAuxId, occurredAt])
+  @@index([showcaseId, occurredAt])
   @@index([entryId])
   @@index([participantId])
 }
