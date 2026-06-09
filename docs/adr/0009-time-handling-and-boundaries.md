@@ -4,7 +4,7 @@
 - Date: 2026-06-09
 
 ## Context
-Open Aux deadlines are user-facing across timezones and must behave consistently for all participants.
+Showcase deadlines are user-facing across timezones and must behave consistently for all participants.
 
 ## Decision
 Use UTC for persistence and enforcement, local time for presentation:

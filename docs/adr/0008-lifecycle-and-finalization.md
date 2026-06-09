@@ -4,7 +4,7 @@
 - Date: 2026-06-09
 
 ## Context
-Open Aux operations require clear stage boundaries for submissions, voting, mutability, and final publication.
+Showcase operations require clear stage boundaries for submissions, voting, mutability, and final publication.
 
 ## Decision
 Model lifecycle with explicit states and immutable finalization:
@@ -18,7 +18,7 @@ Rules:
 - Submission close may be extended only while submissions are open and before voting starts.
 - Submissions cannot be reopened after close.
 - Voting close may be extended only while voting is open.
-- After voting closes, Open Aux is finalized and immutable.
+- After voting closes, the showcase is finalized and immutable.
 - Invite links remain available as read-only after finalization.
 
 ## Consequences

@@ -4,7 +4,7 @@
 - Date: 2026-06-09
 
 ## Context
-Open Aux workflows include hosting, invites, submission, listening, and voting. Fairness and accountability require explicit identity rules by action type.
+Showcase workflows include hosting, invites, submission, listening, and voting. Fairness and accountability require explicit identity rules by action type.
 
 ## Decision
 Adopt the following access and identity policy:

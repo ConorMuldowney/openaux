@@ -4,21 +4,21 @@
 - Date: 2026-06-09
 
 ## Context
-Open Aux entries must satisfy common creative constraints and support fair progression into voting.
+Showcase entries must satisfy common creative constraints and support fair progression into voting.
 
 ## Decision
 Adopt the following submission model:
-- Each participant can have exactly one final entry per Open Aux.
+- Each participant can have exactly one final entry per showcase.
 - Draft replacement is allowed until submission close; latest version counts.
-- Each Open Aux must define at least one required sample.
+- Each showcase must define at least one required sample.
 - An entry is valid only if all required samples are present.
-- If fewer than two valid entries exist at submission close, the Open Aux is void and does not proceed to voting.
+- If fewer than two valid entries exist at submission close, the showcase is void and does not proceed to voting.
 
 ## Consequences
 - Simplifies participant entry ownership and winner evaluation.
 - Enforces consistent creative constraints across entries.
 - Requires deterministic validity evaluation at submission close.
-- Requires explicit handling of voided Open Aux in UX and lifecycle logic.
+- Requires explicit handling of voided showcases in UX and lifecycle logic.
 
 ## Sources
 - docs/open-aux-prd.md

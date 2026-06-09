@@ -2,22 +2,22 @@
 
 ## Problem Statement
 
-People want to host Open Aux showcases where creators work from shared samples, listeners can follow the showcase, and voting stays fair, explainable, and easy to understand. The product needs to support both public and private showcases, clear participation rules, ranked voting, and predictable lifecycle behavior without allowing midstream rule changes that would undermine trust.
+People want to host showcases where creators work from shared samples, listeners can follow the showcase, and voting stays fair, explainable, and easy to understand. The product needs to support both public and private showcases, clear participation rules, ranked voting, and predictable lifecycle behavior without allowing midstream rule changes that would undermine trust.
 
 ## Solution
 
-OpenAux will provide Open Aux showcases with separate scopes for participation, listening, and voting. Hosts will configure showcases before submissions open, including whether judging is blind by default, who may submit, who may listen, and who may vote. Participants will submit one final entry, listeners will be able to hear showcases according to the configured scope, and eligible voters will rank entries on a ballot. Voting will remain hidden until it closes, results will be deterministic, and showcases will finalize into an immutable state once voting ends.
+OpenAux will provide showcases with separate scopes for participation, listening, and voting. Hosts will configure showcases before submissions open, including whether judging is blind by default, who may submit, who may listen, and who may vote. Participants will submit one final entry, listeners will be able to hear showcases according to the configured scope, and eligible voters will rank entries on a ballot. Voting will remain hidden until it closes, results will be deterministic, and showcases will finalize into an immutable state once voting ends.
 
 ## User Stories
 
-1. As a host, I want to create an Open Aux with explicit participation, listening, and voting scopes, so that I can control who can enter, who can listen, and who can vote.
+1. As a host, I want to create a showcase with explicit participation, listening, and voting scopes, so that I can control who can enter, who can listen, and who can vote.
 2. As a host, I want to require verified email before I can host a showcase, so that hosts are accountable.
 3. As a host, I want blind judging to default on, so that showcases start with reduced popularity bias.
 4. As a host, I want blind judging to be configurable before submissions open, so that I can choose whether identities are hidden during the showcase.
 5. As a host, I want showcase settings that affect fairness to lock when submissions open, so that entrants are not subject to rule changes after they commit.
-6. As a host, I want to choose whether an Open Aux is public or private for participation, so that I can invite only the people I want to compete.
-7. As a host, I want to allow public listening, so that an Open Aux can be heard by anyone when I want it to be discoverable.
-8. As a host, I want to allow private listening, so that I can keep some Open Aux showcases visible only to invited listeners.
+6. As a host, I want to choose whether a showcase is public or private for participation, so that I can invite only the people I want to compete.
+7. As a host, I want to allow public listening, so that a showcase can be heard by anyone when I want it to be discoverable.
+8. As a host, I want to allow private listening, so that I can keep some showcases visible only to invited listeners.
 9. As a host, I want to choose whether voting is public or private, so that I can open the vote to all eligible users or restrict it to invited users.
 10. As a host, I want to set the maximum number of ranked picks on a ballot, so that I can control how broad or narrow voting is.
 11. As a host, I want to define the required samples for a showcase, so that every valid entry follows the same creative constraint.
@@ -89,7 +89,7 @@ OpenAux will provide Open Aux showcases with separate scopes for participation, 
 - Jobs/orchestration: Async queue workers via Inngest.
 - Authorization model: Domain policy engine per action/resource.
 - Lifecycle model: Explicit state machine with guarded transitions and transition audit events.
-- Scoring/result model: Live deterministic compute during voting; immutable final snapshot at Open Aux finalization.
+- Scoring/result model: Live deterministic compute during voting; immutable final snapshot at showcase finalization.
 - Invite model: Single-use invite tokens bound to accepted identity.
 - Frontend styling: Tailwind CSS and shadcn/ui with project tokens.
 - Testing: Vitest + Playwright + Prisma test database.
