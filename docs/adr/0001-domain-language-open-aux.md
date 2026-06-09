@@ -4,7 +4,7 @@
 - Date: 2026-06-09
 
 ## Context
-The product documentation defines a specific domain language for Radio Pesto to avoid ambiguity and legacy terminology drift. The current docs explicitly state preferred terms and terms to avoid.
+The product documentation defines a specific domain language for OpenAux to avoid ambiguity and legacy terminology drift. The current docs explicitly state preferred terms and terms to avoid.
 
 ## Decision
 Use the Open Aux domain vocabulary as the canonical language across product, engineering, and documentation.

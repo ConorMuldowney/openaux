@@ -1,6 +1,6 @@
-# Radio Pesto Open Aux Rules
+# OpenAux Showcase Rules
 
-This document captures the agreed product rules for Open Aux in Radio Pesto. It is intended as an implementation and product handoff, not a glossary.
+This document captures the agreed product rules for Open Aux in OpenAux. It is intended as an implementation and product handoff, not a glossary.
 
 ## Access and identity
 
@@ -10,15 +10,15 @@ This document captures the agreed product rules for Open Aux in Radio Pesto. It 
 - Public listening can be anonymous or authenticated.
 - Private listening is invite-only.
 
-## Battle participation and scopes
+## Showcase participation and scopes
 
-- A battle has participation scope, listener scope, voter scope, and blind-judging scope.
+- A showcase has participation scope, listener scope, voter scope, and blind-judging scope.
 - Private participation means only explicitly invited users, via link or in-app invite, may submit entries.
 - Public listeners may be anyone, authenticated or anonymous.
 - Private listeners are invite-only.
 - Public voters are any authenticated users.
 - Private voters are authenticated invited users.
-- Participants cannot vote in the same battle they entered.
+- Participants cannot vote in the same showcase they entered.
 
 ## Rule locking
 
@@ -29,12 +29,12 @@ This document captures the agreed product rules for Open Aux in Radio Pesto. It 
 
 ## Submissions
 
-- Each participant may submit exactly one final entry per battle.
+- Each participant may submit exactly one final entry per showcase.
 - Participants may replace their draft submission until submission closes; the latest version counts.
-- Each battle must define at least one required sample.
+- Each showcase must define at least one required sample.
 - An entry is valid only if it uses all required samples.
 - Additional samples may be optional bonus material.
-- If fewer than two valid entries exist at submission close, the battle is void and no voting phase begins.
+- If fewer than two valid entries exist at submission close, the showcase is void and no voting phase begins.
 
 ## Voting model
 
@@ -62,11 +62,11 @@ This document captures the agreed product rules for Open Aux in Radio Pesto. It 
 - All schedule timestamps are stored and enforced in UTC.
 - Times are displayed in each viewer's local timezone.
 - Window boundaries are start-inclusive and end-exclusive.
-- The host may cancel a battle only before voting opens.
+- The host may cancel a showcase only before voting opens.
 - The host may extend submission close only while submissions are open and before voting starts.
 - Submissions cannot be reopened after close.
 - The host may extend voting close only while voting is open.
-- After voting closes, the battle is finalized and immutable.
+- After voting closes, the showcase is finalized and immutable.
 - Invite links become read-only after finalization.
 
 ## Visibility and reveal
