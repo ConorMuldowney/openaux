@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccessScope {
+  PUBLIC
+  PRIVATE
+}
+
+enum InviteScope {
+  PARTICIPATION
+  LISTENER
+  VOTER
+}
+
+enum ShowcaseLifecycleState {
+  CREATION
+  SUBMISSION_OPEN
+  VOTING_OPEN
+  FINALIZED
+  VOIDED
+  CANCELED
+}
+
+model Showcase {
+  id                  String                 @id @default(uuid()) @db.Uuid
+  slug                String                 @unique
+  title               String
+  hostUserId          String
+  lifecycleState      ShowcaseLifecycleState @default(CREATION)
+  participationScope  AccessScope
+  listenerScope       AccessScope
+  voterScope          AccessScope
+  blindJudgingEnabled Boolean                @default(true)
+  maxRankedPicks      Int
+  requiredSampleIds   Json
+  submissionOpensAt   DateTime?
+  submissionClosesAt  DateTime?
+  votingOpensAt       DateTime?
+  votingClosesAt      DateTime?
+  finalizedAt         DateTime?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  invites                Invite[]
+  participants           Participant[]
+  entries                Entry[]
+  ballots                Ballot[]
+  transitionAuditEvents  TransitionAuditEvent[]
+  disqualificationEvents DisqualificationEvent[]
+
+  @@index([hostUserId])
+  @@index([lifecycleState])
+}
+
+model Invite {
+  id               String      @id @default(uuid()) @db.Uuid
+  showcaseId       String      @db.Uuid
+  scope            InviteScope
+  tokenHash        String      @unique
+  invitedByUserId  String
+  invitedEmail     String?
+  acceptedByUserId String?
+  acceptedAt       DateTime?
+  expiresAt        DateTime?
+  revokedAt        DateTime?
+  createdAt        DateTime    @default(now())
+
+  showcase Showcase @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+
+  @@unique([showcaseId, scope, acceptedByUserId], map: "invite_single_use_per_identity_scope")
+  @@index([showcaseId, scope])
+}
+
+model Participant {
+  id         String   @id @default(uuid()) @db.Uuid
+  showcaseId String   @db.Uuid
+  userId     String
+  joinedAt   DateTime @default(now())
+
+  showcase               Showcase                @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+  entry                  Entry?
+  disqualificationEvents DisqualificationEvent[]
+
+  @@unique([showcaseId, userId], map: "participant_unique_identity_per_showcase")
+  @@unique([id, showcaseId], map: "participant_id_showcase_unique")
+  @@index([userId])
+}
+
+model Entry {
+  id                String   @id @default(uuid()) @db.Uuid
+  showcaseId        String   @db.Uuid
+  participantId     String   @db.Uuid
+  storageKey        String
+  submittedAt       DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  isValid           Boolean  @default(false)
+  validationDetails Json?
+
+  showcase               Showcase                @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+  participant            Participant             @relation(fields: [participantId, showcaseId], references: [id, showcaseId], onDelete: Cascade)
+  disqualificationEvents DisqualificationEvent[]
+
+  @@unique([participantId, showcaseId], map: "entry_one_final_per_participant")
+  @@unique([id, showcaseId], map: "entry_id_showcase_unique")
+  @@index([showcaseId, isValid])
+}
+
+model Ballot {
+  id               String   @id @default(uuid()) @db.Uuid
+  showcaseId       String   @db.Uuid
+  voterUserId      String
+  currentVersionId String?  @unique @db.Uuid
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  showcase       Showcase        @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+  versions       BallotVersion[] @relation("BallotVersions")
+  currentVersion BallotVersion?  @relation("CurrentBallotVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
+
+  @@unique([showcaseId, voterUserId], map: "ballot_single_root_per_voter")
+  @@index([showcaseId])
+  @@index([voterUserId])
+}
+
+model BallotVersion {
+  id                   String   @id @default(uuid()) @db.Uuid
+  ballotId             String   @db.Uuid
+  versionNumber        Int
+  rankedParticipantIds Json
+  createdAt            DateTime @default(now())
+
+  ballot           Ballot  @relation("BallotVersions", fields: [ballotId], references: [id], onDelete: Cascade)
+  currentForBallot Ballot? @relation("CurrentBallotVersion")
+
+  @@unique([ballotId, versionNumber], map: "ballot_version_sequence_unique")
+  @@index([ballotId, createdAt])
+}
+
+model TransitionAuditEvent {
+  id          String                  @id @default(uuid()) @db.Uuid
+  showcaseId  String                  @db.Uuid
+  actorUserId String?
+  fromState   ShowcaseLifecycleState?
+  toState     ShowcaseLifecycleState
+  reason      String?
+  metadata    Json?
+  occurredAt  DateTime                @default(now())
+
+  showcase Showcase @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+
+  @@index([showcaseId, occurredAt])
+}
+
+model DisqualificationEvent {
+  id            String   @id @default(uuid()) @db.Uuid
+  showcaseId    String   @db.Uuid
+  entryId       String   @db.Uuid
+  participantId String   @db.Uuid
+  actorUserId   String
+  reason        String
+  notes         String?
+  occurredAt    DateTime @default(now())
+
+  showcase    Showcase    @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+  entry       Entry       @relation(fields: [entryId, showcaseId], references: [id, showcaseId], onDelete: Restrict)
+  participant Participant @relation(fields: [participantId, showcaseId], references: [id, showcaseId], onDelete: Restrict)
+
+  @@index([showcaseId, occurredAt])
+  @@index([entryId])
+  @@index([participantId])
+}

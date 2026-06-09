@@ -8,7 +8,7 @@ export type PolicyContext = {
   voterScope: VoterScope;
   isAuthenticated: boolean;
   isInvited: boolean;
-  isParticipantInOpenAux: boolean;
+  isParticipantInShowcase: boolean;
 };
 
 export function canSubmitEntry(context: PolicyContext): boolean {
@@ -24,7 +24,7 @@ export function canSubmitEntry(context: PolicyContext): boolean {
 }
 
 export function canCastRankedBallot(context: PolicyContext): boolean {
-  if (!context.isAuthenticated || context.isParticipantInOpenAux) {
+  if (!context.isAuthenticated || context.isParticipantInShowcase) {
     return false;
   }
 

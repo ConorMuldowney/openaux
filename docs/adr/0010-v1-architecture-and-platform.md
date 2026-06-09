@@ -4,7 +4,7 @@
 - Date: 2026-06-09
 
 ## Context
-The PRD defines a V1 technical direction intended to ship Open Aux quickly while preserving clear domain boundaries and operational reliability.
+The PRD defines a V1 technical direction intended to ship showcases quickly while preserving clear domain boundaries and operational reliability.
 
 ## Decision
 Adopt the V1 stack and architecture:

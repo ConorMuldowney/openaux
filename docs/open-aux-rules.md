@@ -1,6 +1,6 @@
 # OpenAux Showcase Rules
 
-This document captures the agreed product rules for Open Aux in OpenAux. It is intended as an implementation and product handoff, not a glossary.
+This document captures the agreed product rules for showcases in OpenAux. It is intended as an implementation and product handoff, not a glossary.
 
 ## Access and identity
 

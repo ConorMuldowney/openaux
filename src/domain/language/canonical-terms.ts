@@ -1,5 +1,5 @@
 export const CANONICAL_DOMAIN_TERMS = [
-  "Open Aux",
+  "Showcase",
   "Host",
   "Participant",
   "Entry",
@@ -10,7 +10,7 @@ export const CANONICAL_DOMAIN_TERMS = [
   "Voter Scope",
   "Ranked Ballot",
   "Blind Judging",
-  "Open Aux Finalization",
+  "Showcase Finalization",
 ] as const;
 
 export const NON_CANONICAL_LEGACY_TERMS = [

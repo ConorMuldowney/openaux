@@ -13,7 +13,7 @@ export const MODULE_BOUNDARIES: readonly ModuleBoundary[] = [
   {
     moduleName: "lifecycle",
     responsibility:
-      "Owns Open Aux lifecycle states, guarded transitions, and finalization invariants.",
+      "Owns showcase lifecycle states, guarded transitions, and finalization invariants.",
   },
   {
     moduleName: "policy",

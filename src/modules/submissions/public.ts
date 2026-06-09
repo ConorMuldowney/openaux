@@ -1,6 +1,6 @@
 export type EntryDraft = {
   participantId: string;
-  openAuxId: string;
+  showcaseId: string;
   requiredSampleIds: string[];
   usedSampleIds: string[];
 };
