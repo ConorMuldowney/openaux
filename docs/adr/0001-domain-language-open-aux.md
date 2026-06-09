@@ -1,4 +1,4 @@
-# ADR 0001: Domain Language for Open Aux
+# ADR 0001: Domain Language for Showcases
 
 - Status: Accepted
 - Date: 2026-06-09
@@ -7,10 +7,10 @@
 The product documentation defines a specific domain language for OpenAux to avoid ambiguity and legacy terminology drift. The current docs explicitly state preferred terms and terms to avoid.
 
 ## Decision
-Use the Open Aux domain vocabulary as the canonical language across product, engineering, and documentation.
+Use showcase-centered domain vocabulary as the canonical language across product, engineering, and documentation.
 
 Canonical terms include:
-- Open Aux
+- Showcase
 - Host
 - Participant
 - Entry
@@ -21,7 +21,7 @@ Canonical terms include:
 - Voter Scope
 - Ranked Ballot
 - Blind Judging
-- Open Aux Finalization
+- Showcase Finalization
 
 Legacy terms such as battle, contest, challenge, event, admin, organizer, and competitor are non-canonical and should be phased out in implementation-facing materials.
 
