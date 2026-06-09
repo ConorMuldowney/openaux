@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccessScope {
+  PUBLIC
+  PRIVATE
+}
+
+enum InviteScope {
+  PARTICIPATION
+  LISTENER
+  VOTER
+}
+
+enum OpenAuxLifecycleState {
+  CREATION
+  SUBMISSION_OPEN
+  VOTING_OPEN
+  FINALIZED
+  VOIDED
+  CANCELED
+}
+
+model OpenAux {
+  id                  String                @id @default(uuid()) @db.Uuid
+  slug                String                @unique
+  title               String
+  hostUserId          String
+  lifecycleState      OpenAuxLifecycleState @default(CREATION)
+  participationScope  AccessScope
+  listenerScope       AccessScope
+  voterScope          AccessScope
+  blindJudgingEnabled Boolean               @default(true)
+  maxRankedPicks      Int
+  requiredSampleIds   Json
+  submissionOpensAt   DateTime?
+  submissionClosesAt  DateTime?
+  votingOpensAt       DateTime?
+  votingClosesAt      DateTime?
+  finalizedAt         DateTime?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  invites                Invite[]
+  participants           Participant[]
+  entries                Entry[]
+  ballots                Ballot[]
+  transitionAuditEvents  TransitionAuditEvent[]
+  disqualificationEvents DisqualificationEvent[]
+
+  @@index([hostUserId])
+  @@index([lifecycleState])
+}
+
+model Invite {
+  id               String      @id @default(uuid()) @db.Uuid
+  openAuxId        String      @db.Uuid
+  scope            InviteScope
+  tokenHash        String      @unique
+  invitedByUserId  String
+  invitedEmail     String?
+  acceptedByUserId String?
+  acceptedAt       DateTime?
+  expiresAt        DateTime?
+  revokedAt        DateTime?
+  createdAt        DateTime    @default(now())
+
+  openAux OpenAux @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
+
+  @@unique([openAuxId, scope, acceptedByUserId], map: "invite_single_use_per_identity_scope")
+  @@index([openAuxId, scope])
+}
+
+model Participant {
+  id        String   @id @default(uuid()) @db.Uuid
+  openAuxId String   @db.Uuid
+  userId    String
+  joinedAt  DateTime @default(now())
+
+  openAux                OpenAux                 @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
+  entry                  Entry?
+  disqualificationEvents DisqualificationEvent[]
+
+  @@unique([openAuxId, userId], map: "participant_unique_identity_per_open_aux")
+  @@unique([id, openAuxId], map: "participant_id_open_aux_unique")
+  @@index([userId])
+}
+
+model Entry {
+  id                String   @id @default(uuid()) @db.Uuid
+  openAuxId         String   @db.Uuid
+  participantId     String   @db.Uuid
+  storageKey        String
+  submittedAt       DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  isValid           Boolean  @default(false)
+  validationDetails Json?
+
+  openAux                OpenAux                 @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
+  participant            Participant             @relation(fields: [participantId, openAuxId], references: [id, openAuxId], onDelete: Cascade)
+  disqualificationEvents DisqualificationEvent[]
+
+  @@unique([participantId, openAuxId], map: "entry_one_final_per_participant")
+  @@unique([id, openAuxId], map: "entry_id_open_aux_unique")
+  @@index([openAuxId, isValid])
+}
+
+model Ballot {
+  id               String   @id @default(uuid()) @db.Uuid
+  openAuxId        String   @db.Uuid
+  voterUserId      String
+  currentVersionId String?  @unique @db.Uuid
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  openAux        OpenAux         @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
+  versions       BallotVersion[] @relation("BallotVersions")
+  currentVersion BallotVersion?  @relation("CurrentBallotVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
+
+  @@unique([openAuxId, voterUserId], map: "ballot_single_root_per_voter")
+  @@index([openAuxId])
+  @@index([voterUserId])
+}
+
+model BallotVersion {
+  id                   String   @id @default(uuid()) @db.Uuid
+  ballotId             String   @db.Uuid
+  versionNumber        Int
+  rankedParticipantIds Json
+  createdAt            DateTime @default(now())
+
+  ballot           Ballot  @relation("BallotVersions", fields: [ballotId], references: [id], onDelete: Cascade)
+  currentForBallot Ballot? @relation("CurrentBallotVersion")
+
+  @@unique([ballotId, versionNumber], map: "ballot_version_sequence_unique")
+  @@index([ballotId, createdAt])
+}
+
+model TransitionAuditEvent {
+  id          String                 @id @default(uuid()) @db.Uuid
+  openAuxId   String                 @db.Uuid
+  actorUserId String?
+  fromState   OpenAuxLifecycleState?
+  toState     OpenAuxLifecycleState
+  reason      String?
+  metadata    Json?
+  occurredAt  DateTime               @default(now())
+
+  openAux OpenAux @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
+
+  @@index([openAuxId, occurredAt])
+}
+
+model DisqualificationEvent {
+  id            String   @id @default(uuid()) @db.Uuid
+  openAuxId     String   @db.Uuid
+  entryId       String   @db.Uuid
+  participantId String   @db.Uuid
+  actorUserId   String
+  reason        String
+  notes         String?
+  occurredAt    DateTime @default(now())
+
+  openAux     OpenAux     @relation(fields: [openAuxId], references: [id], onDelete: Cascade)
+  entry       Entry       @relation(fields: [entryId, openAuxId], references: [id, openAuxId], onDelete: Restrict)
+  participant Participant @relation(fields: [participantId, openAuxId], references: [id, openAuxId], onDelete: Restrict)
+
+  @@index([openAuxId, occurredAt])
+  @@index([entryId])
+  @@index([participantId])
+}
