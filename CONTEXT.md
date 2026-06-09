@@ -1,10 +1,10 @@
-# Radio Pesto
+# OpenAux
 
-Radio Pesto is an Open Aux platform where hosts run time-boxed showcases using required samples, and audiences listen and vote under configured access scopes.
+OpenAux is an Open Aux platform where hosts run time-boxed showcases using required samples, and audiences listen and vote under configured access scopes.
 
 ## Language
 
-**Open Aux**:
+**Showcase**:
 A time-boxed music showcase with submission and voting phases.
 Legacy references to "battle" should be interpreted as Open Aux and phased out.
 _Avoid_: Battle, contest, challenge, event

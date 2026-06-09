@@ -1,13 +1,13 @@
-# Radio Pesto Linear Setup
+# OpenAux Linear Setup
 
 This repo does not yet contain application code, so the practical way to connect Linear now is to attach the GitHub repository to a Linear team and establish issue, branch, and pull request conventions before implementation starts.
 
 ## Recommended workspace shape
 
 - Workspace: existing product workspace
-- Team: `Radio Pesto`
-- Team key: `RP`
-- Project: `Open Aux V1`
+- Team: `OpenAux`
+- Team key: `RAD`
+- Project: `OpenAux V1`
 
 ## Recommended workflow
 
@@ -25,16 +25,16 @@ If you add preview or staging environments later, add `In QA` between `In Review
 1. In Linear, open `Settings > Features > Integrations > GitHub`.
 2. Enable the GitHub integration.
 3. Install the Linear GitHub app for the GitHub organization or repository that contains this repo.
-4. Grant access to the `radio-pesto` repository.
+4. Grant access to the `openaux` repository.
 5. Have each team member connect their personal GitHub account in `Settings > Connected accounts` so PR activity and assignees map correctly.
 
 ## Configure issue linking
 
 Use Linear issue IDs in both branches and pull requests.
 
-- Branch name example: `rp-123-open-aux-lifecycle`
-- PR title example: `RP-123: implement open aux lifecycle state machine`
-- PR description example: `Implements RP-123`
+- Branch name example: `rad-123-open-aux-lifecycle`
+- PR title example: `RAD-123: implement open aux lifecycle state machine`
+- PR description example: `Implements RAD-123`
 
 Linear can link issues from:
 
@@ -46,7 +46,7 @@ Recommended convention for this repo:
 
 - use the issue ID in the branch name
 - use the issue ID at the start of the PR title
-- use `Implements RP-123` or `Refs RP-123` in the PR description
+- use `Implements RAD-123` or `Refs RAD-123` in the PR description
 
 ## Configure status automation
 
@@ -70,12 +70,12 @@ Recommended default for this repo:
 
 ## Optional GitHub autolink
 
-If you want GitHub to turn `RP-123` into a clickable Linear link in PRs and comments, add a GitHub autolink reference in the repository settings.
+If you want GitHub to turn `RAD-123` into a clickable Linear link in PRs and comments, add a GitHub autolink reference in the repository settings.
 
 Use this pattern:
 
-- key prefix: `RP-`
-- target URL: `https://linear.app/<workspace>/issue/RP-<num>`
+- key prefix: `RAD`
+- target URL: `https://linear.app/<workspace>/issue/RAD-<num>`
 
 Replace `<workspace>` with your actual Linear workspace slug.
 
@@ -85,16 +85,16 @@ The current product direction calls for Vercel hosting. Once the app exists and 
 
 ## Suggested initial project structure
 
-Create the `Open Aux V1` project in Linear and seed it with the following parent issues:
+Create the `OpenAux V1` project in Linear and seed it with the following parent issues:
 
-1. `RP-1` Open Aux lifecycle and state machine
-2. `RP-2` Access control, identities, and invites
-3. `RP-3` Entry submission and required sample validation
-4. `RP-4` Ranked ballots, scoring, and tie-breaking
-5. `RP-5` Blind judging and post-results reveal
-6. `RP-6` Host controls for cancel and deadline extension
-7. `RP-7` Platform foundations: Next.js, Auth0, Prisma, Neon, R2, Inngest
-8. `RP-8` Test harness: Vitest, Playwright, test database, CI
+1. `RAD-1` Open Aux lifecycle and state machine
+2. `RAD-2` Access control, identities, and invites
+3. `RAD-3` Entry submission and required sample validation
+4. `RAD-4` Ranked ballots, scoring, and tie-breaking
+5. `RAD-5` Blind judging and post-results reveal
+6. `RAD-6` Host controls for cancel and deadline extension
+7. `RAD-7` Platform foundations: Next.js, Auth0, Prisma, Neon, R2, Inngest
+8. `RAD-8` Test harness: Vitest, Playwright, test database, CI
 
 ## Suggested first implementation issues
 
@@ -112,4 +112,4 @@ Start with a narrow set of tracer-bullet issues under the project:
 - Every branch references one Linear issue.
 - Every PR references one or more Linear issues.
 - Merge automation transitions the linked issue without manual cleanup.
-- Project work is grouped under `Open Aux V1` rather than tracked as unrelated standalone issues.
+- Project work is grouped under `OpenAux V1` rather than tracked as unrelated standalone issues.
