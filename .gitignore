@@ -73,3 +73,5 @@ temp/
 
 # Agents
 .agents/**
+.vercel
+.env*
