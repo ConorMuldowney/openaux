@@ -5,6 +5,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import type {
+  Prisma,
   Showcase,
   Participant,
   Entry,
@@ -133,7 +134,7 @@ export async function createShowcase(
       voterScope: overrides.voterScope || "PRIVATE",
       blindJudgingEnabled: overrides.blindJudgingEnabled !== false,
       maxRankedPicks: overrides.maxRankedPicks || 3,
-      requiredSampleIds: JSON.stringify(overrides.requiredSampleIds || []),
+      requiredSampleIds: overrides.requiredSampleIds || [],
       submissionOpensAt,
       submissionClosesAt,
       votingOpensAt,
@@ -221,7 +222,7 @@ export interface CreateEntryInput {
   storageKey?: string;
   submittedAt?: Date;
   isValid?: boolean;
-  validationDetails?: Record<string, unknown>;
+  validationDetails?: Prisma.InputJsonValue;
 }
 
 export async function createEntry(
@@ -239,9 +240,7 @@ export async function createEntry(
       storageKey,
       submittedAt: input.submittedAt,
       isValid: input.isValid !== false,
-      validationDetails: input.validationDetails
-        ? JSON.stringify(input.validationDetails)
-        : null,
+      validationDetails: input.validationDetails,
     },
   });
 }
@@ -292,7 +291,7 @@ export async function createBallotVersion(
     data: {
       ballotId: input.ballotId,
       versionNumber,
-      rankedParticipantIds: JSON.stringify(input.rankedParticipantIds),
+      rankedParticipantIds: input.rankedParticipantIds,
       createdAt: input.createdAt,
     },
   });
