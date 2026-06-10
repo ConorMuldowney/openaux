@@ -20,3 +20,36 @@ export function canTransitionLifecycle(
 ): boolean {
   return ALLOWED_TRANSITIONS[currentState].includes(nextState);
 }
+
+export function toPrismaLifecycleState(
+  state: ShowcaseLifecycleState,
+):
+  | "CREATION"
+  | "SUBMISSION_OPEN"
+  | "VOTING_OPEN"
+  | "FINALIZED" {
+  const lifecycleStateMap: Record<
+    ShowcaseLifecycleState,
+    "CREATION" | "SUBMISSION_OPEN" | "VOTING_OPEN" | "FINALIZED"
+  > = {
+    creation: "CREATION",
+    "submission-open": "SUBMISSION_OPEN",
+    "voting-open": "VOTING_OPEN",
+    finalized: "FINALIZED",
+  };
+
+  return lifecycleStateMap[state];
+}
+
+export function fromPrismaLifecycleState(
+  state: string,
+): ShowcaseLifecycleState | null {
+  const lifecycleStateMap: Record<string, ShowcaseLifecycleState> = {
+    CREATION: "creation",
+    SUBMISSION_OPEN: "submission-open",
+    VOTING_OPEN: "voting-open",
+    FINALIZED: "finalized",
+  };
+
+  return lifecycleStateMap[state] ?? null;
+}
