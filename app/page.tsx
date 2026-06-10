@@ -27,9 +27,6 @@ export default async function HomePage() {
             <p className="text-sm text-foreground/75">
               Logged in as {session.user.email ?? session.user.name ?? "authenticated user"}.
             </p>
-            <pre className="overflow-x-auto rounded-lg bg-black/5 p-4 text-xs text-foreground/80">
-              {JSON.stringify(session.user, null, 2)}
-            </pre>
             <a className="inline-flex font-medium text-accent underline-offset-4 hover:underline" href="/auth/logout">
               Logout
             </a>
