@@ -94,4 +94,10 @@ npm run typecheck
 npm run prisma:format
 npm run prisma:generate
 npm run prisma:migrate:dev
+npm run prisma:migrate:deploy
+npm run prisma:migrate:status
 ```
+
+## Deployment Setup
+
+- Neon and CI migration setup: `docs/neon-prisma-setup.md`
