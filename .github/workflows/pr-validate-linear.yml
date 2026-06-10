@@ -1,0 +1,24 @@
+name: Validate PR Title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  validate-linear-issue:
+    name: Check Linear Issue Reference
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate PR Title Format
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Check if title starts with AUX-### pattern (escaped for shell safety)
+          if ! printf '%s' "$TITLE" | grep -qE '^AUX-[0-9]+:[[:space:]]'; then
+            echo "❌ PR title must start with 'AUX-###: ' (Linear issue reference)"
+            echo "Example: 'AUX-37: Set up CI with preview deploy'"
+            exit 1
+          fi
+          
+          echo "✅ PR title format is valid: $TITLE"
