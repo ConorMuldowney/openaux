@@ -165,10 +165,12 @@ export interface CreateInviteInput {
 }
 
 /**
- * Create an invite token hash (simplified for testing)
+ * Generate a unique token value for test/seed invites.
+ * Production code hashes the real token before storing; here we
+ * just need a unique string that satisfies the @unique constraint.
  */
-function createTokenHash(): string {
-  return Buffer.from(randomUUID()).toString("hex");
+function createFakeTokenHash(): string {
+  return randomUUID().replace(/-/g, "");
 }
 
 export async function createInvite(
