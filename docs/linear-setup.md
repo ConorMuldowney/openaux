@@ -48,6 +48,105 @@ Recommended convention for this repo:
 - use the issue ID at the start of the PR title
 - use `Implements AUX-123` or `Refs AUX-123` in the PR description
 
+## Enforcing Linear References
+
+To ensure all code changes are traceable to Linear issues, this repository enforces Linear issue references at multiple points in the workflow.
+
+### Branch Naming Convention
+
+Branches must follow the pattern: `<type>/AUX-<number>-<slug>`
+
+**Examples:**
+- `feat/AUX-37-ci-preview-deploy-protected-main`
+- `fix/AUX-123-policy-transition-race`
+- `docs/AUX-42-showcase-lifecycle-docs`
+- `refactor/AUX-99-ballot-scoring-logic`
+
+**Type prefixes:**
+- `feat/` — New features
+- `fix/` — Bug fixes
+- `docs/` — Documentation
+- `refactor/` — Code refactoring
+- `test/` — Test additions
+- `chore/` — Maintenance and tooling
+- `ci/` — CI/CD configuration
+
+Enforcement: Set by Husky pre-commit hooks using commitlint. Branches are created with `git switch -c <branch-name>` to follow this pattern.
+
+### Pull Request Title Enforcement
+
+PR titles must start with `AUX-###: ` followed by a concise summary.
+
+**Valid examples:**
+- `AUX-37: Set up CI with preview deploy and protected main gates`
+- `AUX-123: Implement ranked ballot tie-break logic`
+- `AUX-42: Fix showcase state machine race condition`
+
+**Invalid examples (will be rejected by GitHub Actions):**
+- `Set up CI` (missing Linear issue reference)
+- `AUX-37 Set up CI` (missing colon separator)
+- `Set up AUX-37` (reference must be at start)
+
+**Enforcement:** GitHub Actions workflow `.github/workflows/pr-validate-linear.yml` validates all PR titles. If a PR title is invalid:
+1. Edit the PR title in GitHub UI
+2. GitHub will automatically re-run the validation
+3. Once valid, merging is allowed
+
+### Commit Message Enforcement (Local)
+
+Commit messages are validated locally using Husky + commitlint before they're created.
+
+**Format:** `<type>(<scope>): <description>`
+
+**Examples:**
+- `feat(scoring): implement tie-break logic for ranked ballots`
+- `fix(lifecycle): resolve race condition in state transition`
+- `docs(readme): add CI/CD workflow documentation`
+- `refactor(api): simplify route handler contracts`
+
+**Enforcement:** The `commitlint` tool runs automatically via the `.husky/commit-msg` hook. If a commit message is invalid, commitlint will reject it and provide guidance on the correct format.
+
+### Linear Integration
+
+Once GitHub is connected to Linear:
+
+1. Push a branch with format `<type>/AUX-###-<slug>`
+2. Open a PR with title `AUX-###: <description>`
+3. Linear detects the issue reference and links the PR to the issue
+4. PR activity (comments, reviews) appears in Linear
+5. PR merge automatically updates the Linear issue status (if configured)
+
+**Setup reminder:**
+- Both the creator's GitHub account and the Linear integration must be connected
+- See "Connect GitHub to Linear" section above for setup steps
+
+### Bypass and Exceptions
+
+In rare cases (e.g., critical hotfix), you may need to commit without a Linear issue. **Do not use this as a norm.** To commit without validation (for local work only):
+
+```bash
+# ONLY for non-pushed commits; not recommended
+git commit --no-verify -m "Emergency hotfix: restore service availability"
+```
+
+**Never push commits that bypass Linear linking.** All pushed code must be traceable to a Linear issue for accountability and context.
+
+### Troubleshooting
+
+**"commitlint failed"**
+- Ensure commit message follows `<type>(<scope>): <description>` format
+- Common mistake: missing colon or scope parentheses
+
+**"PR validation failed"**
+- Ensure PR title starts with `AUX-###: ` (note the colon and space)
+- Edit the PR title in GitHub; validation will re-run automatically
+
+**"Why is this so strict?"**
+- Linear issues are the source of truth for all changes
+- They document why changes were made, not just what
+- This discipline scales the team and improves onboarding
+- Future developers can trace code back to original context and acceptance criteria
+
 ## Configure status automation
 
 In the Linear team workflow settings, configure pull request automation so that:
