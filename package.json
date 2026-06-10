@@ -11,7 +11,9 @@
     "check:domain-language": "node ./scripts/check-domain-language.mjs",
     "prisma:generate": "prisma generate",
     "prisma:format": "prisma format",
-    "prisma:migrate:dev": "prisma migrate dev"
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:migrate:status": "prisma migrate status"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",
