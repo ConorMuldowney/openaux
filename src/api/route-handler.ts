@@ -74,6 +74,32 @@ export function policyDeniedResponse(message: string): NextResponse<ApiFailureRe
   );
 }
 
+export function authenticationRequiredResponse(message: string): NextResponse<ApiFailureResponse> {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: {
+        code: "authentication-required",
+        message,
+      },
+    },
+    { status: 401 },
+  );
+}
+
+export function verifiedEmailRequiredResponse(message: string): NextResponse<ApiFailureResponse> {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: {
+        code: "verified-email-required",
+        message,
+      },
+    },
+    { status: 403 },
+  );
+}
+
 export function stateInvalidResponse(message: string): NextResponse<ApiFailureResponse> {
   return NextResponse.json(
     {
