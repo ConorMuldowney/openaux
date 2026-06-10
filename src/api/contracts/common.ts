@@ -21,7 +21,16 @@ export const API_ERROR_SCHEMA = z.object({
   message: z.string(),
   details: z
     .object({
-      validationIssues: z.array(API_VALIDATION_ISSUE_SCHEMA),
+      validationIssues: z.array(API_VALIDATION_ISSUE_SCHEMA).optional(),
+      policyDenialReason: z
+        .enum([
+          "authentication-required",
+          "verified-email-required",
+          "host-membership-required",
+          "invite-required",
+          "participant-cannot-vote",
+        ])
+        .optional(),
     })
     .optional(),
 });
