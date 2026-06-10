@@ -10,8 +10,14 @@ import {
   type LifecycleTransitionResponse,
 } from "@/src/api/contracts/lifecycle";
 import { parseJsonBody, stateInvalidResponse } from "@/src/api/route-handler";
+import { requireVerifiedEmailSession } from "@/src/api/auth";
 
 export async function POST(request: Request) {
+  const authResult = await requireVerifiedEmailSession(request);
+  if (!authResult.ok) {
+    return authResult.response;
+  }
+
   const parsedRequest = await parseJsonBody(request, LIFECYCLE_TRANSITION_REQUEST_SCHEMA);
   if (!parsedRequest.ok) {
     return parsedRequest.response;
@@ -41,7 +47,7 @@ export async function POST(request: Request) {
     await prisma.transitionAuditEvent.create({
       data: {
         showcaseId: parsedRequest.data.showcaseId,
-        actorUserId: parsedRequest.data.actorUserId,
+        actorUserId: authResult.session.user.sub,
         fromState: toPrismaLifecycleState(currentState),
         toState: toPrismaLifecycleState(parsedRequest.data.nextState),
         reason: parsedRequest.data.reason,
@@ -70,7 +76,7 @@ export async function POST(request: Request) {
     return tx.transitionAuditEvent.create({
       data: {
         showcaseId: parsedRequest.data.showcaseId,
-        actorUserId: parsedRequest.data.actorUserId,
+        actorUserId: authResult.session.user.sub,
         fromState: toPrismaLifecycleState(currentState),
         toState: toPrismaLifecycleState(parsedRequest.data.nextState),
         reason: parsedRequest.data.reason,
