@@ -184,7 +184,7 @@ export async function createInvite(
     data: {
       showcaseId: input.showcaseId,
       scope: input.scope,
-      tokenHash: createTokenHash(),
+      tokenHash: createFakeTokenHash(),
       invitedByUserId,
       invitedEmail: input.invitedEmail,
       acceptedByUserId: input.acceptedByUserId,
