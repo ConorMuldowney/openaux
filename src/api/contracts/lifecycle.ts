@@ -9,12 +9,17 @@ export const SHOWCASE_LIFECYCLE_STATE_SCHEMA = z.enum([
 ]);
 
 export const LIFECYCLE_TRANSITION_REQUEST_SCHEMA = z.object({
-  currentState: SHOWCASE_LIFECYCLE_STATE_SCHEMA,
+  showcaseId: z.string().uuid(),
   nextState: SHOWCASE_LIFECYCLE_STATE_SCHEMA,
+  actorUserId: z.string().min(1).optional(),
+  reason: z.string().trim().min(1).max(500).optional(),
+  metadata: z.record(z.unknown()).optional(),
 });
 
 export const LIFECYCLE_TRANSITION_DATA_SCHEMA = z.object({
-  canTransition: z.boolean(),
+  previousState: SHOWCASE_LIFECYCLE_STATE_SCHEMA,
+  nextState: SHOWCASE_LIFECYCLE_STATE_SCHEMA,
+  transitionAuditEventId: z.string().uuid(),
 });
 
 export const LIFECYCLE_TRANSITION_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
