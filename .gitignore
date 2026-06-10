@@ -70,3 +70,6 @@ desktop.ini
 tmp/
 temp/
 *.tmp
+
+# Agents
+.agents/**
