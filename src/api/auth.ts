@@ -8,9 +8,33 @@ import { auth0 } from "@/src/auth/auth0";
 
 type AuthSession = Awaited<ReturnType<typeof auth0.getSession>>;
 
+export type AuthenticatedSessionResult =
+  | { ok: true; session: NonNullable<AuthSession> }
+  | { ok: false; response: NextResponse<ApiFailureResponse> };
+
 export type VerifiedEmailAuthResult =
   | { ok: true; session: NonNullable<AuthSession> }
   | { ok: false; response: NextResponse<ApiFailureResponse> };
+
+export async function requireAuthenticatedSession(
+  request: Request,
+): Promise<AuthenticatedSessionResult> {
+  const session = await auth0.getSession(request as NextRequest);
+
+  if (!session) {
+    return {
+      ok: false,
+      response: authenticationRequiredResponse(
+        "You must be authenticated to perform this action.",
+      ),
+    };
+  }
+
+  return {
+    ok: true,
+    session,
+  };
+}
 
 export async function requireVerifiedEmailSession(request: Request): Promise<VerifiedEmailAuthResult> {
   const session = await auth0.getSession(request as NextRequest);
