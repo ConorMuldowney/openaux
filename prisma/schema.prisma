@@ -18,6 +18,11 @@ enum InviteScope {
   VOTER
 }
 
+enum InviteAcceptanceOutcome {
+  ACCEPTED
+  REJECTED
+}
+
 enum ShowcaseLifecycleState {
   CREATION
   SUBMISSION_OPEN
@@ -48,6 +53,7 @@ model Showcase {
   updatedAt           DateTime               @updatedAt
 
   invites                Invite[]
+  inviteAcceptanceAuditEvents InviteAcceptanceAuditEvent[]
   participants           Participant[]
   entries                Entry[]
   ballots                Ballot[]
@@ -71,10 +77,28 @@ model Invite {
   revokedAt        DateTime?
   createdAt        DateTime    @default(now())
 
-  showcase Showcase @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+  showcase                     Showcase                    @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+  inviteAcceptanceAuditEvents  InviteAcceptanceAuditEvent[]
 
   @@unique([showcaseId, scope, acceptedByUserId], map: "invite_single_use_per_identity_scope")
   @@index([showcaseId, scope])
+}
+
+model InviteAcceptanceAuditEvent {
+  id          String                 @id @default(uuid()) @db.Uuid
+  inviteId    String?                @db.Uuid
+  showcaseId  String?                @db.Uuid
+  actorUserId String?
+  outcome     InviteAcceptanceOutcome
+  reason      String?
+  metadata    Json?
+  occurredAt  DateTime               @default(now())
+
+  invite   Invite?   @relation(fields: [inviteId], references: [id], onDelete: SetNull)
+  showcase Showcase? @relation(fields: [showcaseId], references: [id], onDelete: SetNull)
+
+  @@index([showcaseId, occurredAt])
+  @@index([inviteId, occurredAt])
 }
 
 model Participant {
