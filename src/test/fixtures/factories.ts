@@ -104,8 +104,14 @@ export async function createShowcase(
 
   if (lifecycleState !== "CREATION") {
     submissionOpensAt = submissionOpensAt || new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+    // For SUBMISSION_OPEN the window is still active, so close date is in the future.
+    // For all later states it has already closed.
+    const submissionCloseOffset =
+      lifecycleState === "SUBMISSION_OPEN"
+        ? 3 * 24 * 60 * 60 * 1000  // 3 days from now
+        : -3 * 24 * 60 * 60 * 1000; // 3 days ago
     submissionClosesAt =
-      submissionClosesAt || new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000); // 3 days ago
+      submissionClosesAt || new Date(now.getTime() + submissionCloseOffset);
   }
 
   if (
