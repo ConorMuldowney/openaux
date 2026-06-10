@@ -1,26 +1,26 @@
 import { NextResponse } from "next/server";
-import { evaluateSubmitEntryPolicy } from "@/src/modules/policy/public";
+import { evaluateVotePolicy } from "@/src/modules/policy/public";
 import {
-  POLICY_SUBMIT_ENTRY_REQUEST_SCHEMA,
-  type PolicySubmitEntryResponse,
+  POLICY_VOTE_REQUEST_SCHEMA,
+  type PolicyVoteResponse,
 } from "@/src/api/contracts/policy";
 import { parseJsonBody, policyDeniedMessage, policyDeniedResponse } from "@/src/api/route-handler";
 
 export async function POST(request: Request) {
-  const parsedRequest = await parseJsonBody(request, POLICY_SUBMIT_ENTRY_REQUEST_SCHEMA);
+  const parsedRequest = await parseJsonBody(request, POLICY_VOTE_REQUEST_SCHEMA);
   if (!parsedRequest.ok) {
     return parsedRequest.response;
   }
 
-  const decision = evaluateSubmitEntryPolicy(parsedRequest.data);
+  const decision = evaluateVotePolicy(parsedRequest.data);
   if (!decision.allowed) {
     return policyDeniedResponse(policyDeniedMessage(decision.reason), decision.reason);
   }
 
-  const responseBody: PolicySubmitEntryResponse = {
+  const responseBody: PolicyVoteResponse = {
     ok: true,
     data: {
-      canSubmitEntry: true,
+      canVote: true,
     },
   };
 
