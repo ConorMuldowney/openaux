@@ -140,11 +140,11 @@ export function canSubmitEntry(context: PolicyContext): boolean {
   }).allowed;
 }
 
-export function canCastRankedBallot(context: PolicyContext): boolean {
+export function canCastRankedBallot(context: PolicyContext & { isVerifiedEmail: boolean }): boolean {
   return evaluateVotePolicy({
     voterScope: context.voterScope,
     isAuthenticated: context.isAuthenticated,
-    isVerifiedEmail: true,
+    isVerifiedEmail: context.isVerifiedEmail,
     isInvited: context.isInvited,
     isParticipantInShowcase: context.isParticipantInShowcase,
   }).allowed;
