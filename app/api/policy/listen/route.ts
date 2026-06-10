@@ -1,26 +1,26 @@
 import { NextResponse } from "next/server";
-import { evaluateSubmitEntryPolicy } from "@/src/modules/policy/public";
+import { evaluateListenPolicy } from "@/src/modules/policy/public";
 import {
-  POLICY_SUBMIT_ENTRY_REQUEST_SCHEMA,
-  type PolicySubmitEntryResponse,
+  POLICY_LISTEN_REQUEST_SCHEMA,
+  type PolicyListenResponse,
 } from "@/src/api/contracts/policy";
 import { parseJsonBody, policyDeniedMessage, policyDeniedResponse } from "@/src/api/route-handler";
 
 export async function POST(request: Request) {
-  const parsedRequest = await parseJsonBody(request, POLICY_SUBMIT_ENTRY_REQUEST_SCHEMA);
+  const parsedRequest = await parseJsonBody(request, POLICY_LISTEN_REQUEST_SCHEMA);
   if (!parsedRequest.ok) {
     return parsedRequest.response;
   }
 
-  const decision = evaluateSubmitEntryPolicy(parsedRequest.data);
+  const decision = evaluateListenPolicy(parsedRequest.data);
   if (!decision.allowed) {
     return policyDeniedResponse(policyDeniedMessage(decision.reason), decision.reason);
   }
 
-  const responseBody: PolicySubmitEntryResponse = {
+  const responseBody: PolicyListenResponse = {
     ok: true,
     data: {
-      canSubmitEntry: true,
+      canListen: true,
     },
   };
 
