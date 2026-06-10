@@ -40,25 +40,43 @@ jobs:
     name: Preview Deploy
     runs-on: ubuntu-latest
     needs: quality
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
     environment: preview
     # This job assumes Vercel for Next.js preview deployment.
     # For other hosting platforms, customize the deployment steps below.
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Comment PR with Preview Deploy Info
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.issues.createComment({
+            const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '🚀 **Preview Deploy**\n\nPreview deployment is configured in this workflow. Deployment URL will appear here when integrated with hosting provider (Vercel, Netlify, etc.).\n\nSee [docs/ci-github-actions.md](../../docs/ci-github-actions.md) for setup details.'
-            })
+              repo: context.repo.repo
+            });
+            
+            const previewComment = comments.find(comment => 
+              comment.body.includes('🚀 **Preview Deploy**')
+            );
+            
+            const body = '🚀 **Preview Deploy**\n\nPreview deployment is configured in this workflow. Deployment URL will appear here when integrated with hosting provider (Vercel, Netlify, etc.).\n\nSee [docs/ci-github-actions.md](../../docs/ci-github-actions.md) for setup details.';
+            
+            if (previewComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previewComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
 
   prisma-migrate-deploy:
     name: Prisma Migrate Deploy
