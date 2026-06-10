@@ -15,8 +15,10 @@ export function policyDeniedMessage(reason: PolicyDenialReason): string {
       return "An accepted invite is required to perform this action.";
     case "participant-cannot-vote":
       return "Participants cannot vote in the same Showcase they entered.";
-    default:
+    default: {
+      const _exhaustive: never = reason;
       return "Current requester is not allowed to perform this action.";
+    }
   }
 }
 
