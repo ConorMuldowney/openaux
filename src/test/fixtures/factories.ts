@@ -105,8 +105,14 @@ export async function createShowcase(
 
   if (lifecycleState !== "CREATION") {
     submissionOpensAt = submissionOpensAt || new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+    // For SUBMISSION_OPEN the window is still active, so close date is in the future.
+    // For all later states it has already closed.
+    const submissionCloseOffset =
+      lifecycleState === "SUBMISSION_OPEN"
+        ? 3 * 24 * 60 * 60 * 1000  // 3 days from now
+        : -3 * 24 * 60 * 60 * 1000; // 3 days ago
     submissionClosesAt =
-      submissionClosesAt || new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000); // 3 days ago
+      submissionClosesAt || new Date(now.getTime() + submissionCloseOffset);
   }
 
   if (
@@ -160,10 +166,12 @@ export interface CreateInviteInput {
 }
 
 /**
- * Create an invite token hash (simplified for testing)
+ * Generate a unique token value for test/seed invites.
+ * Production code hashes the real token before storing; here we
+ * just need a unique string that satisfies the @unique constraint.
  */
-function createTokenHash(): string {
-  return Buffer.from(randomUUID()).toString("hex");
+function createFakeTokenHash(): string {
+  return randomUUID().replace(/-/g, "");
 }
 
 export async function createInvite(
