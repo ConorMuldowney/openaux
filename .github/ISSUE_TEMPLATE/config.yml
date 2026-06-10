@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: General Question
+    url: https://github.com/ConorMuldowney/openaux/discussions
+    about: Ask questions or discuss ideas in Discussions
+  - name: Linear Workspace
+    url: https://linear.app
+    about: View and manage issues in Linear (team only)
