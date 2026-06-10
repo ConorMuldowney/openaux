@@ -4,6 +4,8 @@ export const API_ERROR_CODE_SCHEMA = z.enum([
   "validation-error",
   "policy-denied",
   "state-invalid",
+  "authentication-required",
+  "verified-email-required",
 ]);
 
 export type ApiErrorCode = z.infer<typeof API_ERROR_CODE_SCHEMA>;
