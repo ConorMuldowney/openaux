@@ -1,5 +1,8 @@
 # OpenAux Showcase Rules
 
+- Owner: Product + Platform Engineering
+- Last reviewed: 2026-06-11
+
 This document captures the agreed product rules for showcases in OpenAux. It is intended as an implementation and product handoff, not a glossary.
 
 ## Access and identity

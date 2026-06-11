@@ -1,5 +1,8 @@
 # CI/GitHub Actions Configuration
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 This document outlines the continuous integration (CI) workflow and GitHub Actions configuration for OpenAux.
 
 ## Workflow Overview
