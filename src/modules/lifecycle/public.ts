@@ -7,6 +7,12 @@ export const SHOWCASE_LIFECYCLE_STATES = [
 
 export type ShowcaseLifecycleState = (typeof SHOWCASE_LIFECYCLE_STATES)[number];
 
+export type ShowcaseRuleField =
+  | "voter-scope"
+  | "max-ranked-picks"
+  | "blind-judging"
+  | "listener-scope";
+
 const ALLOWED_TRANSITIONS: Record<ShowcaseLifecycleState, ShowcaseLifecycleState[]> = {
   creation: ["submission-open", "finalized"],
   "submission-open": ["voting-open"],
@@ -19,6 +25,21 @@ export function canTransitionLifecycle(
   nextState: ShowcaseLifecycleState,
 ): boolean {
   return ALLOWED_TRANSITIONS[currentState].includes(nextState);
+}
+
+export function isRuleLockedForLifecycle(
+  lifecycleState: ShowcaseLifecycleState,
+  field: ShowcaseRuleField,
+): boolean {
+  if (field === "listener-scope") {
+    return false;
+  }
+
+  return lifecycleState !== "creation";
+}
+
+export function isFinalizationImmutable(lifecycleState: ShowcaseLifecycleState): boolean {
+  return lifecycleState === "finalized";
 }
 
 export function toPrismaLifecycleState(
