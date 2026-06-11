@@ -5,17 +5,21 @@ import {
   fromPrismaLifecycleState,
   isFinalizationImmutable,
   isRuleLockedForLifecycle,
+  type ShowcaseLifecycleState,
   toPrismaLifecycleState,
 } from "@/src/modules/lifecycle/public";
 
 describe("lifecycle boundary rules", () => {
   it("enforces the lifecycle transition matrix across all states", () => {
-    const expectedTransitions = {
+    const expectedTransitions: Record<
+      ShowcaseLifecycleState,
+      readonly ShowcaseLifecycleState[]
+    > = {
       creation: ["submission-open", "finalized"],
       "submission-open": ["voting-open"],
       "voting-open": ["finalized"],
       finalized: [],
-    } as const;
+    };
 
     for (const currentState of SHOWCASE_LIFECYCLE_STATES) {
       for (const nextState of SHOWCASE_LIFECYCLE_STATES) {
