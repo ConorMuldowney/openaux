@@ -1,6 +1,29 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import type { ApiFailureResponse } from "@/src/api/contracts/common";
+import type { PolicyDenialReason } from "@/src/api/contracts/policy";
+
+function assertNever(value: never): never {
+  throw new Error(`Unhandled policy denial reason: ${value}`);
+}
+
+export function policyDeniedMessage(reason: PolicyDenialReason): string {
+  switch (reason) {
+    case "authentication-required":
+      return "You must be authenticated to perform this action.";
+    case "verified-email-required":
+      return "You must verify your email address before performing this action.";
+    case "host-membership-required":
+      return "Only the Host of this Showcase may perform this action.";
+    case "invite-required":
+      return "An accepted invite is required to perform this action.";
+    case "participant-cannot-vote":
+      return "Participants cannot vote in the same Showcase they entered.";
+    default: {
+      return assertNever(reason);
+    }
+  }
+}
 
 function createValidationErrorResponse(error: z.ZodError): NextResponse<ApiFailureResponse> {
   return NextResponse.json(
@@ -61,12 +84,44 @@ export async function parseJsonBody<InputSchema extends z.ZodTypeAny>(
   };
 }
 
-export function policyDeniedResponse(message: string): NextResponse<ApiFailureResponse> {
+export function policyDeniedResponse(
+  message: string,
+  policyDenialReason: PolicyDenialReason,
+): NextResponse<ApiFailureResponse> {
   return NextResponse.json(
     {
       ok: false,
       error: {
         code: "policy-denied",
+        message,
+        details: {
+          policyDenialReason,
+        },
+      },
+    },
+    { status: 403 },
+  );
+}
+
+export function authenticationRequiredResponse(message: string): NextResponse<ApiFailureResponse> {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: {
+        code: "authentication-required",
+        message,
+      },
+    },
+    { status: 401 },
+  );
+}
+
+export function verifiedEmailRequiredResponse(message: string): NextResponse<ApiFailureResponse> {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: {
+        code: "verified-email-required",
         message,
       },
     },

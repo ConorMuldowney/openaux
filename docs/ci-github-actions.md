@@ -36,6 +36,11 @@ GitHub Actions automatically runs quality checks and deployments based on git ev
 
 **Current Status:** Placeholder job that comments on PR with deployment info.
 
+**Required permissions:**
+- `contents: read`
+- `issues: write`
+- `pull-requests: write`
+
 **Next Steps:** 
 - Integrate with hosting provider (Vercel, Netlify, Railway, etc.)
 - Configure deployment credentials in GitHub repository secrets

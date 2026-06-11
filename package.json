@@ -4,8 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "prisma generate",
     "build": "next build",
     "start": "next start",
+    "test": "npm run test:unit",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "playwright test",
+    "test:watch": "vitest --config vitest.config.ts",
     "lint": "eslint . --max-warnings=0 && npm run check:domain-language",
     "typecheck": "tsc --noEmit",
     "check:domain-language": "node ./scripts/check-domain-language.mjs",
@@ -14,28 +20,36 @@
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:migrate:status": "prisma migrate status",
+    "db:seed": "tsx prisma/seed.ts",
     "prepare": "husky"
   },
   "dependencies": {
+    "@auth0/nextjs-auth0": "^4.22.0",
     "@prisma/client": "^6.9.0",
     "next": "^16.2.7",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
     "zod": "3.24.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
+    "@playwright/test": "^1.60.0",
     "@types/node": "22.14.1",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
+    "@vitest/coverage-v8": "^3.2.4",
     "autoprefixer": "10.4.21",
+    "dotenv": "^16.6.1",
     "eslint": "9.23.0",
     "eslint-config-next": "^16.2.7",
     "husky": "^9.1.7",
     "postcss": "8.5.3",
     "prisma": "^6.9.0",
     "tailwindcss": "3.4.17",
-    "typescript": "5.8.2"
+    "tsx": "^4.7.0",
+    "typescript": "5.8.2",
+    "vite-tsconfig-paths": "5.1.4",
+    "vitest": "3.2.4"
   }
 }

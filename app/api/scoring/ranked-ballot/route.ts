@@ -5,8 +5,14 @@ import {
   type ScoringRankedBallotResponse,
 } from "@/src/api/contracts/scoring";
 import { parseJsonBody } from "@/src/api/route-handler";
+import { requireVerifiedEmailSession } from "@/src/api/auth";
 
 export async function POST(request: Request) {
+  const authResult = await requireVerifiedEmailSession(request);
+  if (!authResult.ok) {
+    return authResult.response;
+  }
+
   const parsedRequest = await parseJsonBody(request, SCORING_RANKED_BALLOT_REQUEST_SCHEMA);
   if (!parsedRequest.ok) {
     return parsedRequest.response;
