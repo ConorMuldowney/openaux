@@ -21,6 +21,10 @@ export async function setup(): Promise<void> {
     );
   }
 
+  // Keep Prisma's default datasource env available for any code paths
+  // that instantiate the app-level client during integration tests.
+  process.env.DATABASE_URL ??= testDatabaseUrl;
+
   console.log("[integration] Applying migrations to test database…");
   execSync("npx prisma migrate deploy", {
     env: { ...process.env, DATABASE_URL: testDatabaseUrl },
