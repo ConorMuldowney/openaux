@@ -3,6 +3,10 @@ import { z } from "zod";
 import type { ApiFailureResponse } from "@/src/api/contracts/common";
 import type { PolicyDenialReason } from "@/src/api/contracts/policy";
 
+function assertNever(value: never): never {
+  throw new Error(`Unhandled policy denial reason: ${value}`);
+}
+
 export function policyDeniedMessage(reason: PolicyDenialReason): string {
   switch (reason) {
     case "authentication-required":
@@ -16,8 +20,7 @@ export function policyDeniedMessage(reason: PolicyDenialReason): string {
     case "participant-cannot-vote":
       return "Participants cannot vote in the same Showcase they entered.";
     default: {
-      const _exhaustive: never = reason;
-      return "Current requester is not allowed to perform this action.";
+      return assertNever(reason);
     }
   }
 }
