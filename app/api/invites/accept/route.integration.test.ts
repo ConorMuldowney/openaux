@@ -69,7 +69,7 @@ describe("POST /api/invites/accept - integration", () => {
     mockVerifiedSession(actorUserId);
   });
 
-  it("accepts a valid invite and writes an accepted audit event", async () => {
+  it("accepts a valid invite and writes an accepted audit record", async () => {
     const showcase = await createShowcase(prisma, {
       hostUserId,
       lifecycleState: "SUBMISSION_OPEN",
@@ -98,15 +98,15 @@ describe("POST /api/invites/accept - integration", () => {
     expect(persistedInvite?.acceptedByUserId).toBe(actorUserId);
     expect(persistedInvite?.acceptedAt).not.toBeNull();
 
-    const auditEvents = await prisma.inviteAcceptanceAuditEvent.findMany({
+    const auditRecords = await prisma.inviteAcceptanceAuditEvent.findMany({
       where: { inviteId: invite.id },
     });
-    expect(auditEvents).toHaveLength(1);
-    expect(auditEvents[0].outcome).toBe(InviteAcceptanceOutcome.ACCEPTED);
-    expect(auditEvents[0].reason).toBeNull();
+    expect(auditRecords).toHaveLength(1);
+    expect(auditRecords[0].outcome).toBe(InviteAcceptanceOutcome.ACCEPTED);
+    expect(auditRecords[0].reason).toBeNull();
   });
 
-  it("rejects acceptance after finalization and writes a rejected audit event", async () => {
+  it("rejects acceptance after finalization and writes a rejected audit record", async () => {
     const showcase = await createShowcase(prisma, {
       hostUserId,
       lifecycleState: "FINALIZED",
@@ -134,12 +134,12 @@ describe("POST /api/invites/accept - integration", () => {
     expect(persistedInvite?.acceptedAt).toBeNull();
     expect(persistedInvite?.acceptedByUserId).toBeNull();
 
-    const auditEvents = await prisma.inviteAcceptanceAuditEvent.findMany({
+    const auditRecords = await prisma.inviteAcceptanceAuditEvent.findMany({
       where: { inviteId: invite.id },
     });
-    expect(auditEvents).toHaveLength(1);
-    expect(auditEvents[0].outcome).toBe(InviteAcceptanceOutcome.REJECTED);
-    expect(auditEvents[0].reason).toBe("invite-read-only-after-finalization");
+    expect(auditRecords).toHaveLength(1);
+    expect(auditRecords[0].outcome).toBe(InviteAcceptanceOutcome.REJECTED);
+    expect(auditRecords[0].reason).toBe("invite-read-only-after-finalization");
   });
 
   it("permits only one success across simultaneous acceptance attempts", async () => {
@@ -177,17 +177,17 @@ describe("POST /api/invites/accept - integration", () => {
     expect(persistedInvite?.acceptedByUserId).toBe(actorUserId);
     expect(persistedInvite?.acceptedAt).not.toBeNull();
 
-    const auditEvents = await prisma.inviteAcceptanceAuditEvent.findMany({
+    const auditRecords = await prisma.inviteAcceptanceAuditEvent.findMany({
       where: { inviteId: invite.id },
       orderBy: { occurredAt: "asc" },
     });
-    expect(auditEvents).toHaveLength(attempts);
-    expect(auditEvents.filter((event) => event.outcome === InviteAcceptanceOutcome.ACCEPTED)).toHaveLength(1);
+    expect(auditRecords).toHaveLength(attempts);
+    expect(auditRecords.filter((record) => record.outcome === InviteAcceptanceOutcome.ACCEPTED)).toHaveLength(1);
 
     const rejectedReasons = new Set(
-      auditEvents
-        .filter((event) => event.outcome === InviteAcceptanceOutcome.REJECTED)
-        .map((event) => event.reason),
+      auditRecords
+        .filter((record) => record.outcome === InviteAcceptanceOutcome.REJECTED)
+        .map((record) => record.reason),
     );
     for (const reason of rejectedReasons) {
       expect(["invite-race-conflict", "invite-already-accepted"]).toContain(reason);
