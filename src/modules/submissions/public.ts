@@ -13,3 +13,7 @@ export function isEntryValidForRequiredSamples(entryDraft: EntryDraft): boolean 
   const usedSampleIdSet = new Set(entryDraft.usedSampleIds);
   return entryDraft.requiredSampleIds.every((sampleId) => usedSampleIdSet.has(sampleId));
 }
+
+export function shouldVoidShowcaseAtSubmissionClose(validEntryCount: number): boolean {
+  return validEntryCount < 2;
+}
