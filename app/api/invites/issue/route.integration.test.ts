@@ -7,11 +7,11 @@ import { POST } from "@/app/api/invites/issue/route";
 import { createShowcase, createUser } from "@/src/test/fixtures/factories";
 import { cleanTestDatabase, getTestPrisma } from "@/src/test/db";
 
-const testPrisma = getTestPrisma();
-
 vi.mock("@/src/db/prisma", () => ({
-  prisma: testPrisma,
+  prisma: getTestPrisma(),
 }));
+
+const testPrisma = getTestPrisma();
 
 vi.mock("@/src/api/auth", () => ({
   requireVerifiedEmailSession: vi.fn(),
