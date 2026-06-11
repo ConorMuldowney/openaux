@@ -5,8 +5,8 @@
  * - Authenticates the caller and requires a verified email
  * - Validates the request body
  * - Rejects transitions to non-existent showcases
- * - Applies valid transitions and persists them with an audit event
- * - Rejects invalid transitions and persists a rejected audit event
+ * - Applies valid transitions and persists them with an audit record
+ * - Rejects invalid transitions and persists a rejected audit record
  * - Sets finalizedAt when transitioning to "finalized"
  *
  * Run with: npm run test:integration
@@ -185,7 +185,7 @@ describe("POST /api/lifecycle/transition — valid transitions", () => {
     mockVerifiedSession(hostUserId);
   });
 
-  it("transitions creation → submission-open and persists an applied audit event", async () => {
+  it("transitions creation → submission-open and persists an applied audit record", async () => {
     const showcase = await createShowcase(prisma, {
       hostUserId,
       lifecycleState: "CREATION",
@@ -216,7 +216,7 @@ describe("POST /api/lifecycle/transition — valid transitions", () => {
     expect((auditEvent?.metadata as Record<string, unknown>)?.outcome).toBe("applied");
   });
 
-  it("transitions submission-open → voting-open and persists an applied audit event", async () => {
+  it("transitions submission-open → voting-open and persists an applied audit record", async () => {
     const showcase = await createShowcase(prisma, {
       hostUserId,
       lifecycleState: "SUBMISSION_OPEN",
@@ -236,7 +236,7 @@ describe("POST /api/lifecycle/transition — valid transitions", () => {
     expect(updated?.lifecycleState).toBe("VOTING_OPEN");
   });
 
-  it("transitions voting-open → finalized, sets finalizedAt, and persists an applied audit event", async () => {
+  it("transitions voting-open → finalized, sets finalizedAt, and persists an applied audit record", async () => {
     const before = new Date();
     const showcase = await createShowcase(prisma, {
       hostUserId,
@@ -283,7 +283,7 @@ describe("POST /api/lifecycle/transition — valid transitions", () => {
     expect(updated?.finalizedAt).not.toBeNull();
   });
 
-  it("stores an optional reason on the audit event when provided", async () => {
+  it("stores an optional reason on the audit record when provided", async () => {
     const showcase = await createShowcase(prisma, {
       hostUserId,
       lifecycleState: "CREATION",
@@ -315,7 +315,7 @@ describe("POST /api/lifecycle/transition — invalid transitions", () => {
     mockVerifiedSession(hostUserId);
   });
 
-  it("returns 409 and creates a rejected audit event for a disallowed transition", async () => {
+  it("returns 409 and creates a rejected audit record for a disallowed transition", async () => {
     const showcase = await createShowcase(prisma, {
       hostUserId,
       lifecycleState: "FINALIZED",
@@ -334,7 +334,7 @@ describe("POST /api/lifecycle/transition — invalid transitions", () => {
     const unchanged = await prisma.showcase.findUnique({ where: { id: showcase.id } });
     expect(unchanged?.lifecycleState).toBe("FINALIZED");
 
-    // A rejected audit event must have been written
+    // A rejected audit record must have been written
     const auditEvents = await prisma.transitionAuditEvent.findMany({
       where: { showcaseId: showcase.id },
     });
