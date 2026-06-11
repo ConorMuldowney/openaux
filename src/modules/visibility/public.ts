@@ -12,3 +12,7 @@ export function shouldRevealParticipantIdentity(context: VisibilityContext): boo
 
   return context.lifecycleState === "finalized";
 }
+
+export function shouldRevealVotingResults(context: Pick<VisibilityContext, "lifecycleState">): boolean {
+  return context.lifecycleState === "finalized";
+}

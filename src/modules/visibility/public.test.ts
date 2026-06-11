@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { shouldRevealParticipantIdentity } from "@/src/modules/visibility/public";
+import { shouldRevealParticipantIdentity, shouldRevealVotingResults } from "@/src/modules/visibility/public";
 
 describe("blind reveal boundary rules", () => {
   it("reveals identities during all states when blind judging is disabled", () => {
@@ -46,5 +46,17 @@ describe("blind reveal boundary rules", () => {
         lifecycleState: "finalized",
       }),
     ).toBe(true);
+  });
+});
+
+describe("voting results reveal boundary rules", () => {
+  it("hides voting results during all active phases", () => {
+    expect(shouldRevealVotingResults({ lifecycleState: "creation" })).toBe(false);
+    expect(shouldRevealVotingResults({ lifecycleState: "submission-open" })).toBe(false);
+    expect(shouldRevealVotingResults({ lifecycleState: "voting-open" })).toBe(false);
+  });
+
+  it("reveals voting results only after finalization", () => {
+    expect(shouldRevealVotingResults({ lifecycleState: "finalized" })).toBe(true);
   });
 });
