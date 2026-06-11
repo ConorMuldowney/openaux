@@ -12,6 +12,23 @@ export type TieBreakCandidate = {
   submittedAt: Date;
 };
 
+export type StoredBallot = {
+  voterId: string;
+  rankedParticipantIds: string[];
+};
+
+export type EntryTimestamp = {
+  participantId: string;
+  submittedAt: Date;
+};
+
+export type FinalStanding = {
+  rank: number;
+  participantId: string;
+  points: number;
+  rankCounts: number[];
+};
+
 export function scoreRankedBallot(
   rankedBallot: RankedBallot,
   maxRankedPicks: number,
@@ -46,4 +63,63 @@ export function rankParticipantsWithTieBreak(
 
     return left.participantId.localeCompare(right.participantId);
   });
+}
+
+export function computeShowcaseStandings(
+  storedBallots: StoredBallot[],
+  maxRankedPicks: number,
+  entryTimestamps: EntryTimestamp[],
+): FinalStanding[] {
+  const pointMap = new Map<string, number>();
+  const rankCountsMap = new Map<string, number[]>();
+
+  for (const stored of storedBallots) {
+    const ballot: RankedBallot = {
+      voterId: stored.voterId,
+      picks: stored.rankedParticipantIds.map((participantId, index) => ({
+        rank: index + 1,
+        participantId,
+      })),
+    };
+
+    const scores = scoreRankedBallot(ballot, maxRankedPicks);
+    for (const score of scores) {
+      pointMap.set(score.participantId, (pointMap.get(score.participantId) ?? 0) + score.points);
+    }
+
+    for (const pick of ballot.picks) {
+      const counts = rankCountsMap.get(pick.participantId) ?? [];
+      const rankIndex = pick.rank - 1;
+      while (counts.length <= rankIndex) {
+        counts.push(0);
+      }
+      counts[rankIndex] += 1;
+      rankCountsMap.set(pick.participantId, counts);
+    }
+  }
+
+  const timestampMap = new Map<string, Date>(
+    entryTimestamps.map((e) => [e.participantId, e.submittedAt]),
+  );
+
+  const allParticipantIds = new Set<string>([
+    ...pointMap.keys(),
+    ...entryTimestamps.map((e) => e.participantId),
+  ]);
+
+  const candidates: TieBreakCandidate[] = [...allParticipantIds].map((participantId) => ({
+    participantId,
+    points: pointMap.get(participantId) ?? 0,
+    rankCounts: rankCountsMap.get(participantId) ?? [],
+    submittedAt: timestampMap.get(participantId) ?? new Date(0),
+  }));
+
+  const sorted = rankParticipantsWithTieBreak(candidates);
+
+  return sorted.map((candidate, index) => ({
+    rank: index + 1,
+    participantId: candidate.participantId,
+    points: candidate.points,
+    rankCounts: candidate.rankCounts,
+  }));
 }
