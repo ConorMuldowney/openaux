@@ -1,5 +1,8 @@
 # ADR 0010: V1 Architecture and Platform Stack
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 - Status: Accepted
 - Date: 2026-06-09
 
@@ -37,5 +40,5 @@ Additional system decisions:
 - Leaves worker-runtime selection open and requires a follow-up ADR.
 
 ## Sources
-- docs/open-aux-prd.md
-- docs/linear-setup.md
+- docs/product/prd.md
+- docs/setup/linear.md

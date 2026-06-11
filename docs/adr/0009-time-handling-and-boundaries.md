@@ -1,5 +1,8 @@
 # ADR 0009: Time Handling and Deadline Boundaries
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 - Status: Accepted
 - Date: 2026-06-09
 
@@ -18,5 +21,5 @@ Use UTC for persistence and enforcement, local time for presentation:
 - Requires careful client/server conversion boundaries and test coverage around edge times.
 
 ## Sources
-- docs/open-aux-prd.md
-- docs/open-aux-rules.md
+- docs/product/prd.md
+- docs/product/rules.md

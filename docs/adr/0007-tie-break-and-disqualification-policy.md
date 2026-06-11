@@ -1,5 +1,8 @@
 # ADR 0007: Tie-Break and Disqualification Policy
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 - Status: Accepted
 - Date: 2026-06-09
 
@@ -20,5 +23,5 @@ Apply deterministic tie-break and disqualification handling:
 - Requires auditability around post-start disqualification events.
 
 ## Sources
-- docs/open-aux-prd.md
-- docs/open-aux-rules.md
+- docs/product/prd.md
+- docs/product/rules.md

@@ -1,5 +1,8 @@
 # ADR 0002: Access and Identity Requirements
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 - Status: Accepted
 - Date: 2026-06-09
 
@@ -21,5 +24,5 @@ Adopt the following access and identity policy:
 - Requires robust session and identity verification pathways.
 
 ## Sources
-- docs/open-aux-prd.md
-- docs/open-aux-rules.md
+- docs/product/prd.md
+- docs/product/rules.md

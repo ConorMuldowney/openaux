@@ -1,5 +1,8 @@
 # ADR 0003: Scope Model for Showcases
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 - Status: Accepted
 - Date: 2026-06-09
 
@@ -26,5 +29,5 @@ Policy details:
 - Introduces additional policy state that must be validated at every boundary.
 
 ## Sources
-- docs/open-aux-prd.md
-- docs/open-aux-rules.md
+- docs/product/prd.md
+- docs/product/rules.md

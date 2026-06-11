@@ -1,5 +1,8 @@
 # ADR 0008: Lifecycle and Finalization Model
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 - Status: Accepted
 - Date: 2026-06-09
 
@@ -27,5 +30,5 @@ Rules:
 - Requires strict enforcement of mutation constraints by state.
 
 ## Sources
-- docs/open-aux-prd.md
-- docs/open-aux-rules.md
+- docs/product/prd.md
+- docs/product/rules.md
