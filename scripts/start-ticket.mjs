@@ -18,6 +18,7 @@ import dotenv from "dotenv";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 dotenv.config({ path: path.join(ROOT, ".env.local") });
+const WORKTREE_BASE_PATH = process.env.WORKTREE_BASE_PATH ?? ".worktrees";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -26,7 +27,7 @@ function fail(msg) {
   process.exit(1);
 }
 
-function toSlug(title, maxLen = 45) {
+function toSlug(title, maxLen = 40) {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
@@ -248,7 +249,7 @@ if (result.status !== 0) {
   process.exit(result.status ?? 1);
 }
 
-const worktreeRelPath = `.worktrees/AUX-${issue.number}`;
+const worktreeRelPath = path.posix.join(WORKTREE_BASE_PATH, `AUX-${issue.number}`);
 
 console.log(`
 ─────────────────────────────────────────────────────
@@ -257,16 +258,7 @@ console.log(`
   Worktree: ${worktreeRelPath}
   Branch:   ${issue.type}/AUX-${issue.number}-${slug}
 
-  Next steps — open ${worktreeRelPath} in VS Code, then
-  run these prompts in Copilot Chat (@workspace):
-
-  1. Implement the ticket:
-       tackle this ticket with docs: ${url}
-
-  2. Chunk changes into commits:
-       chunk and commit
-
-  3. Push branch and open PR against develop:
-       push and create pr
+    Next step — open ${worktreeRelPath} in VS Code and run
+    /start-ticket ${url} in Copilot Chat to execute the workflow.
 ─────────────────────────────────────────────────────
 `);
