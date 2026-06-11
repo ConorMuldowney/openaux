@@ -15,6 +15,7 @@ import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+const WORKTREE_BASE_PATH = process.env.WORKTREE_BASE_PATH ?? ".worktrees";
 
 const VALID_TYPES = ["feat", "fix", "docs", "refactor", "test", "chore", "ci"];
 const BRANCH_PATTERN = /^(feat|fix|docs|refactor|test|chore|ci)\/AUX-[0-9]+-[a-z0-9-]+$/;
@@ -60,7 +61,7 @@ if (!BRANCH_PATTERN.test(branchName)) {
   );
 }
 
-const worktreeRelPath = `.worktrees/AUX-${number}`;
+const worktreeRelPath = path.posix.join(WORKTREE_BASE_PATH, `AUX-${number}`);
 const worktreePath = path.join(ROOT, worktreeRelPath);
 
 if (existsSync(worktreePath)) {
