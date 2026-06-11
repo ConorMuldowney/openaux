@@ -2,11 +2,13 @@
 
 ## Overview
 
-This document describes the **automated end-to-end workflow** for taking a Linear or GitHub issue from creation through implementation, testing, commit organization, and pull request creation. The workflow is triggered by a single command and handles the entire pipeline:
+This document describes the **automated end-to-end workflow** for taking a Linear or GitHub issue from creation through implementation, testing, commit organization, and pull request creation. The workflow is triggered by a single Copilot Chat prompt and handles the entire pipeline:
 
 ```bash
 /start-ticket <linear-or-github-url>
 ```
+
+The prompt is defined in the VS Code user prompts folder as `start-ticket.md` and chains the existing ticket, commit, and PR skills.
 
 This command:
 1. **Parses** the issue URL to extract number, title, and type
