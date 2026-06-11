@@ -59,6 +59,7 @@ model Showcase {
   ballots                Ballot[]
   transitionAuditEvents  TransitionAuditEvent[]
   disqualificationEvents DisqualificationEvent[]
+  finalStandings         FinalStandings?
 
   @@index([hostUserId])
   @@index([lifecycleState])
@@ -198,4 +199,13 @@ model DisqualificationEvent {
   @@index([showcaseId, occurredAt])
   @@index([entryId])
   @@index([participantId])
+}
+
+model FinalStandings {
+  id          String   @id @default(uuid()) @db.Uuid
+  showcaseId  String   @unique @db.Uuid
+  standings   Json
+  publishedAt DateTime @default(now())
+
+  showcase Showcase @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
 }
