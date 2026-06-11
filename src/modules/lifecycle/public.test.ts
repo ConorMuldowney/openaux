@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  SHOWCASE_LIFECYCLE_STATES,
   canTransitionLifecycle,
   fromPrismaLifecycleState,
   isFinalizationImmutable,
@@ -8,13 +9,20 @@ import {
 } from "@/src/modules/lifecycle/public";
 
 describe("lifecycle boundary rules", () => {
-  it("allows only guarded lifecycle transitions", () => {
-    expect(canTransitionLifecycle("creation", "submission-open")).toBe(true);
-    expect(canTransitionLifecycle("submission-open", "voting-open")).toBe(true);
-    expect(canTransitionLifecycle("voting-open", "finalized")).toBe(true);
+  it("enforces the lifecycle transition matrix across all states", () => {
+    const expectedTransitions = {
+      creation: ["submission-open", "finalized"],
+      "submission-open": ["voting-open"],
+      "voting-open": ["finalized"],
+      finalized: [],
+    } as const;
 
-    expect(canTransitionLifecycle("submission-open", "creation")).toBe(false);
-    expect(canTransitionLifecycle("finalized", "voting-open")).toBe(false);
+    for (const currentState of SHOWCASE_LIFECYCLE_STATES) {
+      for (const nextState of SHOWCASE_LIFECYCLE_STATES) {
+        const expected = expectedTransitions[currentState].includes(nextState);
+        expect(canTransitionLifecycle(currentState, nextState)).toBe(expected);
+      }
+    }
   });
 
   it("locks fairness-critical rules once submissions open", () => {
@@ -35,16 +43,25 @@ describe("lifecycle boundary rules", () => {
     expect(isFinalizationImmutable("creation")).toBe(false);
   });
 
-  it("maps lifecycle states to and from prisma values", () => {
-    expect(toPrismaLifecycleState("creation")).toBe("CREATION");
-    expect(toPrismaLifecycleState("submission-open")).toBe("SUBMISSION_OPEN");
-    expect(toPrismaLifecycleState("voting-open")).toBe("VOTING_OPEN");
-    expect(toPrismaLifecycleState("finalized")).toBe("FINALIZED");
+  it("maps each lifecycle state to and from persisted prisma values", () => {
+    const expectedPrismaStateByDomainState = {
+      creation: "CREATION",
+      "submission-open": "SUBMISSION_OPEN",
+      "voting-open": "VOTING_OPEN",
+      finalized: "FINALIZED",
+    } as const;
 
-    expect(fromPrismaLifecycleState("CREATION")).toBe("creation");
-    expect(fromPrismaLifecycleState("SUBMISSION_OPEN")).toBe("submission-open");
-    expect(fromPrismaLifecycleState("VOTING_OPEN")).toBe("voting-open");
-    expect(fromPrismaLifecycleState("FINALIZED")).toBe("finalized");
+    for (const domainState of SHOWCASE_LIFECYCLE_STATES) {
+      const persistedState = expectedPrismaStateByDomainState[domainState];
+      expect(toPrismaLifecycleState(domainState)).toBe(persistedState);
+      expect(fromPrismaLifecycleState(persistedState)).toBe(domainState);
+    }
+  });
+
+  it("returns null for unsupported persisted lifecycle states", () => {
     expect(fromPrismaLifecycleState("VOIDED")).toBeNull();
+    expect(fromPrismaLifecycleState("CREATION ")).toBeNull();
+    expect(fromPrismaLifecycleState("creation")).toBeNull();
+    expect(fromPrismaLifecycleState("UNKNOWN")).toBeNull();
   });
 });
