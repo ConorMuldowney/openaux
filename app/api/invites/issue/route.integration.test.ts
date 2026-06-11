@@ -2,20 +2,21 @@ import { createHash } from "crypto";
 import { ShowcaseLifecycleState } from "@prisma/client";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { verifiedEmailRequiredResponse } from "@/src/api/route-handler";
-import { requireVerifiedEmailSession } from "@/src/api/auth";
-import { POST } from "@/app/api/invites/issue/route";
 import { createShowcase, createUser } from "@/src/test/fixtures/factories";
 import { cleanTestDatabase, getTestPrisma } from "@/src/test/db";
 
-vi.mock("@/src/db/prisma", () => ({
-  prisma: getTestPrisma(),
-}));
-
 const testPrisma = getTestPrisma();
+
+vi.mock("@/src/db/prisma", () => ({
+  prisma: testPrisma,
+}));
 
 vi.mock("@/src/api/auth", () => ({
   requireVerifiedEmailSession: vi.fn(),
 }));
+
+import { requireVerifiedEmailSession } from "@/src/api/auth";
+import { POST } from "@/app/api/invites/issue/route";
 
 afterEach(async () => {
   await cleanTestDatabase(testPrisma);
