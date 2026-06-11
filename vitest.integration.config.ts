@@ -7,6 +7,7 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.integration.test.ts", "app/**/*.integration.test.ts"],
     globalSetup: ["src/test/global-setup.ts"],
+    setupFiles: ["src/test/integration-setup.ts"],
     clearMocks: true,
     restoreMocks: true,
     // Give migrations time to run on first run
