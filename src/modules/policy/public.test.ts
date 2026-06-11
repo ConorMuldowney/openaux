@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  canCastRankedBallot,
+  canSubmitEntry,
   evaluateHostCreatePolicy,
   evaluateHostUpdatePolicy,
   evaluateInviteAcceptPolicy,
@@ -26,6 +28,22 @@ describe("policy boundary rules", () => {
   });
 
   it("requires host membership for host updates", () => {
+    expect(
+      evaluateHostUpdatePolicy({
+        isAuthenticated: false,
+        isVerifiedEmail: true,
+        isHostOfShowcase: true,
+      }),
+    ).toEqual({ allowed: false, reason: "authentication-required" });
+
+    expect(
+      evaluateHostUpdatePolicy({
+        isAuthenticated: true,
+        isVerifiedEmail: false,
+        isHostOfShowcase: true,
+      }),
+    ).toEqual({ allowed: false, reason: "verified-email-required" });
+
     expect(
       evaluateHostUpdatePolicy({
         isAuthenticated: true,
@@ -255,6 +273,58 @@ describe("policy boundary rules", () => {
           isParticipantInShowcase: false,
         }),
       ).toEqual({ allowed: true });
+    });
+  });
+
+  describe("boolean policy helpers", () => {
+    it("maps submit-entry policy decisions to booleans", () => {
+      expect(
+        canSubmitEntry({
+          participationScope: "invite-only",
+          listenerScope: "public",
+          voterScope: "public-authenticated",
+          isAuthenticated: true,
+          isInvited: true,
+          isParticipantInShowcase: false,
+        }),
+      ).toBe(true);
+
+      expect(
+        canSubmitEntry({
+          participationScope: "invite-only",
+          listenerScope: "public",
+          voterScope: "public-authenticated",
+          isAuthenticated: true,
+          isInvited: false,
+          isParticipantInShowcase: false,
+        }),
+      ).toBe(false);
+    });
+
+    it("maps vote policy decisions to booleans", () => {
+      expect(
+        canCastRankedBallot({
+          participationScope: "public",
+          listenerScope: "public",
+          voterScope: "public-authenticated",
+          isAuthenticated: true,
+          isVerifiedEmail: true,
+          isInvited: false,
+          isParticipantInShowcase: false,
+        }),
+      ).toBe(true);
+
+      expect(
+        canCastRankedBallot({
+          participationScope: "public",
+          listenerScope: "public",
+          voterScope: "invite-only-authenticated",
+          isAuthenticated: true,
+          isVerifiedEmail: true,
+          isInvited: false,
+          isParticipantInShowcase: false,
+        }),
+      ).toBe(false);
     });
   });
 });
