@@ -108,6 +108,10 @@ jobs:
     needs: quality
     if: github.event_name == 'pull_request' && github.event.action == 'opened'
     environment: preview
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
     # This job assumes Vercel for Next.js preview deployment.
     # For other hosting platforms, customize the deployment steps below.
 
