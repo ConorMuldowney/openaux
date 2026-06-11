@@ -257,8 +257,15 @@ console.log(`
 
   Worktree: ${worktreeRelPath}
   Branch:   ${issue.type}/AUX-${issue.number}-${slug}
+  Issue:    ${issue.identifier} — ${issue.title}
 
-    Next step — open ${worktreeRelPath} in VS Code and run
-    /start-ticket ${url} in Copilot Chat to execute the workflow.
+    Next step — Open VS Code and run this in Copilot Chat:
+    
+    /start-ticket ${url}
+    
+    The agent will handle the complete workflow:
+    • Implement the ticket using repo docs and ADRs
+    • Chunk changes into logical, conventional commits
+    • Push the branch and create a PR against develop
 ─────────────────────────────────────────────────────
 `);
