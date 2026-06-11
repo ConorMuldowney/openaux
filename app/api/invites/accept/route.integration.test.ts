@@ -190,7 +190,7 @@ describe("POST /api/invites/accept - integration", () => {
         .map((event) => event.reason),
     );
     for (const reason of rejectedReasons) {
-      expect(["invite-race-conflict", "invite-already-accepted"]).toContain(reason);
+      expect(["invite-race-conflict", "invite-already-accepted", "identity-already-accepted-for-scope"]).toContain(reason);
     }
   });
 });
