@@ -98,6 +98,15 @@ npm run prisma:migrate:deploy
 npm run prisma:migrate:status
 ```
 
+## Documentation
+
+- Start here: [docs/index.md](docs/index.md)
+- Product docs: [docs/product/](docs/product/)
+- ADRs: [docs/adr/](docs/adr/)
+- Architecture: [docs/architecture/](docs/architecture/)
+- Setup guides: [docs/setup/](docs/setup/)
+- Operations runbooks: [docs/operations/](docs/operations/)
+
 ## Deployment Setup
 
-- Neon and CI migration setup: `docs/neon-prisma-setup.md`
+- Neon and CI migration setup: `docs/setup/neon-prisma.md`

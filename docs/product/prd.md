@@ -1,5 +1,8 @@
 # OpenAux Showcase PRD
 
+- Owner: Product + Platform Engineering
+- Last reviewed: 2026-06-11
+
 ## Problem Statement
 
 People want to host showcases where creators work from shared samples, listeners can follow the showcase, and voting stays fair, explainable, and easy to understand. The product needs to support both public and private showcases, clear participation rules, ranked voting, and predictable lifecycle behavior without allowing midstream rule changes that would undermine trust.

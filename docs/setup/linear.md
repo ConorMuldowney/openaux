@@ -1,5 +1,8 @@
 # OpenAux Linear Setup
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 This repo does not yet contain application code, so the practical way to connect Linear now is to attach the GitHub repository to a Linear team and establish issue, branch, and pull request conventions before implementation starts.
 
 ## Recommended workspace shape

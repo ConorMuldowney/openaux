@@ -1,5 +1,8 @@
 # Branch Protection Rules
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 This document describes the recommended branch protection configuration for the `main` branch in the OpenAux repository.
 
 ## Purpose
@@ -157,4 +160,4 @@ To verify branch protection is working:
 
 - [GitHub Branch Protection Documentation](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
 - [CI/GitHub Actions Workflows](./ci-github-actions.md)
-- [Linear Setup and Conventions](./linear-setup.md)
+- [Linear Setup and Conventions](../setup/linear.md)

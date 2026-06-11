@@ -1,5 +1,8 @@
 # Neon and Prisma Migration Setup
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 This guide provisions Neon databases for each deployment environment and wires Prisma migration deploy checks into GitHub Actions.
 
 ## 1. Provision Neon environments
