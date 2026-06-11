@@ -7,6 +7,8 @@
     "prebuild": "prisma generate",
     "build": "next build",
     "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint . --max-warnings=0 && npm run check:domain-language",
     "typecheck": "tsc --noEmit",
     "check:domain-language": "node ./scripts/check-domain-language.mjs",
@@ -40,6 +42,8 @@
     "postcss": "8.5.3",
     "prisma": "^6.9.0",
     "tailwindcss": "3.4.17",
+    "vite-tsconfig-paths": "5.1.4",
+    "vitest": "3.2.4",
     "tsx": "^4.7.0",
     "typescript": "5.8.2"
   }
