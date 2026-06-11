@@ -5,6 +5,7 @@ import {
   fromPrismaLifecycleState,
   toPrismaLifecycleState,
 } from "@/src/modules/lifecycle/public";
+import { computeShowcaseStandings } from "@/src/modules/scoring/public";
 import {
   LIFECYCLE_TRANSITION_REQUEST_SCHEMA,
   type LifecycleTransitionResponse,
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
 
   const showcase = await prisma.showcase.findUnique({
     where: { id: parsedRequest.data.showcaseId },
-    select: { id: true, lifecycleState: true },
+    select: { id: true, lifecycleState: true, maxRankedPicks: true },
   });
 
   if (!showcase) {
@@ -72,6 +73,43 @@ export async function POST(request: Request) {
           parsedRequest.data.nextState === "finalized" ? new Date() : undefined,
       },
     });
+
+    if (parsedRequest.data.nextState === "finalized") {
+      const ballots = await tx.ballot.findMany({
+        where: { showcaseId: parsedRequest.data.showcaseId },
+        include: { currentVersion: true },
+      });
+
+      const entries = await tx.entry.findMany({
+        where: { showcaseId: parsedRequest.data.showcaseId, isValid: true },
+        select: { participantId: true, submittedAt: true },
+      });
+
+      const storedBallots = ballots
+        .filter((ballot) => ballot.currentVersion !== null)
+        .map((ballot) => ({
+          voterId: ballot.voterUserId,
+          rankedParticipantIds: ballot.currentVersion!.rankedParticipantIds as string[],
+        }));
+
+      const entryTimestamps = entries.map((entry) => ({
+        participantId: entry.participantId,
+        submittedAt: entry.submittedAt,
+      }));
+
+      const standings = computeShowcaseStandings(
+        storedBallots,
+        showcase.maxRankedPicks,
+        entryTimestamps,
+      );
+
+      await tx.finalStandings.create({
+        data: {
+          showcaseId: parsedRequest.data.showcaseId,
+          standings: standings,
+        },
+      });
+    }
 
     return tx.transitionAuditEvent.create({
       data: {
