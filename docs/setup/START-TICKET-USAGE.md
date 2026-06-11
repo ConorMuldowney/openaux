@@ -71,7 +71,7 @@ npm run start-ticket -- https://linear.app/openaux/issue/AUX-64/... --title "AUX
 
 ---
 
-### Step 2: Agent Chat — Full Workflow (3–5 minutes)
+### Step 2: Agent Chat — Full Workflow (3–6 minutes)
 
 Open VS Code and invoke the agent in Copilot Chat:
 
@@ -98,6 +98,11 @@ Or use the shorter form (same issue number):
 - Implements the solution with full test coverage
 - Runs tests (`npm run test:unit`, `npm run test:integration`)
 - **Stops if tests fail**—you'll need to fix and re-run
+
+#### Phase 2b: Verify Tests (30 seconds)
+- Runs full test suite one final time: `npm run test:unit && npm run test:integration`
+- **Stops if any test fails**—you'll need to fix and re-run
+- Ensures all changes are working before organizing commits
 
 #### Phase 3: Chunk Commits (1 minute)
 - Inspects all changes in the worktree
