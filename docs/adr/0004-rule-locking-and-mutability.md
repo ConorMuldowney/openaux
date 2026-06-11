@@ -1,5 +1,8 @@
 # ADR 0004: Rule Locking and Mutability
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 - Status: Accepted
 - Date: 2026-06-09
 
@@ -20,5 +23,5 @@ Allow listener settings to remain mutable at any stage.
 - Requires UI and API feedback for attempted post-lock changes.
 
 ## Sources
-- docs/open-aux-prd.md
-- docs/open-aux-rules.md
+- docs/product/prd.md
+- docs/product/rules.md

@@ -222,7 +222,7 @@ The `.env.local` file must include a valid `DATABASE_URL`:
 DATABASE_URL="postgresql://user:password@host:5432/openaux"
 ```
 
-For Neon setup, see [docs/neon-prisma-setup.md](../docs/neon-prisma-setup.md).
+For Neon setup, see [docs/setup/neon-prisma.md](../../../docs/setup/neon-prisma.md).
 
 ## Design Principles
 

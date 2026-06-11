@@ -1,5 +1,8 @@
 # ADR 0005: Submission Validity and Voiding
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 - Status: Accepted
 - Date: 2026-06-09
 
@@ -21,5 +24,5 @@ Adopt the following submission model:
 - Requires explicit handling of voided showcases in UX and lifecycle logic.
 
 ## Sources
-- docs/open-aux-prd.md
-- docs/open-aux-rules.md
+- docs/product/prd.md
+- docs/product/rules.md

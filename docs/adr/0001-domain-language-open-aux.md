@@ -1,5 +1,8 @@
 # ADR 0001: Domain Language for Showcases
 
+- Owner: Platform Engineering
+- Last reviewed: 2026-06-11
+
 - Status: Accepted
 - Date: 2026-06-09
 
@@ -32,5 +35,5 @@ Legacy terms such as battle, contest, challenge, event, admin, organizer, and co
 
 ## Sources
 - CONTEXT.md
-- docs/open-aux-prd.md
-- docs/open-aux-rules.md
+- docs/product/prd.md
+- docs/product/rules.md

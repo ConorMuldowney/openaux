@@ -130,7 +130,7 @@ jobs:
               comment.body.includes('🚀 **Preview Deploy**')
             );
             
-            const body = '🚀 **Preview Deploy**\n\nPreview deployment is configured in this workflow. Deployment URL will appear here when integrated with hosting provider (Vercel, Netlify, etc.).\n\nSee [docs/ci-github-actions.md](../../docs/ci-github-actions.md) for setup details.';
+            const body = '🚀 **Preview Deploy**\n\nPreview deployment is configured in this workflow. Deployment URL will appear here when integrated with hosting provider (Vercel, Netlify, etc.).\n\nSee [docs/operations/ci-github-actions.md](../../docs/operations/ci-github-actions.md) for setup details.';
             
             if (previewComment) {
               await github.rest.issues.updateComment({
