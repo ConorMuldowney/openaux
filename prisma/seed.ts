@@ -14,7 +14,6 @@ import {
   createShowcaseWithVoting,
   createFinalizedShowcase,
   createInvite,
-  createParticipant,
   createShowcase,
 } from "../src/test/fixtures/factories";
 
@@ -56,7 +55,7 @@ async function main() {
   );
 
   // Create some invites for the CREATION showcase (not yet accepted)
-  const creationParticipantInvite = await createInvite(prisma, {
+  await createInvite(prisma, {
     showcaseId: creationShowcase.id,
     scope: "PARTICIPATION",
     invitedByUserId: creationHost.id,
@@ -64,7 +63,7 @@ async function main() {
   });
   console.log(`✓ Created pending participation invite`);
 
-  const creationVoterInvite = await createInvite(prisma, {
+  await createInvite(prisma, {
     showcaseId: creationShowcase.id,
     scope: "VOTER",
     invitedByUserId: creationHost.id,
@@ -105,7 +104,7 @@ async function main() {
   // 3. VOTING_OPEN state showcase
   // ======================================================================
   console.log("\n📝 Creating VOTING_OPEN state showcase...");
-  const { showcase: votingShowcase, host: votingHost, participants: votingParticipants, voters: votingVoters, ballots: votingBallots } =
+  const { showcase: votingShowcase, participants: votingParticipants, voters: votingVoters, ballots: votingBallots } =
     await createShowcaseWithVoting(prisma, 4, 6, {
       title: "Electronic Music Showcase - Voting Phase",
       participationScope: "PRIVATE",
@@ -126,7 +125,7 @@ async function main() {
   // 4. FINALIZED state showcase
   // ======================================================================
   console.log("📝 Creating FINALIZED state showcase...");
-  const { showcase: finalizedShowcase, host: finalizedHost, participants: finalizedParticipants, voters: finalizedVoters, ballots: finalizedBallots } =
+  const { showcase: finalizedShowcase, participants: finalizedParticipants, voters: finalizedVoters, ballots: finalizedBallots } =
     await createFinalizedShowcase(prisma, 3, 4, {
       title: "Classic Covers Showcase - Results Published",
       participationScope: "PUBLIC",

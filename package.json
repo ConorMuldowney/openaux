@@ -7,8 +7,11 @@
     "prebuild": "prisma generate",
     "build": "next build",
     "start": "next start",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "npm run test:unit",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "playwright test",
+    "test:watch": "vitest --config vitest.config.ts",
     "lint": "eslint . --max-warnings=0 && npm run check:domain-language",
     "typecheck": "tsc --noEmit",
     "check:domain-language": "node ./scripts/check-domain-language.mjs",
@@ -31,6 +34,7 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
+    "@playwright/test": "^1.60.0",
     "@types/node": "22.14.1",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
@@ -42,9 +46,9 @@
     "postcss": "8.5.3",
     "prisma": "^6.9.0",
     "tailwindcss": "3.4.17",
-    "vite-tsconfig-paths": "5.1.4",
-    "vitest": "3.2.4",
     "tsx": "^4.7.0",
-    "typescript": "5.8.2"
+    "typescript": "5.8.2",
+    "vite-tsconfig-paths": "5.1.4",
+    "vitest": "3.2.4"
   }
 }
