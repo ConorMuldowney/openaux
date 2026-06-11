@@ -14,7 +14,13 @@
 
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { auth0 } from "@/src/auth/auth0";
-import { createShowcase } from "@/src/test/fixtures/factories";
+import {
+  createShowcase,
+  createParticipant,
+  createEntry,
+  createBallot,
+  createBallotVersion,
+} from "@/src/test/fixtures/factories";
 import { cleanTestDatabase, getTestPrisma } from "@/src/test/db";
 import { POST } from "@/app/api/lifecycle/transition/route";
 
@@ -372,5 +378,139 @@ describe("POST /api/lifecycle/transition — invalid transitions", () => {
     expect(response.status).toBe(409);
     const unchanged = await prisma.showcase.findUnique({ where: { id: showcase.id } });
     expect(unchanged?.lifecycleState).toBe("VOTING_OPEN");
+  });
+});
+
+// ============================================================================
+// Final snapshot publication on finalization
+// ============================================================================
+
+describe("POST /api/lifecycle/transition — final snapshot publication", () => {
+  const hostUserId = "auth0|host-snapshot";
+
+  beforeEach(() => {
+    mockVerifiedSession(hostUserId);
+  });
+
+  it("publishes final standings when transitioning voting-open → finalized", async () => {
+    const showcase = await createShowcase(prisma, {
+      hostUserId,
+      lifecycleState: "VOTING_OPEN",
+      maxRankedPicks: 3,
+    });
+
+    const p1 = await createParticipant(prisma, { showcaseId: showcase.id });
+    const p2 = await createParticipant(prisma, { showcaseId: showcase.id });
+    const p3 = await createParticipant(prisma, { showcaseId: showcase.id });
+
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id, isValid: true });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id, isValid: true });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p3.id, isValid: true });
+
+    const ballot1 = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-1" });
+    const version1 = await createBallotVersion(prisma, {
+      ballotId: ballot1.id,
+      rankedParticipantIds: [p1.id, p2.id, p3.id],
+    });
+    await prisma.ballot.update({ where: { id: ballot1.id }, data: { currentVersionId: version1.id } });
+
+    const ballot2 = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-2" });
+    const version2 = await createBallotVersion(prisma, {
+      ballotId: ballot2.id,
+      rankedParticipantIds: [p1.id, p3.id],
+    });
+    await prisma.ballot.update({ where: { id: ballot2.id }, data: { currentVersionId: version2.id } });
+
+    const response = await POST(
+      makeRequest({ showcaseId: showcase.id, nextState: "finalized" }),
+    );
+
+    expect(response.status).toBe(200);
+
+    const finalStandings = await prisma.finalStandings.findUnique({
+      where: { showcaseId: showcase.id },
+    });
+
+    expect(finalStandings).not.toBeNull();
+    expect(finalStandings!.publishedAt).not.toBeNull();
+
+    const standings = finalStandings!.standings as Array<{
+      rank: number;
+      participantId: string;
+      points: number;
+    }>;
+
+    // p1 gets: v1(3pts) + v2(3pts) = 6; p2 gets: v1(2pts) = 2; p3 gets: v1(1pt) + v2(2pts) = 3
+    expect(standings[0].participantId).toBe(p1.id);
+    expect(standings[0].rank).toBe(1);
+    expect(standings[0].points).toBe(6);
+
+    expect(standings[1].participantId).toBe(p3.id);
+    expect(standings[1].rank).toBe(2);
+    expect(standings[1].points).toBe(3);
+
+    expect(standings[2].participantId).toBe(p2.id);
+    expect(standings[2].rank).toBe(3);
+    expect(standings[2].points).toBe(2);
+  });
+
+  it("publishes empty standings when transitioning creation → finalized with no ballots", async () => {
+    const showcase = await createShowcase(prisma, {
+      hostUserId,
+      lifecycleState: "CREATION",
+    });
+
+    const response = await POST(
+      makeRequest({ showcaseId: showcase.id, nextState: "finalized" }),
+    );
+
+    expect(response.status).toBe(200);
+
+    const finalStandings = await prisma.finalStandings.findUnique({
+      where: { showcaseId: showcase.id },
+    });
+
+    expect(finalStandings).not.toBeNull();
+    expect(finalStandings!.standings).toEqual([]);
+  });
+
+  it("only uses current ballot versions and ignores stale versions", async () => {
+    const showcase = await createShowcase(prisma, {
+      hostUserId,
+      lifecycleState: "VOTING_OPEN",
+      maxRankedPicks: 2,
+    });
+
+    const p1 = await createParticipant(prisma, { showcaseId: showcase.id });
+    const p2 = await createParticipant(prisma, { showcaseId: showcase.id });
+
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id, isValid: true });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id, isValid: true });
+
+    const ballot = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-stale" });
+    // Version 1 (stale): prefers p2
+    await createBallotVersion(prisma, {
+      ballotId: ballot.id,
+      versionNumber: 1,
+      rankedParticipantIds: [p2.id, p1.id],
+    });
+    // Version 2 (current): prefers p1
+    const version2 = await createBallotVersion(prisma, {
+      ballotId: ballot.id,
+      versionNumber: 2,
+      rankedParticipantIds: [p1.id, p2.id],
+    });
+    await prisma.ballot.update({ where: { id: ballot.id }, data: { currentVersionId: version2.id } });
+
+    await POST(makeRequest({ showcaseId: showcase.id, nextState: "finalized" }));
+
+    const finalStandings = await prisma.finalStandings.findUnique({
+      where: { showcaseId: showcase.id },
+    });
+
+    const standings = finalStandings!.standings as Array<{ participantId: string; points: number }>;
+    // Only version 2 counts: p1=2pts, p2=1pt
+    expect(standings[0].participantId).toBe(p1.id);
+    expect(standings[0].points).toBe(2);
   });
 });
