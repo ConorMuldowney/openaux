@@ -21,6 +21,8 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:migrate:status": "prisma migrate status",
     "db:seed": "tsx prisma/seed.ts",
+    "start-ticket": "node scripts/start-ticket.mjs",
+    "create-worktree": "node scripts/create-worktree.mjs",
     "prepare": "husky"
   },
   "dependencies": {
