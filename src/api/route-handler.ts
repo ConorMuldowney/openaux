@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import type { ApiFailureResponse } from "@/src/api/contracts/common";
 import type { PolicyDenialReason } from "@/src/api/contracts/policy";
+import { observeSignal } from "@/src/observability/server";
 
 function assertNever(value: never): never {
   throw new Error(`Unhandled policy denial reason: ${value}`);
@@ -87,7 +88,17 @@ export async function parseJsonBody<InputSchema extends z.ZodTypeAny>(
 export function policyDeniedResponse(
   message: string,
   policyDenialReason: PolicyDenialReason,
+  context: Record<string, unknown> = {},
 ): NextResponse<ApiFailureResponse> {
+  observeSignal({
+    name: "policy.denied",
+    level: "warn",
+    context: {
+      policyDenialReason,
+      ...context,
+    },
+  });
+
   return NextResponse.json(
     {
       ok: false,

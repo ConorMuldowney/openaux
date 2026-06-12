@@ -14,7 +14,9 @@ export async function POST(request: Request) {
 
   const decision = evaluateListenPolicy(parsedRequest.data);
   if (!decision.allowed) {
-    return policyDeniedResponse(policyDeniedMessage(decision.reason), decision.reason);
+    return policyDeniedResponse(policyDeniedMessage(decision.reason), decision.reason, {
+      route: "/api/policy/listen",
+    });
   }
 
   const responseBody: PolicyListenResponse = {

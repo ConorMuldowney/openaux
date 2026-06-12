@@ -9,6 +9,7 @@ import {
 } from "@/src/api/contracts/scoring";
 import { parseJsonBody, stateInvalidResponse } from "@/src/api/route-handler";
 import { requireVerifiedEmailSession } from "@/src/api/auth";
+import { observeSignal, observeException } from "@/src/observability/server";
 import { z } from "zod";
 
 export async function POST(request: Request) {
@@ -41,15 +42,44 @@ export async function POST(request: Request) {
   }
 
   if (!shouldRevealVotingResults({ lifecycleState })) {
+    observeSignal({
+      name: "scoring.final-standings.denied",
+      level: "warn",
+      context: {
+        route: "/api/scoring/final-standings",
+        showcaseId: parsedRequest.data.showcaseId,
+        lifecycleState,
+      },
+    });
+
     return stateInvalidResponse(
       `Final standings are not available until the Showcase is finalized. Current state: '${lifecycleState}'.`,
     );
   }
 
-  const record = await prisma.finalStandings.findUnique({
-    where: { showcaseId: parsedRequest.data.showcaseId },
-    select: { showcaseId: true, standings: true, publishedAt: true },
-  });
+  let record: {
+    showcaseId: string;
+    standings: unknown;
+    publishedAt: Date;
+  } | null;
+
+  try {
+    record = await prisma.finalStandings.findUnique({
+      where: { showcaseId: parsedRequest.data.showcaseId },
+      select: { showcaseId: true, standings: true, publishedAt: true },
+    });
+  } catch (error) {
+    observeException({
+      name: "scoring.final-standings.query-failed",
+      error,
+      context: {
+        route: "/api/scoring/final-standings",
+        showcaseId: parsedRequest.data.showcaseId,
+      },
+    });
+
+    throw error;
+  }
 
   if (!record) {
     return stateInvalidResponse(
@@ -72,6 +102,16 @@ export async function POST(request: Request) {
       standings: parsedStandings.data,
     },
   };
+
+  observeSignal({
+    name: "scoring.final-standings.returned",
+    context: {
+      route: "/api/scoring/final-standings",
+      showcaseId: record.showcaseId,
+      standingsCount: parsedStandings.data.length,
+      publishedAt: record.publishedAt.toISOString(),
+    },
+  });
 
   return NextResponse.json(responseBody, { status: 200 });
 }
