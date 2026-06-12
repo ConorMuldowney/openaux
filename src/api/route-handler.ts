@@ -152,3 +152,16 @@ export function stateInvalidResponse(message: string): NextResponse<ApiFailureRe
     { status: 409 },
   );
 }
+
+export function settingsLockedResponse(message: string): NextResponse<ApiFailureResponse> {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: {
+        code: "settings-locked",
+        message,
+      },
+    },
+    { status: 409 },
+  );
+}
