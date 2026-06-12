@@ -45,13 +45,6 @@ Use magic words in PR descriptions to trigger state transitions on merge:
 - Verify the PR description includes a magic word like `Implements AUX-123`
 - Check that you merged to `main` (not another branch)
 
-1. Create Next.js app shell with Tailwind, shadcn, and route handler support.
-2. Add Auth0 login flow and verified-email enforcement middleware.
-3. Model `Showcase`, `Invite`, `Participant`, `Entry`, and `Ballot` in Prisma.
-4. Implement the showcase state machine with guarded transitions.
-5. Add policy checks for hosting, invite acceptance, submission, listening, and voting.
-6. Build a host flow for creating a showcase with participation, listener, voter, and blind-judging scopes.
-
 ## Definition of done for Linear-connected work
 
 - Every branch references one Linear issue.
