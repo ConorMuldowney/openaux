@@ -27,7 +27,7 @@ describe("invite accept boundary route", () => {
     vi.clearAllMocks();
   });
 
-  it("rejects invite acceptance after showcase finalization", async () => {
+  it("returns read-only resolution after showcase finalization", async () => {
     vi.mocked(requireAuthenticatedSession).mockResolvedValue({
       ok: true,
       session: {
@@ -50,6 +50,9 @@ describe("invite accept boundary route", () => {
         lifecycleState: ShowcaseLifecycleState.FINALIZED,
       },
     } as never);
+    vi.mocked(prisma.inviteAcceptanceAuditEvent.create).mockResolvedValue({
+      id: "b2a4f6cf-0d35-4df6-a24d-7fb96ed12ffd",
+    } as never);
 
     const response = await POST(
       new Request("http://localhost/api/invites/accept", {
@@ -58,12 +61,17 @@ describe("invite accept boundary route", () => {
       }),
     );
 
-    expect(response.status).toBe(409);
+    expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({
-      ok: false,
-      error: {
-        code: "state-invalid",
-        message: "Invite links are read-only after showcase finalization.",
+      ok: true,
+      data: {
+        inviteId: "invite-1",
+        showcaseId: "showcase-1",
+        scope: "participation",
+        resolution: "read-only-after-finalization",
+        acceptedByUserId: null,
+        acceptedAt: null,
+        inviteAcceptanceAuditEventId: "b2a4f6cf-0d35-4df6-a24d-7fb96ed12ffd",
       },
     });
   });
@@ -121,6 +129,7 @@ describe("invite accept boundary route", () => {
         inviteId: "9fa7d667-2d71-4ddb-8c16-a75f92ca95f5",
         showcaseId: "761e62fc-70ca-43ea-9492-718584778e40",
         scope: "voter",
+        resolution: "accepted",
         acceptedByUserId: "user-2",
         inviteAcceptanceAuditEventId: "26fdf6d4-8db2-4d03-8f2b-4eb5439f39f9",
       },
