@@ -3,6 +3,8 @@
 - Owner: Platform Engineering
 - Last reviewed: 2026-06-12
 
+> CI deployment of migrations is handled automatically by GitHub Actions on push to `main`. See [GitHub Platform Standards](./github.md#database-migration-deployment).
+
 OpenAux uses PostgreSQL (Neon) with Prisma ORM for schema management and migrations.
 
 ## Database Environments
