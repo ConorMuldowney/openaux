@@ -243,4 +243,275 @@ describe("showcase detail and update route integration", () => {
 
     expect(unchangedShowcase?.title).toBe("Locked Showcase");
   });
+
+  it("allows cancel while submissions are open and writes an applied host-control audit", async () => {
+    const hostUser = createUser({ name: "Showcase Host" });
+
+    vi.mocked(requireVerifiedEmailSession).mockResolvedValue({
+      ok: true,
+      session: {
+        user: {
+          sub: hostUser.id,
+          email_verified: true,
+        },
+      },
+    } as never);
+
+    const showcase = await createShowcase(testPrisma, {
+      hostUserId: hostUser.id,
+      lifecycleState: ShowcaseLifecycleState.SUBMISSION_OPEN,
+      votingOpensAt: new Date(Date.now() + 2 * 60 * 60 * 1000),
+    });
+
+    const response = await PATCH(
+      new Request(`http://localhost/api/showcases/${showcase.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          hostControl: {
+            action: "cancel-showcase",
+            reason: "Host canceled by request",
+          },
+        }),
+      }),
+      {
+        params: Promise.resolve({ showcaseId: showcase.id }),
+      },
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      data: {
+        showcaseId: showcase.id,
+        lifecycleState: "canceled",
+      },
+    });
+
+    const auditEvents = await testPrisma.transitionAuditEvent.findMany({
+      where: { showcaseId: showcase.id },
+      orderBy: { occurredAt: "desc" },
+      take: 1,
+    });
+
+    expect(auditEvents).toHaveLength(1);
+    expect(auditEvents[0].fromState).toBe(ShowcaseLifecycleState.SUBMISSION_OPEN);
+    expect(auditEvents[0].toState).toBe(ShowcaseLifecycleState.CANCELED);
+    expect((auditEvents[0].metadata as Record<string, unknown>)?.action).toBe("cancel-showcase");
+    expect((auditEvents[0].metadata as Record<string, unknown>)?.outcome).toBe("applied");
+  });
+
+  it("denies cancel once voting is open and writes a rejected host-control audit", async () => {
+    const hostUser = createUser({ name: "Showcase Host" });
+
+    vi.mocked(requireVerifiedEmailSession).mockResolvedValue({
+      ok: true,
+      session: {
+        user: {
+          sub: hostUser.id,
+          email_verified: true,
+        },
+      },
+    } as never);
+
+    const showcase = await createShowcase(testPrisma, {
+      hostUserId: hostUser.id,
+      lifecycleState: ShowcaseLifecycleState.VOTING_OPEN,
+    });
+
+    const response = await PATCH(
+      new Request(`http://localhost/api/showcases/${showcase.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          hostControl: {
+            action: "cancel-showcase",
+          },
+        }),
+      }),
+      {
+        params: Promise.resolve({ showcaseId: showcase.id }),
+      },
+    );
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: {
+        code: "state-invalid",
+      },
+    });
+
+    const auditEvents = await testPrisma.transitionAuditEvent.findMany({
+      where: { showcaseId: showcase.id },
+      orderBy: { occurredAt: "desc" },
+      take: 1,
+    });
+
+    expect(auditEvents).toHaveLength(1);
+    expect((auditEvents[0].metadata as Record<string, unknown>)?.action).toBe("cancel-showcase");
+    expect((auditEvents[0].metadata as Record<string, unknown>)?.outcome).toBe("rejected");
+  });
+
+  it("allows submission-close extension while submissions are open and before voting", async () => {
+    const hostUser = createUser({ name: "Showcase Host" });
+
+    vi.mocked(requireVerifiedEmailSession).mockResolvedValue({
+      ok: true,
+      session: {
+        user: {
+          sub: hostUser.id,
+          email_verified: true,
+        },
+      },
+    } as never);
+
+    const currentSubmissionClose = new Date(Date.now() + 30 * 60 * 1000);
+    const votingOpensAt = new Date(Date.now() + 3 * 60 * 60 * 1000);
+    const nextSubmissionClose = new Date(Date.now() + 60 * 60 * 1000);
+
+    const showcase = await createShowcase(testPrisma, {
+      hostUserId: hostUser.id,
+      lifecycleState: ShowcaseLifecycleState.SUBMISSION_OPEN,
+      submissionClosesAt: currentSubmissionClose,
+      votingOpensAt,
+    });
+
+    const response = await PATCH(
+      new Request(`http://localhost/api/showcases/${showcase.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          hostControl: {
+            action: "extend-submission-close",
+            submissionClosesAt: nextSubmissionClose.toISOString(),
+          },
+        }),
+      }),
+      {
+        params: Promise.resolve({ showcaseId: showcase.id }),
+      },
+    );
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { ok: true; data: { submissionClosesAt: string } };
+    expect(new Date(body.data.submissionClosesAt).toISOString()).toBe(nextSubmissionClose.toISOString());
+
+    const auditEvents = await testPrisma.transitionAuditEvent.findMany({
+      where: { showcaseId: showcase.id },
+      orderBy: { occurredAt: "desc" },
+      take: 1,
+    });
+
+    expect(auditEvents).toHaveLength(1);
+    expect((auditEvents[0].metadata as Record<string, unknown>)?.action).toBe("extend-submission-close");
+    expect((auditEvents[0].metadata as Record<string, unknown>)?.outcome).toBe("applied");
+  });
+
+  it("denies submission-close extension at or after voting opens", async () => {
+    const hostUser = createUser({ name: "Showcase Host" });
+
+    vi.mocked(requireVerifiedEmailSession).mockResolvedValue({
+      ok: true,
+      session: {
+        user: {
+          sub: hostUser.id,
+          email_verified: true,
+        },
+      },
+    } as never);
+
+    const submissionClose = new Date(Date.now() + 30 * 60 * 1000);
+    const votingOpensAt = new Date(Date.now() + 45 * 60 * 1000);
+    const invalidNewSubmissionClose = new Date(Date.now() + 50 * 60 * 1000);
+
+    const showcase = await createShowcase(testPrisma, {
+      hostUserId: hostUser.id,
+      lifecycleState: ShowcaseLifecycleState.SUBMISSION_OPEN,
+      submissionClosesAt: submissionClose,
+      votingOpensAt,
+    });
+
+    const response = await PATCH(
+      new Request(`http://localhost/api/showcases/${showcase.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          hostControl: {
+            action: "extend-submission-close",
+            submissionClosesAt: invalidNewSubmissionClose.toISOString(),
+          },
+        }),
+      }),
+      {
+        params: Promise.resolve({ showcaseId: showcase.id }),
+      },
+    );
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: {
+        code: "state-invalid",
+      },
+    });
+
+    const auditEvents = await testPrisma.transitionAuditEvent.findMany({
+      where: { showcaseId: showcase.id },
+      orderBy: { occurredAt: "desc" },
+      take: 1,
+    });
+
+    expect(auditEvents).toHaveLength(1);
+    expect((auditEvents[0].metadata as Record<string, unknown>)?.action).toBe("extend-submission-close");
+    expect((auditEvents[0].metadata as Record<string, unknown>)?.outcome).toBe("rejected");
+  });
+
+  it("allows voting-close extension while voting is open", async () => {
+    const hostUser = createUser({ name: "Showcase Host" });
+
+    vi.mocked(requireVerifiedEmailSession).mockResolvedValue({
+      ok: true,
+      session: {
+        user: {
+          sub: hostUser.id,
+          email_verified: true,
+        },
+      },
+    } as never);
+
+    const currentVotingClose = new Date(Date.now() + 30 * 60 * 1000);
+    const nextVotingClose = new Date(Date.now() + 90 * 60 * 1000);
+
+    const showcase = await createShowcase(testPrisma, {
+      hostUserId: hostUser.id,
+      lifecycleState: ShowcaseLifecycleState.VOTING_OPEN,
+      votingClosesAt: currentVotingClose,
+    });
+
+    const response = await PATCH(
+      new Request(`http://localhost/api/showcases/${showcase.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          hostControl: {
+            action: "extend-voting-close",
+            votingClosesAt: nextVotingClose.toISOString(),
+          },
+        }),
+      }),
+      {
+        params: Promise.resolve({ showcaseId: showcase.id }),
+      },
+    );
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { ok: true; data: { votingClosesAt: string } };
+    expect(new Date(body.data.votingClosesAt).toISOString()).toBe(nextVotingClose.toISOString());
+
+    const auditEvents = await testPrisma.transitionAuditEvent.findMany({
+      where: { showcaseId: showcase.id },
+      orderBy: { occurredAt: "desc" },
+      take: 1,
+    });
+
+    expect(auditEvents).toHaveLength(1);
+    expect((auditEvents[0].metadata as Record<string, unknown>)?.action).toBe("extend-voting-close");
+    expect((auditEvents[0].metadata as Record<string, unknown>)?.outcome).toBe("applied");
+  });
 });

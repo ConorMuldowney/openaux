@@ -94,6 +94,78 @@ export const SHOWCASE_UPDATE_REQUEST_SCHEMA = SHOWCASE_SETTINGS_SCHEMA.partial()
   },
 );
 
+const HOST_CONTROL_ACTION_SCHEMA = z.discriminatedUnion("action", [
+  z.object({
+    action: z.literal("cancel-showcase"),
+    reason: z.string().trim().min(1).max(500).optional(),
+  }),
+  z.object({
+    action: z.literal("extend-submission-close"),
+    submissionClosesAt: UTC_DATE_TIME_SCHEMA,
+    reason: z.string().trim().min(1).max(500).optional(),
+  }),
+  z.object({
+    action: z.literal("extend-voting-close"),
+    votingClosesAt: UTC_DATE_TIME_SCHEMA,
+    reason: z.string().trim().min(1).max(500).optional(),
+  }),
+]);
+
+export const SHOWCASE_HOST_CONTROL_REQUEST_SCHEMA = z.object({
+  hostControl: HOST_CONTROL_ACTION_SCHEMA,
+});
+
+export const SHOWCASE_UPDATE_OR_HOST_CONTROL_REQUEST_SCHEMA = z
+  .object({
+    title: z.string().trim().min(3).max(120).optional(),
+    participationScope: PARTICIPATION_SCOPE_SCHEMA.optional(),
+    listenerScope: LISTENER_SCOPE_SCHEMA.optional(),
+    voterScope: VOTER_SCOPE_SCHEMA.optional(),
+    blindJudgingEnabled: z.boolean().optional(),
+    maxRankedPicks: z.number().int().min(1).max(100).optional(),
+    requiredSampleIds: z.array(z.string().trim().min(1)).max(50).optional(),
+    hostControl: HOST_CONTROL_ACTION_SCHEMA.optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (Object.keys(value).length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["body"],
+        message: "At least one field must be provided for update.",
+      });
+      return;
+    }
+
+    if (value.requiredSampleIds) {
+      if (new Set(value.requiredSampleIds).size !== value.requiredSampleIds.length) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["requiredSampleIds"],
+          message: "requiredSampleIds must not contain duplicates.",
+        });
+      }
+    }
+
+    if (value.hostControl) {
+      const hasSettingsField =
+        value.title !== undefined ||
+        value.participationScope !== undefined ||
+        value.listenerScope !== undefined ||
+        value.voterScope !== undefined ||
+        value.blindJudgingEnabled !== undefined ||
+        value.maxRankedPicks !== undefined ||
+        value.requiredSampleIds !== undefined;
+
+      if (hasSettingsField) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["hostControl"],
+          message: "hostControl requests must not be combined with settings updates.",
+        });
+      }
+    }
+  });
+
 export const SHOWCASE_DETAIL_DATA_SCHEMA = z.object({
   showcaseId: z.string().uuid(),
   slug: z.string().min(1),
@@ -136,6 +208,10 @@ export const SHOWCASE_DETAIL_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
 
 export type ShowcaseCreateRequest = z.infer<typeof SHOWCASE_CREATE_REQUEST_SCHEMA>;
 export type ShowcaseUpdateRequest = z.infer<typeof SHOWCASE_UPDATE_REQUEST_SCHEMA>;
+export type ShowcaseHostControlRequest = z.infer<typeof SHOWCASE_HOST_CONTROL_REQUEST_SCHEMA>;
+export type ShowcaseUpdateOrHostControlRequest = z.infer<
+  typeof SHOWCASE_UPDATE_OR_HOST_CONTROL_REQUEST_SCHEMA
+>;
 export type ShowcaseDetailData = z.infer<typeof SHOWCASE_DETAIL_DATA_SCHEMA>;
 export type ShowcaseCreateResponse = ApiRouteResponse<ShowcaseDetailData>;
 export type ShowcaseUpdateResponse = ApiRouteResponse<ShowcaseDetailData>;
