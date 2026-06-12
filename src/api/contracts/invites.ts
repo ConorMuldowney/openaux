@@ -62,12 +62,18 @@ export const INVITE_ACCEPT_REQUEST_SCHEMA = z.object({
   token: z.string().trim().min(1),
 });
 
+export const INVITE_ACCEPT_RESOLUTION_SCHEMA = z.enum([
+  "accepted",
+  "read-only-after-finalization",
+]);
+
 export const INVITE_ACCEPT_DATA_SCHEMA = z.object({
   inviteId: z.string().uuid(),
   showcaseId: z.string().uuid(),
   scope: INVITE_SCOPE_SCHEMA,
-  acceptedByUserId: z.string().min(1),
-  acceptedAt: z.string().datetime({ offset: true }),
+  resolution: INVITE_ACCEPT_RESOLUTION_SCHEMA,
+  acceptedByUserId: z.string().min(1).nullable(),
+  acceptedAt: z.coerce.date().nullable(),
   inviteAcceptanceAuditEventId: z.string().uuid(),
 });
 
