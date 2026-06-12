@@ -76,4 +76,34 @@ describe("ranked ballot validation boundary", () => {
 
     expect(result).toEqual({ isValid: false, reason: "non-contiguous-ranks" });
   });
+
+  it("rejects duplicate ranks with exact reason code", () => {
+    const result = validateRankedBallot(
+      {
+        voterId: "voter-1",
+        picks: [
+          { rank: 1, participantId: "a" },
+          { rank: 1, participantId: "b" },
+        ],
+      },
+      3,
+    );
+
+    expect(result).toEqual({ isValid: false, reason: "duplicate-rank" });
+  });
+
+  it("rejects ranks above host max with exact reason code", () => {
+    const result = validateRankedBallot(
+      {
+        voterId: "voter-1",
+        picks: [
+          { rank: 1, participantId: "a" },
+          { rank: 4, participantId: "b" },
+        ],
+      },
+      3,
+    );
+
+    expect(result).toEqual({ isValid: false, reason: "rank-out-of-range" });
+  });
 });
