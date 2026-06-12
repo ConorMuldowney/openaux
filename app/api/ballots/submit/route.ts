@@ -121,7 +121,7 @@ export async function POST(request: Request) {
   // Get or create ballot and create new version
   let ballot = await prisma.ballot.findUnique({
     where: {
-      ballot_single_root_per_voter: {
+      showcaseId_voterUserId: {
         showcaseId,
         voterUserId: voterId,
       },
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
         showcaseId,
         voterUserId: voterId,
       },
-      select: { id: true },
+      select: { id: true, versions: { select: { versionNumber: true } } },
     });
   }
 
