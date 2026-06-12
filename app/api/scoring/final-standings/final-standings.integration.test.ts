@@ -17,8 +17,6 @@ import {
   createShowcase,
   createParticipant,
   createEntry,
-  createBallot,
-  createBallotVersion,
 } from "@/src/test/fixtures/factories";
 import { cleanTestDatabase, getTestPrisma } from "@/src/test/db";
 import { POST } from "@/app/api/scoring/final-standings/route";
