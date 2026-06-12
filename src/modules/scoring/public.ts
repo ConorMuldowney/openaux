@@ -70,13 +70,18 @@ export function computeShowcaseStandings(
   maxRankedPicks: number,
   entryTimestamps: EntryTimestamp[],
 ): FinalStanding[] {
+  const allowedParticipantIds = new Set(entryTimestamps.map((entry) => entry.participantId));
   const pointMap = new Map<string, number>();
   const rankCountsMap = new Map<string, number[]>();
 
   for (const stored of storedBallots) {
+    const compressedRankedParticipantIds = stored.rankedParticipantIds.filter((participantId) =>
+      allowedParticipantIds.has(participantId),
+    );
+
     const ballot: RankedBallot = {
       voterId: stored.voterId,
-      picks: stored.rankedParticipantIds.map((participantId, index) => ({
+      picks: compressedRankedParticipantIds.map((participantId, index) => ({
         rank: index + 1,
         participantId,
       })),
@@ -103,7 +108,6 @@ export function computeShowcaseStandings(
   );
 
   const allParticipantIds = new Set<string>([
-    ...pointMap.keys(),
     ...entryTimestamps.map((e) => e.participantId),
   ]);
 
