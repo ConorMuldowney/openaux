@@ -6,6 +6,7 @@ import {
 } from "@/src/api/contracts/scoring";
 import { parseJsonBody } from "@/src/api/route-handler";
 import { requireVerifiedEmailSession } from "@/src/api/auth";
+import { observeSignal } from "@/src/observability/server";
 
 export async function POST(request: Request) {
   const authResult = await requireVerifiedEmailSession(request);
@@ -22,6 +23,17 @@ export async function POST(request: Request) {
     parsedRequest.data.rankedBallot,
     parsedRequest.data.maxRankedPicks,
   );
+
+  observeSignal({
+    name: "scoring.ranked-ballot.computed",
+    context: {
+      route: "/api/scoring/ranked-ballot",
+      voterId: authResult.session.user.sub,
+      picksCount: parsedRequest.data.rankedBallot.picks.length,
+      maxRankedPicks: parsedRequest.data.maxRankedPicks,
+      scoresCount: scores.length,
+    },
+  });
 
   const responseBody: ScoringRankedBallotResponse = {
     ok: true,

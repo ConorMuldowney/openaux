@@ -12,6 +12,7 @@ import {
 } from "@/src/api/route-handler";
 import { requireVerifiedEmailSession } from "@/src/api/auth";
 import { prisma } from "@/src/db/prisma";
+import { observeSignal, observeException } from "@/src/observability/server";
 
 export async function POST(request: Request) {
   const authResult = await requireVerifiedEmailSession(request);
@@ -98,6 +99,10 @@ export async function POST(request: Request) {
     return policyDeniedResponse(
       policyDeniedMessage(policyDecision.reason),
       policyDecision.reason,
+      {
+        route: "/api/ballots/submit",
+        showcaseId,
+      },
     );
   }
 
@@ -108,6 +113,17 @@ export async function POST(request: Request) {
   );
 
   if (!validationResult.isValid) {
+    observeSignal({
+      name: "ballot.validation.failed",
+      level: "warn",
+      context: {
+        route: "/api/ballots/submit",
+        showcaseId,
+        voterId,
+        reason: validationResult.reason,
+      },
+    });
+
     return NextResponse.json(
       {
         ok: false,
@@ -119,54 +135,82 @@ export async function POST(request: Request) {
   }
 
   // Get or create ballot and create new version
-  let ballot = await prisma.ballot.findUnique({
-    where: {
-      showcaseId_voterUserId: {
-        showcaseId,
-        voterUserId: voterId,
-      },
-    },
-    select: { id: true, versions: { select: { versionNumber: true } } },
-  });
-
-  let versionNumber = 1;
-
-  if (ballot) {
-    // Ballot exists, get next version number
-    versionNumber = Math.max(...ballot.versions.map((v: { versionNumber: number }) => v.versionNumber), 0) + 1;
-  } else {
-    // Create new ballot
-    ballot = await prisma.ballot.create({
-      data: {
-        showcaseId,
-        voterUserId: voterId,
+  try {
+    let ballot = await prisma.ballot.findUnique({
+      where: {
+        showcaseId_voterUserId: {
+          showcaseId,
+          voterUserId: voterId,
+        },
       },
       select: { id: true, versions: { select: { versionNumber: true } } },
     });
+
+    let versionNumber = 1;
+    const createdBallot = !ballot;
+
+    if (ballot) {
+      versionNumber =
+        Math.max(
+          ...ballot.versions.map((v: { versionNumber: number }) => v.versionNumber),
+          0,
+        ) + 1;
+    } else {
+      ballot = await prisma.ballot.create({
+        data: {
+          showcaseId,
+          voterUserId: voterId,
+        },
+        select: { id: true, versions: { select: { versionNumber: true } } },
+      });
+    }
+
+    const ballotVersion = await prisma.ballotVersion.create({
+      data: {
+        ballotId: ballot.id,
+        versionNumber,
+        rankedParticipantIds: rankedBallot.picks.map((pick) => pick.participantId),
+      },
+    });
+
+    await prisma.ballot.update({
+      where: { id: ballot.id },
+      data: { currentVersionId: ballotVersion.id },
+    });
+
+    observeSignal({
+      name: "ballot.write.completed",
+      context: {
+        route: "/api/ballots/submit",
+        showcaseId,
+        voterId,
+        ballotId: ballot.id,
+        versionNumber,
+        createdBallot,
+        picksCount: rankedBallot.picks.length,
+      },
+    });
+
+    const responseBody: BallotsSubmitResponse = {
+      ok: true,
+      data: {
+        ballotId: ballot.id,
+        versionNumber,
+      },
+    };
+
+    return NextResponse.json(responseBody, { status: 201 });
+  } catch (error) {
+    observeException({
+      name: "ballot.write.failed",
+      error,
+      context: {
+        route: "/api/ballots/submit",
+        showcaseId,
+        voterId,
+      },
+    });
+
+    throw error;
   }
-
-  // Create new ballot version
-  const ballotVersion = await prisma.ballotVersion.create({
-    data: {
-      ballotId: ballot.id,
-      versionNumber,
-      rankedParticipantIds: rankedBallot.picks.map((pick) => pick.participantId),
-    },
-  });
-
-  // Update ballot to point to new version
-  await prisma.ballot.update({
-    where: { id: ballot.id },
-    data: { currentVersionId: ballotVersion.id },
-  });
-
-  const responseBody: BallotsSubmitResponse = {
-    ok: true,
-    data: {
-      ballotId: ballot.id,
-      versionNumber,
-    },
-  };
-
-  return NextResponse.json(responseBody, { status: 201 });
 }
