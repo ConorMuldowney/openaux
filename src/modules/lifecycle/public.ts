@@ -42,6 +42,25 @@ export function isFinalizationImmutable(lifecycleState: ShowcaseLifecycleState):
   return lifecycleState === "finalized";
 }
 
+export type ShowcaseFieldUpdateValidation =
+  | { allowed: true }
+  | { allowed: false; reason: "rule-locked" | "finalized-immutable" };
+
+export function canUpdateShowcaseField(
+  lifecycleState: ShowcaseLifecycleState,
+  field: ShowcaseRuleField,
+): ShowcaseFieldUpdateValidation {
+  if (isFinalizationImmutable(lifecycleState)) {
+    return { allowed: false, reason: "finalized-immutable" };
+  }
+
+  if (isRuleLockedForLifecycle(lifecycleState, field)) {
+    return { allowed: false, reason: "rule-locked" };
+  }
+
+  return { allowed: true };
+}
+
 export function toPrismaLifecycleState(
   state: ShowcaseLifecycleState,
 ):
