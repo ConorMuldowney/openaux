@@ -1,103 +1,92 @@
-# Branch Protection Rules
+# Branch Protection Standards
 
 - Owner: Platform Engineering
 - Last reviewed: 2026-06-11
 
-This document describes the recommended branch protection configuration for the `main` branch in the OpenAux repository.
+This document describes the branch protection standards enforced on the `main` and `develop` branches in the OpenAux repository.
 
-## Purpose
+## Overview
 
-Branch protection rules enforce code quality and review standards by preventing direct pushes and requiring:
-- Pull request review and approval
-- Passing automated checks (lint, type check, build)
-- Linear issue references in metadata
-- Up-to-date branches before merge
+The `main` and `develop` branches are protected to enforce code quality, review standards, and maintainability. All changes to these branches must flow through pull requests and satisfy mandatory checks and approval requirements.
 
-## Setup Instructions
+## Merge Requirements
 
-Branch protection rules are configured in the GitHub web interface, not in code. Only repository administrators can modify these settings.
+To merge a pull request to `main`, the following conditions must all be satisfied:
 
-### Step 1: Navigate to Branch Protection Settings
+### 1. Code Review Approval
 
-1. Go to repository home page
-2. Click **Settings** (top right)
-3. In left sidebar, click **Branches**
-4. Under "Branch protection rules," click **Add rule**
+- Minimum **1 approved review** from another contributor required
+- Reviews become stale if new commits are pushed—new approval is required after updates
+- Approval must be from a reviewer other than the PR author
+- Applies to PRs targeting both `main` and `develop`
 
-### Step 2: Configure Rule for `main` Branch
+### 2. Status Checks
 
-**Branch name pattern:** `main`
+All of the following checks must pass:
 
-### Step 3: Enable Required Protections
+- **`quality`** — Linting, type checking, and build verification
+- **`pr-validate-linear`** — PR title must start with `AUX-###: ` (Linear issue reference) (required for `main` only)
 
-#### ✅ Require a pull request before merging
+Optional but recommended:
 
-- **Require approvals:** `1` (minimum 1 approved review)
-- **Dismiss stale pull request approvals when new commits are pushed:** `✓` (checked)
-- **Require review from Code Owners:** `☐` (unchecked, optional—set if CODEOWNERS file exists)
+- **`prisma-migrate-deploy`** — Database migrations must be deployable (when applicable)
 
-#### ✅ Require status checks to pass before merging
+### 3. Branch Currency
 
-- **Require branches to be up to date before merging:** `✓` (checked)
-- **Status checks that must pass:**
-  - `quality` (lint, typecheck, build)
-  - `pr-validate-linear` (Linear issue reference in PR title)
-  - `prisma-migrate-deploy` (optional—depends on your deployment strategy)
+- The PR branch must be **up-to-date with `main`** at merge time
+- Stale branches must be updated before merging
+- GitHub enforces this at the time of merge
 
-#### ✅ Require code reviews
+## Allowed and Blocked Operations
 
-- **Required:** Yes
-- **Dismiss stale PR approvals:** Yes
-- **Require CODEOWNERS review:** No (unless you have a CODEOWNERS file)
+### ✅ Allowed
 
-#### ✅ Require up-to-date branches
-
-- **Require branches to be up to date before merging:** `✓` (checked)
-- This ensures PRs are tested against latest main
-
-#### Optional: Additional Protections
-
-- **Require signed commits:** `☐` (unchecked unless your team uses GPG signatures)
-- **Include administrators in restrictions:** `☐` (unchecked—allows admins to bypass; check if you want strict enforcement)
-- **Require status checks to pass before merging:** `✓` (checked)
-- **Require conversation resolution before merging:** `☐` (optional—good for enforcing comment responses)
-
-### Step 4: Save Rule
-
-Click **Create** to save the branch protection rule for `main`.
-
-## Enforcement Details
-
-### What Happens When Protection is Active
-
-✅ **Allowed:**
-- Create new branches from `main`
-- Push to non-`main` branches
-- Open pull requests against `main` (even if title doesn't match)
+- Create and push to feature branches
+- Open pull requests against `main` (checks run automatically)
 - Force-push on non-protected branches
+- Direct pushes to branches other than `main`
 
-❌ **Blocked:**
-- Direct push to `main` (even for admins, unless "Include administrators in restrictions" is unchecked)
-- Merge PR without 1 approved review
-- Merge PR without passing `quality` status check
-- Merge PR without passing `pr-validate-linear` check
-- Merge PR with stale reviews (if new commits are pushed)
-- Merge PR with non-up-to-date branch
+### ❌ Blocked
 
-### If PR Checks Fail
+- **Direct pushes to `main` or `develop`** — All changes must go through reviewed PRs
+- **Merge without approval** — At least one review approval required
+- **Merge with failing checks** — Quality checks must pass (Linear check required for `main` only)
+- **Merge with stale reviews** — Reviews expire if new commits are pushed
+- **Merge with outdated branch** — Branch must be rebased or merged with latest `main` or `develop`
 
-**Linear issue reference check fails:**
-1. Edit PR title to start with `AUX-###: `
-2. GitHub will automatically re-run check
-3. Once passing, merge is allowed
+## Response to Check Failures
 
-**Quality check fails:**
-1. Pull latest main: `git pull origin main`
-2. Create feature branch: `git switch -c feat/AUX-123-fix-issue`
-3. Fix the issues (lint, types, build)
-4. Commit and push: `git push origin feat/AUX-123-fix-issue`
-5. Reopen or update PR—checks run automatically
-6. Once all pass, merge is allowed
+### Linear Issue Reference Check Fails (for PRs to `main`)
+
+The PR title doesn't match the required `AUX-###: ` format.
+
+**How to fix:**
+1. Edit the PR title to start with `AUX-###: ` (e.g., `AUX-37: Implement feature`)
+2. GitHub automatically re-runs the check
+3. Once passing, the PR is eligible for merge
+
+**Note:** This check is required only for PRs targeting `main`. PRs to `develop` do not require Linear references.
+
+### Quality Check Fails
+
+Lint, type check, or build verification failed.
+
+**How to fix:**
+1. Pull the latest from `main`
+2. Fix the identified issues (lint warnings, TypeScript errors, build errors)
+3. Commit and push the fixes to your feature branch
+4. The check runs automatically on push
+5. Once passing, the PR is eligible for merge (assuming other requirements are met)
+
+## Protection Scope
+
+Branch protection applies to:
+
+- **Protected branches:** `main` and `develop`
+- **Applied to:** All contributors, including repository administrators
+- **Not applied to:** Feature branches, release branches, or other branches
+
+The protection is enforced at the GitHub API level and cannot be bypassed by force-pushes or administrative override.
 
 ### Linear Issue Linking
 

@@ -1,102 +1,130 @@
-# CI/GitHub Actions Configuration
+# CI/GitHub Actions Standards
 
 - Owner: Platform Engineering
 - Last reviewed: 2026-06-11
 
-This document outlines the continuous integration (CI) workflow and GitHub Actions configuration for OpenAux.
+This document describes the continuous integration (CI) systems and automated workflows enforced for OpenAux.
 
-## Workflow Overview
+## Overview
 
-GitHub Actions automatically runs quality checks and deployments based on git events:
+GitHub Actions automatically run quality checks, validations, and deployments based on git events. All CI jobs must pass before changes can be merged to `main` or `develop`.
 
-- **Pull Requests to `main`**: Run linting, type checking, and build verification
-- **Pushes to `main`**: Run quality checks, then deploy migrations to all environments (dev, preview, prod)
-- **Manual Trigger**: Can run the entire workflow on demand via GitHub Actions UI
+## Automated Workflows
 
-## Jobs
+### Quality Checks: Lint, Type Check, Build
 
-### Quality Job: `Lint Typecheck Build`
+**Triggers:**
+- Every pull request to `main` or `develop`
+- Every push to `main` or `develop`
 
-**Triggers:** Every PR to `main` and every push to `main`
+**What it checks:**
+1. **Lint** — ESLint validates all code, enforces zero warnings
+2. **Type check** — TypeScript strict mode validation
+3. **Build** — Next.js production build verification
 
-**Steps:**
-1. Checkout code
-2. Set up Node.js 20 with npm cache
-3. Install dependencies (`npm ci`)
-4. Lint code (`npm run lint`)
-   - Runs ESLint with zero warnings
-   - Validates domain language terminology
-5. Type check (`npm run typecheck`)
-   - TypeScript strict mode
-6. Build (`npm run build`)
-   - Next.js build for production
+**Status:** Required to pass before PR merge
+- If any step fails, the PR cannot be merged
+- Failures block the `quality` status check
 
-**Status:** Required. PR cannot merge without passing this job.
+**How to run locally:**
+```bash
+npm run lint      # Check for linting issues
+npm run typecheck # Run TypeScript type checking
+npm run build     # Build Next.js app for production
+```
 
-### Preview Deploy Job: `preview-deploy`
-
-**Triggers:** Pull requests to `main`
-
-**Current Status:** Placeholder job that comments on PR with deployment info.
-
-**Required permissions:**
-- `contents: read`
-- `issues: write`
-- `pull-requests: write`
-
-**Next Steps:** 
-- Integrate with hosting provider (Vercel, Netlify, Railway, etc.)
-- Configure deployment credentials in GitHub repository secrets
-- Update job steps to deploy Next.js app to preview environment
-- Auto-comment PR with preview URL
-
-See [Branch Protection Rules](#branch-protection-rules) for required environment setup.
-
-### Prisma Migrate Deploy Job: `Prisma Migrate Deploy`
-
-**Triggers:** Pushes to `main` only (not on PRs)
-
-**Environments:** Development, Preview, Production (runs in each)
-
-**Steps:**
-1. Checkout code
-2. Set up Node.js 20
-3. Install dependencies
-4. Generate Prisma Client
-5. Apply pending database migrations
-6. Validate migration state
-
-**Status:** Optional but recommended. Depends on `quality` job passing.
-
-**Secrets Required:**
-- `DEV_DATABASE_URL` — Development database connection string
-- `PREVIEW_DATABASE_URL` — Preview database connection string
-- `PROD_DATABASE_URL` — Production database connection string
-
-Each secret is configured per GitHub environment with appropriate access controls.
-
-## PR Validation: Linear Issue Reference
+### Linear Issue Reference Validation
 
 **Workflow:** `.github/workflows/pr-validate-linear.yml`
 
-**Triggers:** Pull request open, edit, and synchronize events
+**Triggers:**
+- PR opened
+- PR title edited
+- New commits pushed to PR
 
-**Validation:**
-- PR title must start with `AUX-###: ` (Linear issue reference)
-- Example: `AUX-37: Set up CI with preview deploy`
+**Applies to:** PRs targeting `main` only
 
-**Status:** Required. PR cannot merge without passing this check.
+**Standard:**
+- PR title must start with `AUX-###: ` format (Linear issue ID)
+- Example: `AUX-37: Implement user authentication`
 
-## Running Workflows Locally
+**Status:** Required to pass before PR merge to `main`
+- If the title doesn't match the format, the `pr-validate-linear` check fails
+- PR cannot merge until the title is corrected
+- Not required for PRs to `develop`
 
-### Test Quality Checks
+### Preview Deployment
 
-```bash
-# Lint
-npm run lint
+**Triggers:** Pull requests to `main` or `develop`
 
-# Typecheck
-npm run typecheck
+**Current status:** Placeholder implementation
+
+**Future scope:**
+- Deploy preview environment for each PR
+- Comment PR with preview URL
+- Automatically clean up previews on PR close/merge
+
+**Permissions:**
+- Read contents
+- Write to issues and pull requests
+
+### Database Migration Deployment
+
+**Triggers:** Pushes to `main` or `develop` (not on PRs)
+
+**Scope:** Runs in development, preview, and production environments
+
+**What it does:**
+1. Checks out code
+2. Sets up Node.js environment
+3. Installs dependencies
+4. Generates Prisma Client
+5. Applies pending database migrations
+6. Validates migration state
+
+**Status:** Recommended but optional
+- Does not block PR merge
+- Only runs after quality checks pass
+- Requires database connection secrets per environment
+
+**Secrets required:**
+- `DEV_DATABASE_URL` — Development database (GitHub Secrets)
+- `PREVIEW_DATABASE_URL` — Preview environment database (GitHub Secrets)
+- `PROD_DATABASE_URL` — Production database (GitHub Secrets)
+
+Each secret is configured per GitHub environment with appropriate access controls.
+
+## Standard Enforcement
+
+### PR Merge Requirements
+
+All of the following must be satisfied:
+
+1. **Quality checks pass** — Lint, type check, build succeed
+2. **Linear reference valid** — PR title matches `AUX-###: ` format (required for `main` only)
+3. **At least one approval** — See [Branch Protection Standards](branch-protection.md)
+4. **Branch is up-to-date** — See [Branch Protection Standards](branch-protection.md)
+
+### Workflow Visibility
+
+- All workflow runs are visible in the **Actions** tab on GitHub
+- PR status checks display inline on the PR page
+- Detailed logs available for each job and step
+
+## Developer Expectations
+
+- **PRs to `main` must have titles in Linear format** — Check your Linear board for issue IDs (not required for `develop`)
+- **Fix quality issues before pushing** — Run lint, typecheck, and build locally to catch issues early
+- **Expect automated checks to run on every PR** — Don't wait for manual review, fix CI failures first
+- **Don't force-push to PR branches excessively** — Each push triggers checks; rebase carefully
+
+## Integration with Branch Protection
+
+The CI system works in tandem with [branch protection rules](branch-protection.md):
+
+- Branch protection requires `quality` and `pr-validate-linear` checks to pass
+- You cannot merge until all required checks are passing and green on GitHub
+- Stale reviews expire after new commits are pushed (you may need a re-review)
 
 # Build
 npm run build
