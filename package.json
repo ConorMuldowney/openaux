@@ -14,6 +14,7 @@
     "test:watch": "vitest --config vitest.config.ts",
     "lint": "eslint . --max-warnings=0 && npm run check:domain-language",
     "typecheck": "tsc --noEmit",
+    "typecheck:changed": "pwsh -Command \"& .\\scripts\\typecheck-changed.ps1 develop || exit $LASTEXITCODE\"",
     "check:domain-language": "node ./scripts/check-domain-language.mjs",
     "prisma:generate": "prisma generate",
     "prisma:format": "prisma format",
@@ -21,13 +22,12 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:migrate:status": "prisma migrate status",
     "db:seed": "tsx prisma/seed.ts",
-    "start-ticket": "node scripts/start-ticket.mjs",
-    "create-worktree": "node scripts/create-worktree.mjs",
     "prepare": "husky"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.22.0",
     "@prisma/client": "^6.9.0",
+    "@sentry/node": "^10.57.0",
     "next": "^16.2.7",
     "react": "19.2.1",
     "react-dom": "19.2.1",

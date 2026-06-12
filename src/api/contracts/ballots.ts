@@ -18,7 +18,15 @@ export const BALLOTS_VALIDATE_REQUEST_SCHEMA = z.object({
 
 export const BALLOTS_VALIDATE_DATA_SCHEMA = z.object({
   isValid: z.boolean(),
-  reason: z.string().optional(),
+  reason: z
+    .enum([
+      "too-many-picks",
+      "duplicate-participant",
+      "duplicate-rank",
+      "rank-out-of-range",
+      "non-contiguous-ranks",
+    ])
+    .optional(),
 });
 
 export const BALLOTS_VALIDATE_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
@@ -28,3 +36,21 @@ export const BALLOTS_VALIDATE_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema
 export type BallotsValidateRequest = z.infer<typeof BALLOTS_VALIDATE_REQUEST_SCHEMA>;
 export type BallotsValidateData = z.infer<typeof BALLOTS_VALIDATE_DATA_SCHEMA>;
 export type BallotsValidateResponse = ApiRouteResponse<BallotsValidateData>;
+
+export const BALLOTS_SUBMIT_REQUEST_SCHEMA = z.object({
+  showcaseId: z.string().min(1),
+  rankedBallot: RANKED_BALLOT_SCHEMA,
+});
+
+export const BALLOTS_SUBMIT_DATA_SCHEMA = z.object({
+  ballotId: z.string().min(1),
+  versionNumber: z.number().int().positive(),
+});
+
+export const BALLOTS_SUBMIT_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
+  BALLOTS_SUBMIT_DATA_SCHEMA,
+);
+
+export type BallotsSubmitRequest = z.infer<typeof BALLOTS_SUBMIT_REQUEST_SCHEMA>;
+export type BallotsSubmitData = z.infer<typeof BALLOTS_SUBMIT_DATA_SCHEMA>;
+export type BallotsSubmitResponse = ApiRouteResponse<BallotsSubmitData>;
