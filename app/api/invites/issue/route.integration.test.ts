@@ -228,6 +228,7 @@ describe("invite issue route integration", () => {
         showcaseId: string;
         scope: "participation" | "listener" | "voter";
         token: string;
+        inviteUrl: string;
       };
     };
 
@@ -235,6 +236,9 @@ describe("invite issue route integration", () => {
     expect(json.data.showcaseId).toBe(showcase.id);
     expect(json.data.scope).toBe("participation");
     expect(json.data.token).toMatch(/^[a-f0-9]{48}$/);
+    expect(json.data.inviteUrl).toBe(
+      `http://localhost/invites/accept?token=${encodeURIComponent(json.data.token)}`,
+    );
 
     const storedInvite = await testPrisma.invite.findUnique({
       where: { id: json.data.inviteId },

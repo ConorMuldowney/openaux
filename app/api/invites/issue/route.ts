@@ -33,6 +33,12 @@ function hashInviteToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
+function createShareableInviteUrl(request: Request, token: string): string {
+  const inviteUrl = new URL("/invites/accept", request.url);
+  inviteUrl.searchParams.set("token", token);
+  return inviteUrl.toString();
+}
+
 export async function POST(request: Request) {
   const authResult = await requireVerifiedEmailSession(request);
   if (!authResult.ok) {
@@ -96,6 +102,7 @@ export async function POST(request: Request) {
       showcaseId: invite.showcaseId,
       scope: parsedRequest.data.scope,
       token,
+      inviteUrl: createShareableInviteUrl(request, token),
       expiresAt: invite.expiresAt,
     },
   };
