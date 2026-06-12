@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import { InviteAcceptanceOutcome, InviteScope, ShowcaseLifecycleState } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/db/prisma";
+import { toUtcDateTimeString } from "@/src/domain/time/public";
 import {
   INVITE_ACCEPT_REQUEST_SCHEMA,
   type InviteAcceptResponse,
@@ -217,7 +218,7 @@ export async function POST(request: Request) {
       showcaseId: invite.showcaseId,
       scope: fromPrismaInviteScope(invite.scope),
       acceptedByUserId: authResult.session.user.sub,
-      acceptedAt: now,
+      acceptedAt: toUtcDateTimeString(now),
       inviteAcceptanceAuditEventId: acceptance.auditEventId,
     },
   };
