@@ -14,6 +14,7 @@ import {
 import { requireVerifiedEmailSession } from "@/src/api/auth";
 import { prisma } from "@/src/db/prisma";
 import { observeSignal, observeException } from "@/src/observability/server";
+import { isAtOrAfterUtcInstant, isBeforeUtcInstant } from "@/src/domain/time/public";
 
 export async function POST(request: Request) {
   const authResult = await requireVerifiedEmailSession(request);
@@ -64,11 +65,11 @@ export async function POST(request: Request) {
 
   // Check voting window (UTC, end-exclusive)
   const now = new Date();
-  if (showcase.votingOpensAt && now < showcase.votingOpensAt) {
+  if (showcase.votingOpensAt && isBeforeUtcInstant(now, showcase.votingOpensAt)) {
     return stateInvalidResponse("Voting has not yet opened.");
   }
 
-  if (showcase.votingClosesAt && now >= showcase.votingClosesAt) {
+  if (showcase.votingClosesAt && isAtOrAfterUtcInstant(now, showcase.votingClosesAt)) {
     return stateInvalidResponse("Voting has closed.");
   }
 
