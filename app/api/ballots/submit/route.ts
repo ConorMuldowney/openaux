@@ -9,6 +9,7 @@ import {
   parseJsonBody,
   policyDeniedMessage,
   policyDeniedResponse,
+  stateInvalidResponse,
 } from "@/src/api/route-handler";
 import { requireVerifiedEmailSession } from "@/src/api/auth";
 import { prisma } from "@/src/db/prisma";
@@ -52,34 +53,22 @@ export async function POST(request: Request) {
   });
 
   if (!showcase) {
-    return NextResponse.json(
-      { ok: false, error: "Showcase not found" },
-      { status: 404 },
-    );
+    return stateInvalidResponse("Showcase not found.");
   }
 
   // Check voting state
   if (showcase.lifecycleState !== "VOTING_OPEN") {
-    return NextResponse.json(
-      { ok: false, error: "Voting is not currently open for this showcase" },
-      { status: 403 },
-    );
+    return stateInvalidResponse("Voting is not currently open for this showcase.");
   }
 
   // Check voting window (UTC, end-exclusive)
   const now = new Date();
   if (showcase.votingOpensAt && now < showcase.votingOpensAt) {
-    return NextResponse.json(
-      { ok: false, error: "Voting has not yet opened" },
-      { status: 403 },
-    );
+    return stateInvalidResponse("Voting has not yet opened.");
   }
 
   if (showcase.votingClosesAt && now >= showcase.votingClosesAt) {
-    return NextResponse.json(
-      { ok: false, error: "Voting has closed" },
-      { status: 403 },
-    );
+    return stateInvalidResponse("Voting has closed.");
   }
 
   // Map AccessScope to voterScope domain language
@@ -111,8 +100,19 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Ballot validation failed",
-        reason: validationResult.reason,
+        error: {
+          code: "validation-error",
+          message: "Request validation failed.",
+          details: {
+            validationIssues: [
+              {
+                path: "rankedBallot",
+                message: `Ranked ballot is invalid: ${validationResult.reason}.`,
+                issueCode: "custom",
+              },
+            ],
+          },
+        },
       },
       { status: 400 },
     );
