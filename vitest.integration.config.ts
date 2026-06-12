@@ -12,6 +12,10 @@ export default defineConfig({
     restoreMocks: true,
     // Give migrations time to run on first run
     testTimeout: 30_000,
+    // Integration tests share a single database — run files sequentially to
+    // prevent afterEach cleanTestDatabase calls in one file from racing against
+    // mid-test DB operations in another file.
+    fileParallelism: false,
 
   },
 });
