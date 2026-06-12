@@ -114,3 +114,23 @@ export const POLICY_VOTE_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(POLI
 export type PolicyVoteRequest = z.infer<typeof POLICY_VOTE_REQUEST_SCHEMA>;
 export type PolicyVoteData = z.infer<typeof POLICY_VOTE_DATA_SCHEMA>;
 export type PolicyVoteResponse = ApiRouteResponse<PolicyVoteData>;
+
+export const POLICY_SUBMIT_BALLOT_REQUEST_SCHEMA = z.object({
+  voterScope: z.enum(["public-authenticated", "invite-only-authenticated"]),
+  isAuthenticated: z.boolean(),
+  isVerifiedEmail: z.boolean(),
+  isInvited: z.boolean(),
+  isParticipantInShowcase: z.boolean(),
+});
+
+export const POLICY_SUBMIT_BALLOT_DATA_SCHEMA = z.object({
+  canSubmitBallot: z.literal(true),
+});
+
+export const POLICY_SUBMIT_BALLOT_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
+  POLICY_SUBMIT_BALLOT_DATA_SCHEMA,
+);
+
+export type PolicySubmitBallotRequest = z.infer<typeof POLICY_SUBMIT_BALLOT_REQUEST_SCHEMA>;
+export type PolicySubmitBallotData = z.infer<typeof POLICY_SUBMIT_BALLOT_DATA_SCHEMA>;
+export type PolicySubmitBallotResponse = ApiRouteResponse<PolicySubmitBallotData>;

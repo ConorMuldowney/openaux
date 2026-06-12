@@ -45,6 +45,21 @@ Use magic words in PR descriptions to trigger state transitions on merge:
 - Verify the PR description includes a magic word like `Implements AUX-123`
 - Check that you merged to `main` (not another branch)
 
+## API Access For Automation
+
+When automation needs to resolve a Linear issue (for example ticket-to-PR flows), use this key-resolution and request policy:
+
+1. Resolve `LINEAR_API_KEY` in this order:
+	- process environment
+	- `.env.local` in repository root
+	- `.env.test.local` in repository root
+2. Do not print secret values in logs; report only key presence/absence.
+3. For GraphQL requests, use header format:
+	- `Authorization: <LINEAR_API_KEY>`
+	- Do not add `Bearer`.
+4. If direct Linear webpage fetch requires login, use GraphQL fallback before requesting pasted ticket text.
+5. In PowerShell, prefer `Invoke-WebRequest -UseBasicParsing` to avoid interactive script parsing prompts.
+
 ## Definition of done for Linear-connected work
 
 - Every branch references one Linear issue.
