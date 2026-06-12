@@ -4,6 +4,7 @@ export const API_ERROR_CODE_SCHEMA = z.enum([
   "validation-error",
   "policy-denied",
   "state-invalid",
+  "settings-locked",
   "authentication-required",
   "verified-email-required",
 ]);
