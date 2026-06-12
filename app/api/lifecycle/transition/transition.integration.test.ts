@@ -513,4 +513,50 @@ describe("POST /api/lifecycle/transition — final snapshot publication", () => 
     expect(standings[0].participantId).toBe(p1.id);
     expect(standings[0].points).toBe(2);
   });
+
+  it("excludes invalid entries from final standings and recomputes points from compressed ballots", async () => {
+    const showcase = await createShowcase(prisma, {
+      hostUserId,
+      lifecycleState: "VOTING_OPEN",
+      maxRankedPicks: 3,
+    });
+
+    const p1 = await createParticipant(prisma, { showcaseId: showcase.id });
+    const p2 = await createParticipant(prisma, { showcaseId: showcase.id });
+    const disqualified = await createParticipant(prisma, { showcaseId: showcase.id });
+
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id, isValid: true });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id, isValid: true });
+    await createEntry(prisma, {
+      showcaseId: showcase.id,
+      participantId: disqualified.id,
+      isValid: false,
+    });
+
+    const ballot1 = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-1" });
+    const version1 = await createBallotVersion(prisma, {
+      ballotId: ballot1.id,
+      rankedParticipantIds: [p1.id, disqualified.id, p2.id],
+    });
+    await prisma.ballot.update({ where: { id: ballot1.id }, data: { currentVersionId: version1.id } });
+
+    const ballot2 = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-2" });
+    const version2 = await createBallotVersion(prisma, {
+      ballotId: ballot2.id,
+      rankedParticipantIds: [p2.id, disqualified.id, p1.id],
+    });
+    await prisma.ballot.update({ where: { id: ballot2.id }, data: { currentVersionId: version2.id } });
+
+    const response = await POST(makeRequest({ showcaseId: showcase.id, nextState: "finalized" }));
+    expect(response.status).toBe(200);
+
+    const finalStandings = await prisma.finalStandings.findUnique({
+      where: { showcaseId: showcase.id },
+    });
+
+    const standings = finalStandings!.standings as Array<{ participantId: string; points: number }>;
+    expect(standings).toHaveLength(2);
+    expect(standings.every((standing) => standing.participantId !== disqualified.id)).toBe(true);
+    expect(standings.map((standing) => standing.points)).toEqual([5, 5]);
+  });
 });

@@ -187,6 +187,24 @@ describe("computeShowcaseStandings", () => {
     expect(standings).toEqual([]);
   });
 
+  it("removes disqualified entries from ballots, compresses ranks, and recomputes totals", () => {
+    const storedBallots = [
+      { voterId: "v1", rankedParticipantIds: ["p1", "p3", "p2"] },
+      { voterId: "v2", rankedParticipantIds: ["p2", "p3", "p1"] },
+    ];
+
+    const validEntryTimestamps = [
+      { participantId: "p1", submittedAt: new Date("2026-06-01T10:00:00.000Z") },
+      { participantId: "p2", submittedAt: new Date("2026-06-01T11:00:00.000Z") },
+    ];
+
+    const standings = computeShowcaseStandings(storedBallots, 3, validEntryTimestamps);
+
+    expect(standings.map((s) => s.participantId)).toEqual(["p1", "p2"]);
+    expect(standings[0]).toMatchObject({ participantId: "p1", points: 5, rankCounts: [1, 1] });
+    expect(standings[1]).toMatchObject({ participantId: "p2", points: 5, rankCounts: [1, 1] });
+  });
+
   it("breaks ties using rank counts stored in the rankCounts field", () => {
     const storedBallots = [
       { voterId: "v1", rankedParticipantIds: ["p1", "p2"] },
