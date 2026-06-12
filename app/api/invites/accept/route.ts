@@ -115,8 +115,6 @@ export async function POST(request: Request) {
     rejectionReason = "invite-revoked";
   } else if (invite.expiresAt && invite.expiresAt <= now) {
     rejectionReason = "invite-expired";
-  } else if (invite.showcase.lifecycleState === ShowcaseLifecycleState.FINALIZED) {
-    rejectionReason = "invite-read-only-after-finalization";
   } else if (invite.acceptedAt || invite.acceptedByUserId) {
     rejectionReason = "invite-already-accepted";
   }
@@ -133,6 +131,34 @@ export async function POST(request: Request) {
     });
 
     return stateInvalidResponse(rejectionMessage(rejectionReason));
+  }
+
+  if (invite.showcase.lifecycleState === ShowcaseLifecycleState.FINALIZED) {
+    const auditEvent = await prisma.inviteAcceptanceAuditEvent.create({
+      data: {
+        inviteId: invite.id,
+        showcaseId: invite.showcaseId,
+        actorUserId: authResult.session.user.sub,
+        outcome: InviteAcceptanceOutcome.REJECTED,
+        reason: "invite-read-only-after-finalization",
+      },
+      select: { id: true },
+    });
+
+    const readOnlyResponseBody: InviteAcceptResponse = {
+      ok: true,
+      data: {
+        inviteId: invite.id,
+        showcaseId: invite.showcaseId,
+        scope: fromPrismaInviteScope(invite.scope),
+        resolution: "read-only-after-finalization",
+        acceptedByUserId: null,
+        acceptedAt: null,
+        inviteAcceptanceAuditEventId: auditEvent.id,
+      },
+    };
+
+    return NextResponse.json(readOnlyResponseBody, { status: 200 });
   }
 
   const acceptedInviteForScope = await prisma.invite.findFirst({
@@ -217,6 +243,7 @@ export async function POST(request: Request) {
       inviteId: invite.id,
       showcaseId: invite.showcaseId,
       scope: fromPrismaInviteScope(invite.scope),
+      resolution: "accepted",
       acceptedByUserId: authResult.session.user.sub,
       acceptedAt: toUtcDateTimeString(now),
       inviteAcceptanceAuditEventId: acceptance.auditEventId,
