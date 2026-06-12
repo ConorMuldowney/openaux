@@ -17,6 +17,7 @@ export const INVITE_ISSUE_DATA_SCHEMA = z.object({
   showcaseId: z.string().uuid(),
   scope: INVITE_SCOPE_SCHEMA,
   token: z.string().min(1),
+  inviteUrl: z.string().url(),
   expiresAt: z.coerce.date().nullable(),
 });
 
@@ -27,6 +28,35 @@ export const INVITE_ISSUE_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
 export type InviteIssueRequest = z.infer<typeof INVITE_ISSUE_REQUEST_SCHEMA>;
 export type InviteIssueData = z.infer<typeof INVITE_ISSUE_DATA_SCHEMA>;
 export type InviteIssueResponse = ApiRouteResponse<InviteIssueData>;
+
+export const INVITE_LIST_REQUEST_SCHEMA = z.object({
+  showcaseId: z.string().uuid(),
+});
+
+export const INVITE_LIST_ITEM_SCHEMA = z.object({
+  inviteId: z.string().uuid(),
+  scope: INVITE_SCOPE_SCHEMA,
+  invitedEmail: z.string().email().nullable(),
+  acceptedByUserId: z.string().nullable(),
+  acceptedAt: z.coerce.date().nullable(),
+  expiresAt: z.coerce.date().nullable(),
+  revokedAt: z.coerce.date().nullable(),
+  createdAt: z.coerce.date(),
+});
+
+export const INVITE_LIST_DATA_SCHEMA = z.object({
+  showcaseId: z.string().uuid(),
+  invites: z.array(INVITE_LIST_ITEM_SCHEMA),
+});
+
+export const INVITE_LIST_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
+  INVITE_LIST_DATA_SCHEMA,
+);
+
+export type InviteListRequest = z.infer<typeof INVITE_LIST_REQUEST_SCHEMA>;
+export type InviteListItem = z.infer<typeof INVITE_LIST_ITEM_SCHEMA>;
+export type InviteListData = z.infer<typeof INVITE_LIST_DATA_SCHEMA>;
+export type InviteListResponse = ApiRouteResponse<InviteListData>;
 
 export const INVITE_ACCEPT_REQUEST_SCHEMA = z.object({
   token: z.string().trim().min(1),
