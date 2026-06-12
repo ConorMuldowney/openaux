@@ -18,7 +18,15 @@ export const BALLOTS_VALIDATE_REQUEST_SCHEMA = z.object({
 
 export const BALLOTS_VALIDATE_DATA_SCHEMA = z.object({
   isValid: z.boolean(),
-  reason: z.string().optional(),
+  reason: z
+    .enum([
+      "too-many-picks",
+      "duplicate-participant",
+      "duplicate-rank",
+      "rank-out-of-range",
+      "non-contiguous-ranks",
+    ])
+    .optional(),
 });
 
 export const BALLOTS_VALIDATE_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
