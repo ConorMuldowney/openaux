@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   SHOWCASE_LIFECYCLE_STATES,
   canTransitionLifecycle,
+  canUpdateShowcaseField,
   fromPrismaLifecycleState,
   isFinalizationImmutable,
   isRuleLockedForLifecycle,
@@ -67,5 +68,52 @@ describe("lifecycle boundary rules", () => {
     expect(fromPrismaLifecycleState("CREATION ")).toBeNull();
     expect(fromPrismaLifecycleState("creation")).toBeNull();
     expect(fromPrismaLifecycleState("UNKNOWN")).toBeNull();
+  });
+
+  it("allows updating all fields during creation phase", () => {
+    expect(canUpdateShowcaseField("creation", "voter-scope")).toEqual({ allowed: true });
+    expect(canUpdateShowcaseField("creation", "max-ranked-picks")).toEqual({ allowed: true });
+    expect(canUpdateShowcaseField("creation", "blind-judging")).toEqual({ allowed: true });
+    expect(canUpdateShowcaseField("creation", "listener-scope")).toEqual({ allowed: true });
+  });
+
+  it("prevents updating locked fields after submission open", () => {
+    expect(canUpdateShowcaseField("submission-open", "voter-scope")).toEqual({
+      allowed: false,
+      reason: "rule-locked",
+    });
+    expect(canUpdateShowcaseField("submission-open", "max-ranked-picks")).toEqual({
+      allowed: false,
+      reason: "rule-locked",
+    });
+    expect(canUpdateShowcaseField("submission-open", "blind-judging")).toEqual({
+      allowed: false,
+      reason: "rule-locked",
+    });
+  });
+
+  it("allows updating listener-scope at any stage except finalized", () => {
+    expect(canUpdateShowcaseField("creation", "listener-scope")).toEqual({ allowed: true });
+    expect(canUpdateShowcaseField("submission-open", "listener-scope")).toEqual({ allowed: true });
+    expect(canUpdateShowcaseField("voting-open", "listener-scope")).toEqual({ allowed: true });
+  });
+
+  it("prevents updating any field when finalized", () => {
+    expect(canUpdateShowcaseField("finalized", "voter-scope")).toEqual({
+      allowed: false,
+      reason: "finalized-immutable",
+    });
+    expect(canUpdateShowcaseField("finalized", "listener-scope")).toEqual({
+      allowed: false,
+      reason: "finalized-immutable",
+    });
+    expect(canUpdateShowcaseField("finalized", "blind-judging")).toEqual({
+      allowed: false,
+      reason: "finalized-immutable",
+    });
+    expect(canUpdateShowcaseField("finalized", "max-ranked-picks")).toEqual({
+      allowed: false,
+      reason: "finalized-immutable",
+    });
   });
 });
