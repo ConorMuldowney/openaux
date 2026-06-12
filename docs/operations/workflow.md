@@ -124,15 +124,25 @@ Run all checks locally before pushing to avoid a failed CI run:
 ```bash
 npm run lint          # ESLint (zero warnings) + domain-language check
 npm run typecheck     # TypeScript strict mode
+npm run build         # Next.js production build (also runs prisma generate) — REQUIRED
 npm run test:unit     # Vitest unit tests
-npm run build         # Next.js production build (also runs prisma generate)
 ```
 
-For changes that touch database-connected code, also run integration tests (requires a reachable `DATABASE_URL`):
+For changes that touch database-connected code, also run integration tests (requires a reachable `TEST_DATABASE_URL`):
 
 ```bash
 npm run test:integration
 ```
+
+### Quick iteration vs. final verification
+
+**During development iteration** (fixing errors repeatedly):
+- Use `npm run typecheck:changed` to typecheck only your modified files — this avoids pre-existing errors hiding your new issues.
+- Always include `npm run build` — the Next.js build catches Prisma composite key errors and other generic type issues that typecheck alone misses.
+
+**Before final push**:
+- Run the full `npm run typecheck` to ensure no regressions in unmodified files.
+- Confirm `npm run build` succeeds one more time.
 
 ### Fixing common failures
 
@@ -141,8 +151,8 @@ npm run test:integration
 | Lint error | Follow the ESLint message; re-run `npm run lint` to confirm |
 | Domain-language violation | Check `scripts/check-domain-language.mjs` output; rename the offending symbol to use canonical domain language |
 | TypeScript error | Fix the type error; `npm run typecheck` is watch-less — run it again to confirm |
+| Build error | Usually a missing import, invalid export, or Prisma type mismatch; fix and re-run `npm run build` |
 | Test failure | Fix the failing test or the code under test; do not skip tests |
-| Build error | Usually a missing import or invalid export; fix and re-run `npm run build` |
 
 ---
 
