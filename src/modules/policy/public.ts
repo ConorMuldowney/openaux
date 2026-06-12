@@ -132,6 +132,13 @@ export function evaluateVotePolicy(context: VotePolicyContext): PolicyDecision {
   return { allowed: true };
 }
 
+export type SubmitBallotPolicyContext = VotePolicyContext;
+
+export function evaluateSubmitBallotPolicy(context: SubmitBallotPolicyContext): PolicyDecision {
+  // Submit ballot has the same policy requirements as casting a vote
+  return evaluateVotePolicy(context);
+}
+
 export function canSubmitEntry(context: PolicyContext): boolean {
   return evaluateSubmitEntryPolicy({
     participationScope: context.participationScope,
