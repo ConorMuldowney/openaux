@@ -17,7 +17,7 @@ export default async function HomePage() {
           OpenAux App Router Skeleton
         </p>
         <h1 className="text-4xl font-black tracking-tight">Modular Monolith Baseline</h1>
-        <p className="max-w-3xl text-base text-foreground/80">
+        <p className="max-w-3xl text-base text-foreground/75">
           This app shell bootstraps explicit module boundaries for lifecycle, policy,
           submissions, ballots, scoring, and visibility.
         </p>
@@ -45,7 +45,7 @@ export default async function HomePage() {
               Use the hosted Auth0 login flow to sign in or create a new account.
             </p>
             <div className="flex flex-wrap gap-3">
-              <a className="inline-flex rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90" href="/auth/login?screen_hint=signup">
+              <a className="inline-flex rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:opacity-90" href="/auth/login?screen_hint=signup">
                 Signup
               </a>
               <a className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:bg-muted" href="/auth/login">
