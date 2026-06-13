@@ -25,6 +25,10 @@ Use this page as the starting point for docs navigation.
 - [CI and GitHub Actions](./operations/ci-github-actions.md)
 - [Branch Protection](./operations/branch-protection.md)
 
+## Development
+
+- [UI Conventions & Standards](./development/ui-conventions.md)
+
 ## Suggested Reading Order
 
 1. Product: PRD
@@ -32,3 +36,4 @@ Use this page as the starting point for docs navigation.
 3. ADRs
 4. Architecture
 5. Setup and Operations
+6. Development: UI Conventions
