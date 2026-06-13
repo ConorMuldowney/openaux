@@ -1,6 +1,7 @@
 import { InviteScope } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/db/prisma";
+import { toUtcDateTimeString } from "@/src/domain/time/public";
 import {
   INVITE_LIST_REQUEST_SCHEMA,
   type InviteListResponse,
@@ -81,10 +82,10 @@ export async function POST(request: Request) {
         scope: fromPrismaInviteScope(invite.scope),
         invitedEmail: invite.invitedEmail,
         acceptedByUserId: invite.acceptedByUserId,
-        acceptedAt: invite.acceptedAt,
-        expiresAt: invite.expiresAt,
-        revokedAt: invite.revokedAt,
-        createdAt: invite.createdAt,
+        acceptedAt: invite.acceptedAt ? toUtcDateTimeString(invite.acceptedAt) : null,
+        expiresAt: invite.expiresAt ? toUtcDateTimeString(invite.expiresAt) : null,
+        revokedAt: invite.revokedAt ? toUtcDateTimeString(invite.revokedAt) : null,
+        createdAt: toUtcDateTimeString(invite.createdAt),
       })),
     },
   };

@@ -19,6 +19,7 @@ import { requireVerifiedEmailSession } from "@/src/api/auth";
 import { POST } from "@/app/api/invites/issue/route";
 
 afterEach(async () => {
+  vi.useRealTimers();
   await cleanTestDatabase(testPrisma);
 });
 
@@ -183,6 +184,90 @@ describe("invite issue route integration", () => {
       error: {
         code: "state-invalid",
         message: "Invite expiry must be in the future.",
+      },
+    });
+
+    const invites = await testPrisma.invite.findMany({ where: { showcaseId: showcase.id } });
+    expect(invites).toHaveLength(0);
+  });
+
+  it("rejects invite issue when expiry is exactly the current UTC instant", async () => {
+    const hostUser = createUser({ name: "Host User" });
+    vi.mocked(requireVerifiedEmailSession).mockResolvedValue({
+      ok: true,
+      session: {
+        user: {
+          sub: hostUser.id,
+          email_verified: true,
+        },
+      },
+    } as never);
+
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-12T12:00:00.000Z"));
+
+    const showcase = await createShowcase(testPrisma, {
+      hostUserId: hostUser.id,
+      lifecycleState: ShowcaseLifecycleState.CREATION,
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/invites/issue", {
+        method: "POST",
+        body: JSON.stringify({
+          showcaseId: showcase.id,
+          scope: "participation",
+          expiresAt: "2026-06-12T12:00:00.000Z",
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: {
+        code: "state-invalid",
+        message: "Invite expiry must be in the future.",
+      },
+    });
+
+    const invites = await testPrisma.invite.findMany({ where: { showcaseId: showcase.id } });
+    expect(invites).toHaveLength(0);
+  });
+
+  it("rejects invite issue when expiry timestamp omits a timezone offset", async () => {
+    const hostUser = createUser({ name: "Host User" });
+    vi.mocked(requireVerifiedEmailSession).mockResolvedValue({
+      ok: true,
+      session: {
+        user: {
+          sub: hostUser.id,
+          email_verified: true,
+        },
+      },
+    } as never);
+
+    const showcase = await createShowcase(testPrisma, {
+      hostUserId: hostUser.id,
+      lifecycleState: ShowcaseLifecycleState.CREATION,
+    });
+
+    const response = await POST(
+      new Request("http://localhost/api/invites/issue", {
+        method: "POST",
+        body: JSON.stringify({
+          showcaseId: showcase.id,
+          scope: "participation",
+          expiresAt: "2026-06-12T12:00:00",
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: {
+        code: "validation-error",
       },
     });
 
