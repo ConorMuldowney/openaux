@@ -1,12 +1,17 @@
 import { auth0 } from "@/src/auth/auth0";
 import { CANONICAL_DOMAIN_TERMS } from "@/src/domain/language/canonical-terms";
 import { MODULE_BOUNDARIES } from "@/src/modules/module-boundaries";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function HomePage() {
   const session = await auth0.getSession();
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-8 px-6 py-16">
+      <div className="flex justify-end">
+        <ThemeToggle />
+      </div>
+
       <section className="space-y-3">
         <p className="text-sm font-semibold uppercase tracking-widest text-accent">
           OpenAux App Router Skeleton
@@ -18,7 +23,7 @@ export default async function HomePage() {
         </p>
       </section>
 
-      <section className="rounded-xl border border-black/10 bg-white p-5 shadow-sm">
+      <section className="rounded-xl border border-border bg-card p-5 shadow-sm">
         {session ? (
           <div className="space-y-3">
             <p className="text-sm font-semibold uppercase tracking-widest text-accent">
@@ -43,7 +48,7 @@ export default async function HomePage() {
               <a className="inline-flex rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90" href="/auth/login?screen_hint=signup">
                 Signup
               </a>
-              <a className="inline-flex rounded-full border border-black/10 px-4 py-2 text-sm font-semibold transition hover:border-black/20" href="/auth/login">
+              <a className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:bg-muted" href="/auth/login">
                 Login
               </a>
             </div>
@@ -53,7 +58,7 @@ export default async function HomePage() {
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {MODULE_BOUNDARIES.map((moduleBoundary) => (
-          <article key={moduleBoundary.moduleName} className="rounded-xl border border-black/10 bg-white p-4">
+          <article key={moduleBoundary.moduleName} className="rounded-xl border border-border bg-card p-4">
             <h2 className="text-lg font-bold">{moduleBoundary.moduleName}</h2>
             <p className="mt-2 text-sm text-foreground/75">{moduleBoundary.responsibility}</p>
           </article>
