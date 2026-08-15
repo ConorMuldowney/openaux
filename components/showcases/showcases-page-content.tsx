@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { StandardPageLayout } from "@/components/layout/standard-page-layout";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ShowcaseCardViewModel } from "@/src/modules/showcases/public";
 
@@ -25,9 +27,12 @@ export function ShowcasesPageContent({ showcases }: ShowcasesPageContentProps) {
           Review lifecycle state, access scopes, and schedule windows for each showcase.
         </>
       )}
-      maxWidthClassName="max-w-6xl"
+      actions={(
+        <Button asChild>
+          <Link href="/showcases/new">Create New Showcase</Link>
+        </Button>
+      )}
     >
-
       {showcases.length === 0 ? (
         <Card>
           <CardContent className="space-y-2 p-5">
@@ -57,6 +62,12 @@ export function ShowcasesPageContent({ showcases }: ShowcasesPageContentProps) {
                   <ScopeLine label="Voting Window" value={showcase.votingWindowLabel} />
                   <ScopeLine label="Finalized" value={showcase.finalizedAtLabel} />
                 </div>
+
+                {showcase.relationshipLabel === "Hosting" ? (
+                  <Button asChild variant="outline" size="sm" className="w-full">
+                    <Link href={`/showcases/${showcase.showcaseId}`}>Edit Showcase</Link>
+                  </Button>
+                ) : null}
               </CardContent>
             </Card>
           ))}
