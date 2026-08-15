@@ -1,10 +1,10 @@
 // For adding custom fonts with other frameworks, see:
 // https://tailwindcss.com/docs/font-family
 import type { Metadata } from "next";
-import { Antonio, Lora, JetBrains_Mono } from "next/font/google";
+import { Anton, Lora, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const fontSans = Antonio({
+const fontSans = Anton({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-sans",
