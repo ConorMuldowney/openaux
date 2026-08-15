@@ -30,6 +30,24 @@ export function buildShowcaseReadWhere(userId?: string): Prisma.ShowcaseWhereInp
   };
 }
 
+export function buildHomeShowcaseWhere(userId: string): Prisma.ShowcaseWhereInput {
+  return {
+    OR: [
+      { hostUserId: userId },
+      {
+        invites: {
+          some: {
+            acceptedByUserId: userId,
+            acceptedAt: { not: null },
+            revokedAt: null,
+            scope: { in: [InviteScope.PARTICIPATION, InviteScope.VOTER, InviteScope.LISTENER] },
+          },
+        },
+      },
+    ],
+  };
+}
+
 export async function evaluateShowcaseReadPolicy(input: {
   prisma: Prisma.TransactionClient | Prisma.DefaultPrismaClient;
   showcaseId: string;
