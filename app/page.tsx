@@ -31,7 +31,7 @@ export default async function HomePage() {
           <CardContent className="space-y-3 p-5">
             <Badge variant="secondary">Auth0 Session Active</Badge>
             <p className="text-sm text-foreground/75">
-              Logged in as {session.user.email ?? session.user.name ?? "authenticated user"}.
+              Logged in as {session.user.name ?? session.user.email ?? "authenticated user"}.
             </p>
             <Button asChild className="h-auto p-0" variant="link">
               <a href="/auth/logout">Logout</a>
