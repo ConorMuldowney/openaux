@@ -93,6 +93,7 @@ describe("POST /api/invites/accept - integration", () => {
     expect(body.data.inviteId).toBe(invite.id);
     expect(body.data.acceptedByUserId).toBe(actorUserId);
     expect(body.data.scope).toBe("participation");
+    expect(body.data.resolution).toBe("accepted");
 
     const persistedInvite = await prisma.invite.findUnique({ where: { id: invite.id } });
     expect(persistedInvite?.acceptedByUserId).toBe(actorUserId);
@@ -106,7 +107,7 @@ describe("POST /api/invites/accept - integration", () => {
     expect(auditRecords[0].reason).toBeNull();
   });
 
-  it("rejects acceptance after finalization and writes a rejected audit record", async () => {
+  it("returns read-only resolution after finalization and writes a rejected audit record", async () => {
     const showcase = await createShowcase(prisma, {
       hostUserId,
       lifecycleState: "FINALIZED",
@@ -124,11 +125,17 @@ describe("POST /api/invites/accept - integration", () => {
 
     const response = await POST(makeRequest(token));
 
-    expect(response.status).toBe(409);
+    expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body.ok).toBe(false);
-    expect(body.error.code).toBe("state-invalid");
-    expect(body.error.message).toBe("Invite links are read-only after showcase finalization.");
+    expect(body.ok).toBe(true);
+    expect(body.data).toMatchObject({
+      inviteId: invite.id,
+      showcaseId: showcase.id,
+      scope: "listener",
+      resolution: "read-only-after-finalization",
+      acceptedByUserId: null,
+      acceptedAt: null,
+    });
 
     const persistedInvite = await prisma.invite.findUnique({ where: { id: invite.id } });
     expect(persistedInvite?.acceptedAt).toBeNull();

@@ -8,6 +8,42 @@ const eslintConfig = [
   ...nextVitals,
   ...nextTypeScript,
   {
+    files: ["**/*.{tsx,jsx}"],
+    rules: {
+      "jsx-a11y/click-events-have-key-events": "error",
+      "jsx-a11y/interactive-supports-focus": "error",
+      "jsx-a11y/control-has-associated-label": "error",
+      "jsx-a11y/no-static-element-interactions": "error",
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "JSXAttribute[name.name='style'][value.expression.type='ObjectExpression'] > JSXExpressionContainer > ObjectExpression > Property[key.name=/^(color|background|backgroundColor|borderColor|fill|stroke)$/]",
+          message:
+            "Use semantic design tokens and className utilities instead of inline color styles.",
+        },
+      ],
+    },
+  },
+  {
+    files: ["{app,components,src}/**/*.{ts,tsx,js,jsx}"],
+    ignores: ["components/ui/**"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@radix-ui/*"],
+              message:
+                "Import shadcn primitives from @/components/ui/* instead of Radix packages directly.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     rules: {
       "no-restricted-imports": [
         "error",

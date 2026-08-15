@@ -9,7 +9,7 @@ export const INVITE_ISSUE_REQUEST_SCHEMA = z.object({
   showcaseId: z.string().uuid(),
   scope: INVITE_SCOPE_SCHEMA,
   invitedEmail: z.string().trim().toLowerCase().email().optional(),
-  expiresAt: z.coerce.date().optional(),
+  expiresAt: z.string().datetime({ offset: true }).optional(),
 });
 
 export const INVITE_ISSUE_DATA_SCHEMA = z.object({
@@ -18,7 +18,7 @@ export const INVITE_ISSUE_DATA_SCHEMA = z.object({
   scope: INVITE_SCOPE_SCHEMA,
   token: z.string().min(1),
   inviteUrl: z.string().url(),
-  expiresAt: z.coerce.date().nullable(),
+  expiresAt: z.string().datetime({ offset: true }).nullable(),
 });
 
 export const INVITE_ISSUE_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
@@ -38,10 +38,10 @@ export const INVITE_LIST_ITEM_SCHEMA = z.object({
   scope: INVITE_SCOPE_SCHEMA,
   invitedEmail: z.string().email().nullable(),
   acceptedByUserId: z.string().nullable(),
-  acceptedAt: z.coerce.date().nullable(),
-  expiresAt: z.coerce.date().nullable(),
-  revokedAt: z.coerce.date().nullable(),
-  createdAt: z.coerce.date(),
+  acceptedAt: z.string().datetime({ offset: true }).nullable(),
+  expiresAt: z.string().datetime({ offset: true }).nullable(),
+  revokedAt: z.string().datetime({ offset: true }).nullable(),
+  createdAt: z.string().datetime({ offset: true }),
 });
 
 export const INVITE_LIST_DATA_SCHEMA = z.object({
@@ -62,12 +62,18 @@ export const INVITE_ACCEPT_REQUEST_SCHEMA = z.object({
   token: z.string().trim().min(1),
 });
 
+export const INVITE_ACCEPT_RESOLUTION_SCHEMA = z.enum([
+  "accepted",
+  "read-only-after-finalization",
+]);
+
 export const INVITE_ACCEPT_DATA_SCHEMA = z.object({
   inviteId: z.string().uuid(),
   showcaseId: z.string().uuid(),
   scope: INVITE_SCOPE_SCHEMA,
-  acceptedByUserId: z.string().min(1),
-  acceptedAt: z.coerce.date(),
+  resolution: INVITE_ACCEPT_RESOLUTION_SCHEMA,
+  acceptedByUserId: z.string().min(1).nullable(),
+  acceptedAt: z.coerce.date().nullable(),
   inviteAcceptanceAuditEventId: z.string().uuid(),
 });
 

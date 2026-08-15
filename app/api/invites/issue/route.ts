@@ -2,6 +2,7 @@ import { createHash, randomBytes } from "crypto";
 import { InviteScope, ShowcaseLifecycleState } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/db/prisma";
+import { isAtOrAfterUtcInstant, toUtcDateTimeString } from "@/src/domain/time/public";
 import {
   INVITE_ISSUE_REQUEST_SCHEMA,
   type InviteIssueResponse,
@@ -50,7 +51,10 @@ export async function POST(request: Request) {
     return parsedRequest.response;
   }
 
-  if (parsedRequest.data.expiresAt && parsedRequest.data.expiresAt <= new Date()) {
+  const now = new Date();
+  const expiresAt = parsedRequest.data.expiresAt ? new Date(parsedRequest.data.expiresAt) : undefined;
+
+  if (expiresAt && isAtOrAfterUtcInstant(now, expiresAt)) {
     return stateInvalidResponse("Invite expiry must be in the future.");
   }
 
@@ -85,7 +89,7 @@ export async function POST(request: Request) {
       tokenHash,
       invitedByUserId: authResult.session.user.sub,
       invitedEmail: parsedRequest.data.invitedEmail,
-      expiresAt: parsedRequest.data.expiresAt,
+      expiresAt,
     },
     select: {
       id: true,
@@ -103,7 +107,7 @@ export async function POST(request: Request) {
       scope: parsedRequest.data.scope,
       token,
       inviteUrl: createShareableInviteUrl(request, token),
-      expiresAt: invite.expiresAt,
+      expiresAt: invite.expiresAt ? toUtcDateTimeString(invite.expiresAt) : null,
     },
   };
 
