@@ -7,10 +7,9 @@ import { Card, CardContent } from "@/components/ui/card";
 export default function SubmissionsPage() {
   return (
     <StandardPageLayout
-      eyebrow="Pages"
-      title="Submissions"
+      eyebrow="Submissions"
+      title="All Submissions"
       description="Review and manage entries submitted to showcases in your workspace."
-      maxWidthClassName="max-w-6xl"
     >
       <Card>
         <CardContent className="flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">

@@ -17,7 +17,8 @@ import {
   SearchIcon,
   Settings2Icon,
   SunIcon,
-  UsersIcon,
+  MailBadgeIcon,
+  UsersRoundIcon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,7 +64,8 @@ const NAV_ITEMS = [
 const PAGE_ITEMS = [
   { href: "/showcases", label: "Showcases", icon: PanelTopIcon },
   { label: "Submissions", href: "/submissions", icon: FileTextIcon },
-  { label: "Invitations", href: "/invitations", icon: UsersIcon },
+  { label: "Invitations", href: "/invitations", icon: MailBadgeIcon },
+  { label: "Friends", href: "/friends", icon: UsersRoundIcon },
 ] as const;
 
 const UTILITY_ITEMS = [
@@ -105,12 +107,12 @@ function WorkspaceHeader() {
         type="button"
         variant="outline"
         size="lg"
-        className="hidden text-muted-foreground sm:flex"
+        className="hidden justify-start text-muted-foreground sm:flex sm:w-64 lg:w-80"
         aria-label="Search workspace"
       >
         <SearchIcon className="size-4" />
         <span>Search</span>
-        <kbd className="ml-4 hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium lg:inline">Ctrl K</kbd>
+        <kbd className="ml-auto hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium lg:inline">Ctrl K</kbd>
       </Button>
       <div className="ml-auto flex items-center gap-2">
         <Button
@@ -161,9 +163,8 @@ export function AppShell({ children, userName, userEmail }: AppShellProps) {
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                     <PanelTopIcon className="size-4" />
                   </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                    <span className="truncate font-semibold">OpenAux</span>
-                    <span className="truncate text-xs text-sidebar-foreground/70">Workspace</span>
+                  <div className="flex h-8 flex-1 items-center text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                    <span className="truncate font-semibold">OPENAUX</span>
                   </div>
                 </Link>
               </SidebarMenuButton>
@@ -256,15 +257,6 @@ export function AppShell({ children, userName, userEmail }: AppShellProps) {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                    <DropdownMenuItem asChild>
-                      <Link href="/settings">
-                      <Settings2Icon className="h-4 w-4" />
-                      Settings
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
                     <DropdownMenuItem>
                       <BadgeCheckIcon className="h-4 w-4" />
                       Account
@@ -299,7 +291,7 @@ export function AppShell({ children, userName, userEmail }: AppShellProps) {
 
       <SidebarInset className="min-h-screen bg-background">
         <WorkspaceHeader />
-        <div className="flex-1">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

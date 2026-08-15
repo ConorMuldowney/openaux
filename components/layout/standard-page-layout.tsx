@@ -7,9 +7,9 @@ type StandardPageLayoutProps = {
   description?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
-  maxWidthClassName?: string;
   className?: string;
   headerClassName?: string;
+  maxWidthClassName?: string;
 };
 
 export function StandardPageLayout({
@@ -18,16 +18,16 @@ export function StandardPageLayout({
   description,
   actions,
   children,
-  maxWidthClassName = "max-w-5xl",
   className,
   headerClassName,
+  maxWidthClassName,
 }: StandardPageLayoutProps) {
   const hasHeaderContent = Boolean(eyebrow || title || description || actions);
 
   return (
     <main
       className={cn(
-        "mx-auto flex min-h-screen w-full flex-col gap-8 px-6 py-16",
+        "flex min-h-full w-full flex-1 flex-col gap-4 px-6 py-8",
         maxWidthClassName,
         className,
       )}

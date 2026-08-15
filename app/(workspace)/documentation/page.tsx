@@ -24,7 +24,7 @@ const DOCUMENTATION_LINKS = [
 
 export default function DocumentationPage() {
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
+    <main className="flex min-h-full w-full flex-1 flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
       <header className="border-b pb-6">
         <p className="text-sm font-medium text-muted-foreground">Support</p>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight">Documentation</h1>
