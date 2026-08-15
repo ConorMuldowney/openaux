@@ -116,13 +116,15 @@ function WorkspaceHeader() {
       </Button>
       <div className="ml-auto flex items-center gap-2">
         <Button
-          type="button"
+          asChild
           variant="ghost"
           size="icon"
           className="text-muted-foreground"
           aria-label="Help"
         >
-          <CircleHelpIcon className="size-4" />
+          <Link href="/documentation/faq">
+            <CircleHelpIcon className="size-4" />
+          </Link>
         </Button>
         <ThemeToggle />
       </div>
