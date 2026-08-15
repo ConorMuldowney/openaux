@@ -1,8 +1,5 @@
 import { redirect } from "next/navigation";
-import { InviteScope } from "@prisma/client";
-import { auth0 } from "@/src/auth/auth0";
-import { prisma } from "@/src/db/prisma";
-import { SHOWCASE_DETAIL_SELECT, toShowcaseDetailData } from "@/src/api/showcases";
+import { getHomePageData } from "@/src/api/home";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,44 +15,14 @@ const LIFECYCLE_BADGE_VARIANT: Record<ShowcaseDetailData["lifecycleState"], "sec
   canceled: "outline",
 };
 
-// Populated by the Auth0 Post-Login Action; not part of the default ID token claims.
-const AUTH0_USERNAME_CLAIM = "https://openaux.net/username";
-
 export default async function HomePage() {
-  const session = await auth0.getSession();
+  const homePageData = await getHomePageData();
 
-  if (!session) {
+  if (!homePageData) {
     redirect("/");
   }
 
-  const userId = session.user.sub;
-  const username = (session.user as Record<string, unknown>)[AUTH0_USERNAME_CLAIM] as
-    | string
-    | undefined;
-
-  const showcases = await prisma.showcase.findMany({
-    where: {
-      OR: [
-        { hostUserId: userId },
-        {
-          invites: {
-            some: {
-              acceptedByUserId: userId,
-              acceptedAt: { not: null },
-              revokedAt: null,
-              scope: { in: [InviteScope.PARTICIPATION, InviteScope.VOTER, InviteScope.LISTENER] },
-            },
-          },
-        },
-      ],
-    },
-    select: SHOWCASE_DETAIL_SELECT,
-    orderBy: { createdAt: "desc" },
-  });
-
-  const showcaseData = showcases.map(toShowcaseDetailData);
-
-  console.log(session)
+  const { displayName, showcases } = homePageData;
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-8 px-6 py-16">
@@ -63,7 +30,7 @@ export default async function HomePage() {
         <div>
           <p className="text-sm font-semibold uppercase tracking-widest text-accent">Home</p>
           <h1 className="text-3xl font-black tracking-tight">
-            Welcome back, {username ?? session.user.nickname ?? session.user.name ?? session.user.email ?? "there"}
+            Welcome back, {displayName}
           </h1>
         </div>
         <div className="flex items-center gap-3">
@@ -76,7 +43,7 @@ export default async function HomePage() {
 
       <section className="space-y-4">
         <h2 className="text-xl font-bold">Your Showcases</h2>
-        {showcaseData.length === 0 ? (
+        {showcases.length === 0 ? (
           <Card>
             <CardContent className="space-y-2 p-5">
               <p className="text-sm text-foreground/75">
@@ -86,7 +53,7 @@ export default async function HomePage() {
           </Card>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {showcaseData.map((showcase: ShowcaseDetailData) => (
+            {showcases.map((showcase) => (
               <Card key={showcase.showcaseId} size="sm">
                 <CardContent className="space-y-2 p-4">
                   <div className="flex items-center justify-between gap-2">
@@ -96,7 +63,7 @@ export default async function HomePage() {
                     </Badge>
                   </div>
                   <p className="text-sm text-foreground/75">
-                    {showcase.hostUserId === userId ? "You are hosting" : "You are participating"}
+                    {showcase.relationship === "hosting" ? "You are hosting" : "You are participating"}
                   </p>
                 </CardContent>
               </Card>
