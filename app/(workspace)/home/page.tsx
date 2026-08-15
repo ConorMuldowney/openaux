@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { ArrowUpRightIcon, CheckCircle2Icon, CircleDashedIcon, Clock3Icon, PlusIcon } from "lucide-react";
 import { getHomePageData } from "@/src/api/home";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +31,7 @@ export default async function HomePage() {
   const completedShowcases = showcases.filter(({ lifecycleState }) => lifecycleState === "finalized").length;
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
+    <main className="flex w-full flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
       <header className="flex flex-col gap-4 border-b pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
           <p className="text-sm font-medium text-muted-foreground">Overview</p>
@@ -38,10 +39,10 @@ export default async function HomePage() {
           <p className="text-sm text-muted-foreground">Here&apos;s what&apos;s happening across your showcases.</p>
         </div>
         <Button asChild>
-          <a href="/showcases">
+          <Link href="/showcases/new">
             <PlusIcon />
             New showcase
-          </a>
+          </Link>
         </Button>
       </header>
 
@@ -74,13 +75,13 @@ export default async function HomePage() {
             </div>
             <div className="mt-6 grid gap-2">
               <Button asChild variant="outline" className="justify-between">
-                <a href="/showcases"><span>Browse showcases</span><ArrowUpRightIcon /></a>
+                <Link href="/showcases"><span>Browse showcases</span><ArrowUpRightIcon /></Link>
               </Button>
               <Button asChild variant="outline" className="justify-between">
-                <a href="/showcases"><span>Review submissions</span><ArrowUpRightIcon /></a>
+                <Link href="/showcases"><span>Review submissions</span><ArrowUpRightIcon /></Link>
               </Button>
               <Button asChild variant="outline" className="justify-between">
-                <a href="/showcases"><span>Manage invitations</span><ArrowUpRightIcon /></a>
+                <Link href="/showcases"><span>Manage invitations</span><ArrowUpRightIcon /></Link>
               </Button>
             </div>
           </CardContent>
@@ -93,7 +94,7 @@ export default async function HomePage() {
             <h2 className="font-semibold">Recent showcases</h2>
             <p className="mt-1 text-sm text-muted-foreground">The latest work in your workspace.</p>
           </div>
-          <Button asChild variant="ghost" size="sm"><a href="/showcases">View all <ArrowUpRightIcon /></a></Button>
+          <Button asChild variant="ghost" size="sm"><Link href="/showcases">View all <ArrowUpRightIcon /></Link></Button>
         </div>
         <Card>
           <div className="overflow-x-auto">
@@ -107,7 +108,7 @@ export default async function HomePage() {
                     <td className="px-5 py-4 font-medium">{showcase.title}</td>
                     <td className="px-5 py-4 text-muted-foreground">{showcase.relationship === "hosting" ? "Host" : "Participant"}</td>
                     <td className="px-5 py-4"><Badge variant={LIFECYCLE_BADGE_VARIANT[showcase.lifecycleState]}>{showcase.lifecycleState}</Badge></td>
-                    <td className="px-5 py-4 text-right"><Button asChild variant="ghost" size="icon"><a href="/showcases" aria-label={`Open ${showcase.title}`}><ArrowUpRightIcon /></a></Button></td>
+                    <td className="px-5 py-4 text-right"><Button asChild variant="ghost" size="icon"><Link href="/showcases" aria-label={`Open ${showcase.title}`}><ArrowUpRightIcon /></Link></Button></td>
                   </tr>
                 )) : (
                   <tr><td colSpan={4} className="px-5 py-10 text-center text-muted-foreground">No showcases yet.</td></tr>
