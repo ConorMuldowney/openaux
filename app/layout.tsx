@@ -1,24 +1,17 @@
-// For adding custom fonts with other frameworks, see:
-// https://tailwindcss.com/docs/font-family
 import type { Metadata } from "next";
-import { DM_Sans, Lora, IBM_Plex_Mono } from "next/font/google";
+import { Poppins, Roboto_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
-const fontSans = DM_Sans({
+const fontSans = Poppins({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
 });
 
-const fontSerif = Lora({
-  subsets: ["latin"],
-  variable: "--font-serif",
-});
-
-const fontMono = IBM_Plex_Mono({
-  weight: "400",
+const fontMono = Roboto_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 });
@@ -35,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}>
+      <body className={`${fontSans.variable} ${fontMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>

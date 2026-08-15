@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth0 } from "@/src/auth/auth0";
 import { CANONICAL_DOMAIN_TERMS } from "@/src/domain/language/canonical-terms";
 import { MODULE_BOUNDARIES } from "@/src/modules/module-boundaries";
+import { StandardPageLayout } from "@/components/layout/standard-page-layout";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,21 +16,17 @@ export default async function LandingPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-8 px-6 py-16">
-      <div className="flex justify-end">
-        <ThemeToggle />
-      </div>
-
-      <section className="space-y-3">
-        <p className="text-sm font-semibold uppercase tracking-widest text-accent">
-          OpenAux App Router Skeleton
-        </p>
-        <h1 className="text-4xl font-black tracking-tight">Modular Monolith Baseline</h1>
-        <p className="max-w-3xl text-base text-foreground/75">
+    <StandardPageLayout
+      eyebrow="OpenAux App Router Skeleton"
+      title="Modular Monolith Baseline"
+      description={(
+        <>
           This app shell bootstraps explicit module boundaries for lifecycle, policy,
           submissions, ballots, scoring, and visibility.
-        </p>
-      </section>
+        </>
+      )}
+      actions={<ThemeToggle />}
+    >
 
       <Card>
         <CardContent className="space-y-3 p-5">
@@ -67,6 +64,6 @@ export default async function LandingPage() {
           ))}
         </ul>
       </section>
-    </main>
+    </StandardPageLayout>
   );
 }
