@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { auth0 } from "@/src/auth/auth0";
 import { CANONICAL_DOMAIN_TERMS } from "@/src/domain/language/canonical-terms";
 import { MODULE_BOUNDARIES } from "@/src/modules/module-boundaries";
@@ -6,8 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-export default async function HomePage() {
+export default async function LandingPage() {
   const session = await auth0.getSession();
+
+  if (session) {
+    redirect("/home");
+  }
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-8 px-6 py-16">
@@ -27,32 +32,20 @@ export default async function HomePage() {
       </section>
 
       <Card>
-        {session ? (
-          <CardContent className="space-y-3 p-5">
-            <Badge variant="secondary">Auth0 Session Active</Badge>
-            <p className="text-sm text-foreground/75">
-              Logged in as {session.user.name ?? session.user.email ?? "authenticated user"}.
-            </p>
-            <Button asChild className="h-auto p-0" variant="link">
-              <a href="/auth/logout">Logout</a>
+        <CardContent className="space-y-3 p-5">
+          <Badge variant="outline">Auth0 Not Signed In</Badge>
+          <p className="text-sm text-foreground/75">
+            Use the hosted Auth0 login flow to sign in or create a new account.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild size="lg">
+              <a href="/auth/login?screen_hint=signup">Signup</a>
             </Button>
-          </CardContent>
-        ) : (
-          <CardContent className="space-y-3 p-5">
-            <Badge variant="outline">Auth0 Not Signed In</Badge>
-            <p className="text-sm text-foreground/75">
-              Use the hosted Auth0 login flow to sign in or create a new account.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg">
-                <a href="/auth/login?screen_hint=signup">Signup</a>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <a href="/auth/login">Login</a>
-              </Button>
-            </div>
-          </CardContent>
-        )}
+            <Button asChild size="lg" variant="outline">
+              <a href="/auth/login">Login</a>
+            </Button>
+          </div>
+        </CardContent>
       </Card>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
