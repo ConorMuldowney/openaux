@@ -2,6 +2,9 @@ import { auth0 } from "@/src/auth/auth0";
 import { CANONICAL_DOMAIN_TERMS } from "@/src/domain/language/canonical-terms";
 import { MODULE_BOUNDARIES } from "@/src/modules/module-boundaries";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function HomePage() {
   const session = await auth0.getSession();
@@ -23,45 +26,43 @@ export default async function HomePage() {
         </p>
       </section>
 
-      <section className="rounded-xl border border-border bg-card p-5 shadow-sm">
+      <Card>
         {session ? (
-          <div className="space-y-3">
-            <p className="text-sm font-semibold uppercase tracking-widest text-accent">
-              Auth0 Session Active
-            </p>
+          <CardContent className="space-y-3 p-5">
+            <Badge variant="secondary">Auth0 Session Active</Badge>
             <p className="text-sm text-foreground/75">
               Logged in as {session.user.email ?? session.user.name ?? "authenticated user"}.
             </p>
-            <a className="inline-flex font-medium text-accent underline-offset-4 hover:underline" href="/auth/logout">
-              Logout
-            </a>
-          </div>
+            <Button asChild className="h-auto p-0" variant="link">
+              <a href="/auth/logout">Logout</a>
+            </Button>
+          </CardContent>
         ) : (
-          <div className="space-y-3">
-            <p className="text-sm font-semibold uppercase tracking-widest text-accent">
-              Auth0 Not Signed In
-            </p>
+          <CardContent className="space-y-3 p-5">
+            <Badge variant="outline">Auth0 Not Signed In</Badge>
             <p className="text-sm text-foreground/75">
               Use the hosted Auth0 login flow to sign in or create a new account.
             </p>
             <div className="flex flex-wrap gap-3">
-              <a className="inline-flex rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition hover:opacity-90" href="/auth/login?screen_hint=signup">
-                Signup
-              </a>
-              <a className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-semibold transition hover:bg-muted" href="/auth/login">
-                Login
-              </a>
+              <Button asChild size="lg">
+                <a href="/auth/login?screen_hint=signup">Signup</a>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <a href="/auth/login">Login</a>
+              </Button>
             </div>
-          </div>
+          </CardContent>
         )}
-      </section>
+      </Card>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {MODULE_BOUNDARIES.map((moduleBoundary) => (
-          <article key={moduleBoundary.moduleName} className="rounded-xl border border-border bg-card p-4">
-            <h2 className="text-lg font-bold">{moduleBoundary.moduleName}</h2>
-            <p className="mt-2 text-sm text-foreground/75">{moduleBoundary.responsibility}</p>
-          </article>
+          <Card key={moduleBoundary.moduleName} size="sm">
+            <CardContent className="p-4">
+              <h2 className="text-lg font-bold">{moduleBoundary.moduleName}</h2>
+              <p className="mt-2 text-sm text-foreground/75">{moduleBoundary.responsibility}</p>
+            </CardContent>
+          </Card>
         ))}
       </section>
 
