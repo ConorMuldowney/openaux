@@ -9,7 +9,7 @@ type ShowcasesPageContentProps = {
 
 function ScopeLine({ label, value }: { label: string; value: string }) {
   return (
-    <p className="text-xs text-foreground/70">
+    <p className="text-xs text-foreground/75">
       <span className="font-semibold text-foreground">{label}:</span> {value}
     </p>
   );
@@ -44,7 +44,7 @@ export function ShowcasesPageContent({ showcases }: ShowcasesPageContentProps) {
                   <Badge variant={showcase.lifecycleBadgeVariant}>{showcase.lifecycleLabel}</Badge>
                 </div>
 
-                <p className="text-sm text-foreground/80">{showcase.relationshipLabel}</p>
+                <p className="text-sm text-foreground/75">{showcase.relationshipLabel}</p>
 
                 <div className="space-y-1.5">
                   <ScopeLine label="Participation" value={showcase.participationScopeLabel} />
