@@ -52,6 +52,31 @@ function ShowcaseInfo({ showcase }: { showcase: ShowcaseDetailData }) {
           <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">Ranked picks</p>
           <p className="mt-1 font-medium">Up to {showcase.maxRankedPicks}</p>
         </div>
+        <div className="sm:col-span-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">Required samples</p>
+          {showcase.requiredSampleIds.length > 0 ? (
+            <ul className="mt-2 space-y-1">
+              {showcase.requiredSampleIds.map((sample) => (
+                <li key={sample} className="break-all text-sm">
+                  {sample.startsWith("http://") || sample.startsWith("https://") ? (
+                    <a
+                      href={sample}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-accent underline underline-offset-2"
+                    >
+                      {sample}
+                    </a>
+                  ) : (
+                    sample
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-1 text-sm text-foreground/60">No required samples configured.</p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
