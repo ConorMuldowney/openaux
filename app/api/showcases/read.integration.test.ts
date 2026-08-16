@@ -105,6 +105,41 @@ describe("GET /api/showcases/list", () => {
 
     expect(body.data.showcases.some((showcase) => showcase.showcaseId === privateShowcase.id)).toBe(true);
   });
+
+  it("includes private-listener showcases when caller accepted voter invite", async () => {
+    const userId = "auth0|voter-user";
+    mockSession(userId);
+
+    const privateShowcase = await createShowcase(prisma, {
+      listenerScope: AccessScope.PRIVATE,
+      lifecycleState: ShowcaseLifecycleState.FINALIZED,
+      title: "Finalized Voter Showcase",
+    });
+
+    await createInvite(prisma, {
+      showcaseId: privateShowcase.id,
+      scope: InviteScope.VOTER,
+      acceptedByUserId: userId,
+      acceptedAt: new Date(),
+    });
+
+    const response = await listShowcases(new Request("http://localhost/api/showcases/list"));
+    expect(response.status).toBe(200);
+
+    const body = (await response.json()) as {
+      ok: true;
+      data: { showcases: Array<{ showcaseId: string; lifecycleState: string }> };
+    };
+
+    expect(body.data.showcases).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          showcaseId: privateShowcase.id,
+          lifecycleState: "finalized",
+        }),
+      ]),
+    );
+  });
 });
 
 describe("GET /api/showcases/[showcaseId]/read", () => {
@@ -134,6 +169,31 @@ describe("GET /api/showcases/[showcaseId]/read", () => {
         },
       },
     });
+  });
+
+  it("allows participants to read private-listener showcases", async () => {
+    const userId = "auth0|participant-reader";
+    mockSession(userId);
+
+    const showcase = await createShowcase(prisma, {
+      listenerScope: AccessScope.PRIVATE,
+      title: "Private Participant Read",
+    });
+    await prisma.participant.create({
+      data: {
+        showcaseId: showcase.id,
+        userId,
+      },
+    });
+
+    const response = await readShowcase(
+      new Request(`http://localhost/api/showcases/${showcase.id}/read`),
+      {
+        params: Promise.resolve({ showcaseId: showcase.id }),
+      },
+    );
+
+    expect(response.status).toBe(200);
   });
 
   it("returns showcase lifecycle, scopes, and schedule when caller can listen", async () => {
