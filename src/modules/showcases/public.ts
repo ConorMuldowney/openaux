@@ -1,5 +1,43 @@
 import type { ShowcaseDetailData } from "@/src/api/contracts/showcases";
 
+export type ShowcaseViewerRole = "host" | "participant" | "voter" | "listener";
+export type ShowcaseSection = "submission" | "entries" | "listening" | "voting" | "participants";
+
+export function resolveShowcaseViewerRole(input: {
+  hostUserId: string;
+  userId: string;
+  isParticipant: boolean;
+  isVoter: boolean;
+}): ShowcaseViewerRole {
+  if (input.hostUserId === input.userId) {
+    return "host";
+  }
+
+  if (input.isParticipant) {
+    return "participant";
+  }
+
+  if (input.isVoter) {
+    return "voter";
+  }
+
+  return "listener";
+}
+
+export function getShowcaseSectionsForRole(role: ShowcaseViewerRole): ShowcaseSection[] {
+  const sections: ShowcaseSection[] = ["entries", "listening", "participants"];
+
+  if (role === "host" || role === "participant") {
+    sections.unshift("submission");
+  }
+
+  if (role === "host" || role === "participant" || role === "voter") {
+    sections.push("voting");
+  }
+
+  return sections;
+}
+
 const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
   timeStyle: "short",
