@@ -33,27 +33,27 @@ function ShowcaseInfo({ showcase }: { showcase: ShowcaseDetailData }) {
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">Lifecycle</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/75">Lifecycle</p>
           <p className="mt-1 font-medium capitalize">{showcase.lifecycleState.replaceAll("-", " ")}</p>
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">Submission window</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/75">Submission window</p>
           <p className="mt-1 font-medium">
             {formatDate(showcase.submissionOpensAt)} - {formatDate(showcase.submissionClosesAt)}
           </p>
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">Voting window</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/75">Voting window</p>
           <p className="mt-1 font-medium">
             {formatDate(showcase.votingOpensAt)} - {formatDate(showcase.votingClosesAt)}
           </p>
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">Ranked picks</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/75">Ranked picks</p>
           <p className="mt-1 font-medium">Up to {showcase.maxRankedPicks}</p>
         </div>
         <div className="sm:col-span-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/60">Required samples</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/75">Required samples</p>
           {showcase.requiredSampleIds.length > 0 ? (
             <ul className="mt-2 space-y-1">
               {showcase.requiredSampleIds.map((sample) => (
@@ -74,7 +74,7 @@ function ShowcaseInfo({ showcase }: { showcase: ShowcaseDetailData }) {
               ))}
             </ul>
           ) : (
-            <p className="mt-1 text-sm text-foreground/60">No required samples configured.</p>
+            <p className="mt-1 text-sm text-foreground/75">No required samples configured.</p>
           )}
         </div>
       </CardContent>
