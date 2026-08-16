@@ -41,36 +41,46 @@ export function ShowcasesPageContent({ showcases }: ShowcasesPageContentProps) {
         </Card>
       ) : (
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {showcases.map((showcase) => (
-            <Card key={showcase.showcaseId} size="sm">
-              <CardContent className="space-y-3 p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="line-clamp-2 text-base font-bold">{showcase.title}</h2>
-                  <Badge variant={showcase.lifecycleBadgeVariant}>{showcase.lifecycleLabel}</Badge>
-                </div>
+          {showcases.map((showcase) => {
+            const card = (
+              <Card
+                size="sm"
+                className="transition-colors hover:bg-muted/50"
+              >
+                <CardContent className="space-y-3 p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <h2 className="line-clamp-2 text-base font-bold">{showcase.title}</h2>
+                    <Badge variant={showcase.lifecycleBadgeVariant}>{showcase.lifecycleLabel}</Badge>
+                  </div>
 
-                <p className="text-sm text-foreground/75">{showcase.relationshipLabel}</p>
+                  <p className="text-sm text-foreground/75">{showcase.relationshipLabel}</p>
 
-                <div className="space-y-1.5">
-                  <ScopeLine label="Participation" value={showcase.participationScopeLabel} />
-                  <ScopeLine label="Listening" value={showcase.listenerScopeLabel} />
-                  <ScopeLine label="Voting" value={showcase.voterScopeLabel} />
-                </div>
+                  <div className="space-y-1.5">
+                    <ScopeLine label="Participation" value={showcase.participationScopeLabel} />
+                    <ScopeLine label="Listening" value={showcase.listenerScopeLabel} />
+                    <ScopeLine label="Voting" value={showcase.voterScopeLabel} />
+                  </div>
 
-                <div className="space-y-1.5 border-t pt-3">
-                  <ScopeLine label="Submission Window" value={showcase.submissionWindowLabel} />
-                  <ScopeLine label="Voting Window" value={showcase.votingWindowLabel} />
-                  <ScopeLine label="Finalized" value={showcase.finalizedAtLabel} />
-                </div>
+                  <div className="space-y-1.5 border-t pt-3">
+                    <ScopeLine label="Submission Window" value={showcase.submissionWindowLabel} />
+                    <ScopeLine label="Voting Window" value={showcase.votingWindowLabel} />
+                    <ScopeLine label="Finalized" value={showcase.finalizedAtLabel} />
+                  </div>
+                </CardContent>
+              </Card>
+            );
 
-                {showcase.relationshipLabel === "Hosting" ? (
-                  <Button asChild variant="outline" size="sm" className="w-full">
-                    <Link href={`/showcases/${showcase.showcaseId}`}>Edit Showcase</Link>
-                  </Button>
-                ) : null}
-              </CardContent>
-            </Card>
-          ))}
+            return (
+              <Link
+                key={showcase.showcaseId}
+                href={`/showcases/${showcase.showcaseId}`}
+                className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={`Open ${showcase.title}`}
+              >
+                {card}
+              </Link>
+            );
+          })}
         </section>
       )}
     </StandardPageLayout>
