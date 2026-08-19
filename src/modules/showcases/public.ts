@@ -24,10 +24,15 @@ export function resolveShowcaseViewerRole(input: {
   return "listener";
 }
 
-export function getShowcaseSectionsForRole(role: ShowcaseViewerRole): ShowcaseSection[] {
+export function getShowcaseSectionsForRole(
+  role: ShowcaseViewerRole,
+  canSubmitEntry: boolean,
+): ShowcaseSection[] {
   const sections: ShowcaseSection[] = ["entries", "listening", "participants"];
 
-  if (role === "host" || role === "participant") {
+  // Submission access is driven by the submit-entry policy, not just prior participation,
+  // so listeners on an open showcase can still see the submission section before joining.
+  if (role === "host" || canSubmitEntry) {
     sections.unshift("submission");
   }
 

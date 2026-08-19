@@ -9,6 +9,7 @@ import {
   getShowcaseSectionsForRole,
   resolveShowcaseViewerRole,
 } from "@/src/modules/showcases/public";
+import { canSubmitEntry } from "@/src/modules/policy/public";
 
 export default async function ShowcasePage({
   params,
@@ -43,7 +44,7 @@ export default async function ShowcasePage({
     notFound();
   }
 
-  const [participant, voterInvite, ballot] = await Promise.all([
+  const [participant, voterInvite, ballot, participantInvite] = await Promise.all([
     prisma.participant.findUnique({
       where: { showcaseId_userId: { showcaseId: showcase.id, userId: session.user.sub } },
       select: { id: true },
@@ -62,6 +63,16 @@ export default async function ShowcasePage({
       where: { showcaseId_voterUserId: { showcaseId: showcase.id, voterUserId: session.user.sub } },
       select: { id: true },
     }),
+    prisma.invite.findFirst({
+      where: {
+        showcaseId: showcase.id,
+        scope: InviteScope.PARTICIPATION,
+        acceptedByUserId: session.user.sub,
+        acceptedAt: { not: null },
+        revokedAt: null,
+      },
+      select: { id: true },
+    }),
   ]);
 
   const role = resolveShowcaseViewerRole({
@@ -71,11 +82,20 @@ export default async function ShowcasePage({
     isVoter: voterInvite !== null || ballot !== null,
   });
 
+  const canSubmit = canSubmitEntry({
+    participationScope: showcase.participationScope,
+    listenerScope: showcase.listenerScope,
+    voterScope: showcase.voterScope,
+    isAuthenticated: true,
+    isInvited: participant !== null || participantInvite !== null,
+    isParticipantInShowcase: participant !== null,
+  });
+
   return (
     <ShowcaseDetailContent
       showcase={toShowcaseDetailData(showcase)}
       role={role}
-      sections={getShowcaseSectionsForRole(role)}
+      sections={getShowcaseSectionsForRole(role, canSubmit)}
       userId={session.user.sub}
     />
   );
