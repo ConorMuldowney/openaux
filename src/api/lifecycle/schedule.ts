@@ -82,6 +82,10 @@ export async function reconcileScheduledLifecycle(
         return null;
       }
 
+      if (showcase.lifecycleState === currentShowcase.lifecycleState) {
+        return showcase.lifecycleState;
+      }
+
       continue;
     }
 
