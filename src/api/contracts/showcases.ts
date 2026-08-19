@@ -237,6 +237,33 @@ export const SHOWCASE_READ_ENTRIES_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseS
   SHOWCASE_READ_ENTRIES_DATA_SCHEMA,
 );
 
+export const SHOWCASE_ENTRY_UPLOAD_URL_REQUEST_SCHEMA = z.object({
+  contentType: z.enum([
+    "audio/mpeg",
+    "audio/wav",
+    "audio/x-wav",
+    "audio/flac",
+    "audio/aac",
+    "audio/mp4",
+  ]),
+});
+
+export const SHOWCASE_ENTRY_UPLOAD_URL_DATA_SCHEMA = z.object({
+  uploadUrl: z.string().url(),
+  storageKey: z.string().min(1),
+  expiresInSeconds: z.number().int().positive(),
+});
+
+export const SHOWCASE_ENTRY_UPLOAD_URL_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
+  SHOWCASE_ENTRY_UPLOAD_URL_DATA_SCHEMA,
+);
+
+export type ShowcaseEntryUploadUrlRequest = z.infer<
+  typeof SHOWCASE_ENTRY_UPLOAD_URL_REQUEST_SCHEMA
+>;
+export type ShowcaseEntryUploadUrlData = z.infer<typeof SHOWCASE_ENTRY_UPLOAD_URL_DATA_SCHEMA>;
+export type ShowcaseEntryUploadUrlResponse = ApiRouteResponse<ShowcaseEntryUploadUrlData>;
+
 export const SHOWCASE_RESULT_STANDING_SCHEMA = z.object({
   rank: z.number().int().positive(),
   participantId: z.string().uuid(),

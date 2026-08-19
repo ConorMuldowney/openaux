@@ -17,7 +17,7 @@ This document defines the canonical CSV standard for OpenAux tickets generated f
 | **Priority** | enum | No | Priority level: `High`, `Medium`, `Low`. Defaults to `Medium` if omitted. |
 | **Project ID** | string | No | Linear project identifier. Usually empty in OpenAux usage. |
 | **Project** | string | No | Project name. Usually empty in OpenAux usage. |
-| **Creator** | email | Yes | Email address of ticket creator (e.g., `conormuldowney6@gmail.com`). |
+| **Creator** | email | Yes | Email address of ticket creator (e.g., `creator@example.com`). |
 | **Assignee** | email | No | Email address of assigned owner. Leave blank for unassigned. |
 | **Labels** | string | No | Comma-separated list of label names (e.g., `lifecycle`, `platform`, `testing`). Tags for categorization. |
 | **Cycle Number** | number | No | Sprint/cycle number. Usually blank. |
@@ -57,7 +57,6 @@ This document defines the canonical CSV standard for OpenAux tickets generated f
 - `High` - Critical path, blocking items
 - `Medium` - Standard priority (default)
 - `Low` - Nice-to-have, backlog items
-
 
 
 ### Datetime Format
@@ -105,22 +104,22 @@ The following epics are the authoritative parent tickets for OpenAux feature are
 
 ### Epic Ticket
 ```csv
-"AUX-5","OpenAux","Open Aux lifecycle and state machine (Epic)","Epic. Implement explicit lifecycle states (Creation, Submission Open, Voting Open, Finalized), guarded transitions, and immutable finalization behavior from ADR 0008.","Backlog",8,"High",,,"conormuldowney6@gmail.com",,"lifecycle",,,,,,...
+"AUX-5","OpenAux","Open Aux lifecycle and state machine (Epic)","Epic. Implement explicit lifecycle states (Creation, Submission Open, Voting Open, Finalized), guarded transitions, and immutable finalization behavior from ADR 0008.","Backlog",8,"High",,,"creator@example.com",,"lifecycle",,,,,,...
 ```
 
 ### Story with Dependencies
 ```csv
-"AUX-21","OpenAux","Enforce rule locking and controlled mutability","AC: Lock voting-related settings and blind-judging setting at submission open; keep listener scope mutable at all stages; provide explicit API errors for post-lock mutation attempts. Depends on: AUX-16.","Backlog",3,"High",,,"conormuldowney6@gmail.com",,"lifecycle",,,,,,...
+"AUX-21","OpenAux","Enforce rule locking and controlled mutability","AC: Lock voting-related settings and blind-judging setting at submission open; keep listener scope mutable at all stages; provide explicit API errors for post-lock mutation attempts. Depends on: AUX-16.","Backlog",3,"High",,,"creator@example.com",,"lifecycle",,,,,,...
 ```
 
 ### Completed Story with Multiple Relationships
 ```csv
-"AUX-13","OpenAux","Bootstrap Next.js App Router skeleton with module boundaries","AC: Create app shell with domain modules (lifecycle, policy, submissions, ballots, scoring, visibility); enforce canonical domain language in code surfaces; document module boundaries. Depends on: AUX-7.","Done",3,"High",,,"conormuldowney6@gmail.com",,"platform",,,,,Tue Jun 09 2026 17:59:44 GMT+0000 (GMT+00:00)","Wed Jun 10 2026 17:39:17 GMT+0000 (GMT+00:00)","Tue Jun 09 2026 17:59:44 GMT+0000 (GMT+00:00)",,"Tue Jun 09 2026 18:18:30 GMT+0000 (GMT+00:00)",,,,,"",,,,"76692689-1c78-45f0-8233-8bd0c1a41244",2628,"AUX-41, AUX-43",,
+"AUX-13","OpenAux","Bootstrap Next.js App Router skeleton with module boundaries","AC: Create app shell with domain modules (lifecycle, policy, submissions, ballots, scoring, visibility); enforce canonical domain language in code surfaces; document module boundaries. Depends on: AUX-7.","Done",3,"High",,,"creator@example.com",,"platform",,,,,Tue Jun 09 2026 17:59:44 GMT+0000 (GMT+00:00)","Wed Jun 10 2026 17:39:17 GMT+0000 (GMT+00:00)","Tue Jun 09 2026 17:59:44 GMT+0000 (GMT+00:00)",,"Tue Jun 09 2026 18:18:30 GMT+0000 (GMT+00:00)",,,,,"",,,,"76692689-1c78-45f0-8233-8bd0c1a41244",2628,"AUX-41, AUX-43",,
 ```
 
 ### Test Ticket with In Progress Status
 ```csv
-"AUX-61","OpenAux","Add unit tests for ranked scoring behavior","Verify Borda-style point allocation in scoring module. Scope: full and partial ballots, varying maxRankedPicks, deterministic output order and points. AC: representative ballot score correctness and edge-case coverage for rank bounds.","In Progress",,"Medium",,,"conormuldowney6@gmail.com",,"ballots",,,,,Wed Jun 10 2026 21:59:46 GMT+0000 (GMT+00:00)","Thu Jun 11 2026 13:33:45 GMT+0000 (GMT+00:00)","Thu Jun 11 2026 13:33:45 GMT+0000 (GMT+00:00)",,,,,,,"",,,,"12fdd1af-d2e3-400e-b26f-8ae0dea6fa22",33,,,
+"AUX-61","OpenAux","Add unit tests for ranked scoring behavior","Verify Borda-style point allocation in scoring module. Scope: full and partial ballots, varying maxRankedPicks, deterministic output order and points. AC: representative ballot score correctness and edge-case coverage for rank bounds.","In Progress",,"Medium",,,"creator@example.com",,"ballots",,,,,Wed Jun 10 2026 21:59:46 GMT+0000 (GMT+00:00)","Thu Jun 11 2026 13:33:45 GMT+0000 (GMT+00:00)","Thu Jun 11 2026 13:33:45 GMT+0000 (GMT+00:00)",,,,,,,"",,,,"12fdd1af-d2e3-400e-b26f-8ae0dea6fa22",33,,,
 ```
 
 ## Importing Tickets via Linear CLI
