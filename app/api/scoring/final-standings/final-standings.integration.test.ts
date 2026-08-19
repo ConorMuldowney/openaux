@@ -193,8 +193,8 @@ describe("POST /api/scoring/final-standings — successful retrieval", () => {
     const p1 = await createParticipant(prisma, { showcaseId: showcase.id });
     const p2 = await createParticipant(prisma, { showcaseId: showcase.id });
 
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id, isValid: true });
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id, isValid: true });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id });
 
     // Manually publish standings to simulate what the lifecycle transition would do
     await prisma.finalStandings.create({

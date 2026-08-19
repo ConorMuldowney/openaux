@@ -77,7 +77,7 @@ async function ShowcaseInfo({ showcase }: { showcase: ShowcaseDetailData }) {
           <p className="mt-1 font-medium">Up to {showcase.maxRankedPicks}</p>
         </div>
         <div className="sm:col-span-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/75">Required samples</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/75">Reference samples</p>
           {showcase.requiredSampleIds.length > 0 ? (
             <ul className="mt-3 space-y-3">
               {showcase.requiredSampleIds.map((sample, index) => (
@@ -91,7 +91,7 @@ async function ShowcaseInfo({ showcase }: { showcase: ShowcaseDetailData }) {
               ))}
             </ul>
           ) : (
-            <p className="mt-1 text-sm text-foreground/75">No required samples configured.</p>
+            <p className="mt-1 text-sm text-foreground/75">No reference samples configured.</p>
           )}
         </div>
           </CardContent>
@@ -119,7 +119,6 @@ async function ShowcaseEntriesSection({
       title: true,
       description: true,
       storageKey: true,
-      isValid: true,
       participant: { select: { id: true } },
     },
     orderBy: [{ submittedAt: "asc" }, { id: "asc" }],
@@ -138,7 +137,6 @@ async function ShowcaseEntriesSection({
       participantId: revealIdentity ? entry.participant.id : null,
       participantAlias: revealIdentity ? null : `Participant ${index + 1}`,
       audioDownloadUrl: (await createEntryDownloadUrl(entry.storageKey))?.downloadUrl ?? null,
-      isValidForRequiredSamples: entry.isValid,
     })),
   );
 

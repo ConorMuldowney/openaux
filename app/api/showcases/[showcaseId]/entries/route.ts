@@ -20,7 +20,6 @@ import { shouldRevealParticipantIdentity } from "@/src/modules/visibility/public
 import { fromPrismaLifecycleState } from "@/src/modules/lifecycle/public";
 import { reconcileScheduledLifecycle } from "@/src/api/lifecycle/schedule";
 import { evaluateSubmitEntryPolicy } from "@/src/modules/policy/public";
-import { isEntryValidForRequiredSamples } from "@/src/modules/submissions/public";
 import { isEntryStorageKeyOwnedByParticipant, createEntryDownloadUrl } from "@/src/storage/public";
 
 const SHOWCASE_ID_PARAMS_SCHEMA = z.object({
@@ -126,7 +125,6 @@ export async function GET(
       storageKey: true,
       submittedAt: true,
       updatedAt: true,
-      isValid: true,
       participant: {
         select: {
           id: true,
@@ -160,7 +158,6 @@ export async function GET(
           audioDownloadUrl: (await createEntryDownloadUrl(entry.storageKey))?.downloadUrl ?? null,
           submittedAt: entry.submittedAt,
           updatedAt: entry.updatedAt,
-          isValidForRequiredSamples: entry.isValid,
         })),
       ),
     },
@@ -168,8 +165,6 @@ export async function GET(
 
   return NextResponse.json(responseBody, { status: 200 });
 }
-
-const REQUIRED_SAMPLE_IDS_SCHEMA = z.array(z.string());
 
 export async function POST(
   request: Request,
@@ -250,7 +245,7 @@ export async function POST(
     );
   }
 
-  const { storageKey, usedSampleIds } = parsedBody.data;
+  const { storageKey } = parsedBody.data;
   const title = parsedBody.data.title ?? "Untitled submission";
   const description = parsedBody.data.description ?? "";
 
@@ -260,14 +255,6 @@ export async function POST(
     );
   }
 
-  const requiredSampleIds = REQUIRED_SAMPLE_IDS_SCHEMA.parse(showcase.requiredSampleIds);
-  const isValid = isEntryValidForRequiredSamples({
-    participantId: participant.id,
-    showcaseId,
-    requiredSampleIds,
-    usedSampleIds,
-  });
-
   const entry = await prisma.entry.upsert({
     where: { participantId_showcaseId: { participantId: participant.id, showcaseId } },
     create: {
@@ -276,22 +263,17 @@ export async function POST(
       title,
       description,
       storageKey,
-      isValid,
-      validationDetails: { usedSampleIds },
     },
     update: {
       title,
       description,
       storageKey,
-      isValid,
-      validationDetails: { usedSampleIds },
     },
     select: {
       id: true,
       storageKey: true,
       submittedAt: true,
       updatedAt: true,
-      isValid: true,
     },
   });
 
@@ -302,7 +284,6 @@ export async function POST(
       storageKey: entry.storageKey,
       submittedAt: entry.submittedAt,
       updatedAt: entry.updatedAt,
-      isValidForRequiredSamples: entry.isValid,
     },
   };
 

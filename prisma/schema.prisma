@@ -126,8 +126,6 @@ model Entry {
   storageKey        String
   submittedAt       DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  isValid           Boolean  @default(false)
-  validationDetails Json?
 
   showcase               Showcase                @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
   participant            Participant             @relation(fields: [participantId, showcaseId], references: [id, showcaseId], onDelete: Cascade)
@@ -135,7 +133,6 @@ model Entry {
 
   @@unique([participantId, showcaseId], map: "entry_one_final_per_participant")
   @@unique([id, showcaseId], map: "entry_id_showcase_unique")
-  @@index([showcaseId, isValid])
 }
 
 model Ballot {

@@ -67,7 +67,7 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
     });
 
     const response = await confirmEntry(
-      postRequest({ storageKey: "s3://bucket/key", usedSampleIds: [] }),
+      postRequest({ storageKey: "s3://bucket/key" }),
       { params: Promise.resolve({ showcaseId: showcase.id }) },
     );
 
@@ -85,7 +85,6 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
     const response = await confirmEntry(
       postRequest({
         storageKey: storageKeyFor(showcase.id, participant.id),
-        usedSampleIds: [],
       }),
       { params: Promise.resolve({ showcaseId: showcase.id }) },
     );
@@ -110,7 +109,6 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
     const response = await confirmEntry(
       postRequest({
         storageKey: storageKeyFor(showcase.id, participant.id),
-        usedSampleIds: [],
       }),
       { params: Promise.resolve({ showcaseId: showcase.id }) },
     );
@@ -135,7 +133,7 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
     mockSession(userId);
 
     const response = await confirmEntry(
-      postRequest({ storageKey: "s3://openaux-test/originals/not-owned.wav", usedSampleIds: [] }),
+      postRequest({ storageKey: "s3://openaux-test/originals/not-owned.wav" }),
       { params: Promise.resolve({ showcaseId: showcase.id }) },
     );
 
@@ -158,7 +156,6 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
     const response = await confirmEntry(
       postRequest({
         storageKey: "s3://openaux-test/originals/some-other-showcase/some-other-participant/track.wav",
-        usedSampleIds: [],
       }),
       { params: Promise.resolve({ showcaseId: showcase.id }) },
     );
@@ -166,7 +163,7 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
     expect(response.status).toBe(409);
   });
 
-  it("persists an Entry with the confirmed storageKey and validity", async () => {
+  it("persists an Entry with the confirmed storageKey", async () => {
     const showcase = await createShowcase(prisma, {
       lifecycleState: ShowcaseLifecycleState.SUBMISSION_OPEN,
       participationScope: AccessScope.PUBLIC,
@@ -177,7 +174,7 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
 
     const storageKey = storageKeyFor(showcase.id, participant.id);
     const response = await confirmEntry(
-      postRequest({ storageKey, usedSampleIds: ["kick", "snare"] }),
+      postRequest({ storageKey }),
       { params: Promise.resolve({ showcaseId: showcase.id }) },
     );
 
@@ -186,7 +183,6 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
       ok: true,
       data: {
         storageKey,
-        isValidForRequiredSamples: true,
       },
     });
 
@@ -194,7 +190,6 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
       where: { participantId_showcaseId: { participantId: participant.id, showcaseId: showcase.id } },
     });
     expect(persisted?.storageKey).toBe(storageKey);
-    expect(persisted?.isValid).toBe(true);
   });
 
   it("resubmits by overwriting the existing Entry for the same participant", async () => {
@@ -207,13 +202,13 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
     mockSession(participant.userId);
 
     const firstStorageKey = storageKeyFor(showcase.id, participant.id);
-    await confirmEntry(postRequest({ storageKey: firstStorageKey, usedSampleIds: [] }), {
+    await confirmEntry(postRequest({ storageKey: firstStorageKey }), {
       params: Promise.resolve({ showcaseId: showcase.id }),
     });
 
     const secondStorageKey = `${firstStorageKey}-v2`;
     const response = await confirmEntry(
-      postRequest({ storageKey: secondStorageKey, usedSampleIds: ["kick"] }),
+      postRequest({ storageKey: secondStorageKey }),
       { params: Promise.resolve({ showcaseId: showcase.id }) },
     );
 
@@ -222,6 +217,5 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
     const entries = await prisma.entry.findMany({ where: { showcaseId: showcase.id } });
     expect(entries).toHaveLength(1);
     expect(entries[0].storageKey).toBe(secondStorageKey);
-    expect(entries[0].isValid).toBe(true);
   });
 });

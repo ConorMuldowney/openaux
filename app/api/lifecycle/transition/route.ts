@@ -97,7 +97,7 @@ export async function POST(request: Request) {
         });
 
         const entries = await tx.entry.findMany({
-          where: { showcaseId: parsedRequest.data.showcaseId, isValid: true },
+          where: { showcaseId: parsedRequest.data.showcaseId },
           select: { participantId: true, submittedAt: true },
         });
 

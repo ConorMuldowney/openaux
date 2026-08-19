@@ -403,9 +403,9 @@ describe("POST /api/lifecycle/transition — final snapshot publication", () => 
     const p2 = await createParticipant(prisma, { showcaseId: showcase.id });
     const p3 = await createParticipant(prisma, { showcaseId: showcase.id });
 
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id, isValid: true });
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id, isValid: true });
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p3.id, isValid: true });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p3.id });
 
     const ballot1 = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-1" });
     const version1 = await createBallotVersion(prisma, {
@@ -484,8 +484,8 @@ describe("POST /api/lifecycle/transition — final snapshot publication", () => 
     const p1 = await createParticipant(prisma, { showcaseId: showcase.id });
     const p2 = await createParticipant(prisma, { showcaseId: showcase.id });
 
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id, isValid: true });
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id, isValid: true });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id });
 
     const ballot = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-stale" });
     // Version 1 (stale): prefers p2
@@ -525,12 +525,11 @@ describe("POST /api/lifecycle/transition — final snapshot publication", () => 
     const p2 = await createParticipant(prisma, { showcaseId: showcase.id });
     const disqualified = await createParticipant(prisma, { showcaseId: showcase.id });
 
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id, isValid: true });
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id, isValid: true });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id });
     await createEntry(prisma, {
       showcaseId: showcase.id,
       participantId: disqualified.id,
-      isValid: false,
     });
 
     const ballot1 = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-1" });

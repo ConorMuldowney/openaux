@@ -90,7 +90,6 @@ export function NewSubmissionForm({ showcaseId }: NewSubmissionFormProps) {
           title,
           description,
           storageKey: uploadBody.data.storageKey,
-          usedSampleIds: [],
         }),
       });
       const submitBody = (await submitResponse.json()) as

@@ -56,7 +56,6 @@ describe("GET /api/showcases/[showcaseId]/entries", () => {
     await createEntry(prisma, {
       showcaseId: showcase.id,
       participantId: participant.id,
-      isValid: true,
     });
 
     const response = await readEntries(
@@ -77,7 +76,6 @@ describe("GET /api/showcases/[showcaseId]/entries", () => {
           {
             participantId: null,
             participantAlias: "Participant 1",
-            isValidForRequiredSamples: true,
           },
         ],
       },
@@ -97,7 +95,6 @@ describe("GET /api/showcases/[showcaseId]/entries", () => {
     await createEntry(prisma, {
       showcaseId: showcase.id,
       participantId: participant.id,
-      isValid: false,
     });
 
     const response = await readEntries(
@@ -114,7 +111,6 @@ describe("GET /api/showcases/[showcaseId]/entries", () => {
         entries: Array<{
           participantId: string | null;
           participantAlias: string | null;
-          isValidForRequiredSamples: boolean;
         }>;
       };
     };
@@ -122,7 +118,6 @@ describe("GET /api/showcases/[showcaseId]/entries", () => {
     expect(body.data.entries).toHaveLength(1);
     expect(body.data.entries[0].participantId).toBe(participant.id);
     expect(body.data.entries[0].participantAlias).toBeNull();
-    expect(body.data.entries[0].isValidForRequiredSamples).toBe(false);
   });
 });
 

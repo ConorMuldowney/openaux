@@ -537,16 +537,16 @@ export function NewShowcaseForm({
               </div>
             </div>
 
-            {/* Required Samples Section */}
+            {/* Reference Samples Section */}
             <FormField
               control={form.control}
               name="requiredSampleIds"
               render={() => (
                 <FormItem>
-                  <FormLabel>Required Samples (optional)</FormLabel>
+                  <FormLabel>Reference Samples (optional)</FormLabel>
                   <FormDescription>
-                    Samples that must be used in submitted entries. Upload an audio file or paste
-                    a link (YouTube, SoundCloud, direct URL, etc.).
+                    Samples for participants to reference. Upload an audio file or paste a link
+                    (YouTube, SoundCloud, direct URL, etc.).
                   </FormDescription>
 
                   <div className="space-y-3">
@@ -621,7 +621,7 @@ export function NewShowcaseForm({
                             ref={requiredSampleFileInputRef}
                             type="file"
                             accept="audio/*"
-                            aria-label="Upload a required sample audio file"
+                            aria-label="Upload a reference sample audio file"
                             className="sr-only"
                             disabled={isUploadingSample}
                             onChange={(e) => {

@@ -60,7 +60,6 @@ Create an entry (track submission) for a participant.
 const entry = await createEntry(prisma, {
   showcaseId: showcase.id,
   participantId: participant.id,
-  isValid: true,
 });
 ```
 
