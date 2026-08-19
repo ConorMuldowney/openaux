@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { ShowcaseDetailResponse } from "@/src/api/contracts/showcases";
 import { auth0 } from "@/src/auth/auth0";
 import { prisma } from "@/src/db/prisma";
+import { reconcileScheduledLifecycle } from "@/src/api/lifecycle/schedule";
 import { SHOWCASE_DETAIL_SELECT, toShowcaseDetailData } from "@/src/api/showcases";
 import { evaluateShowcaseReadPolicy } from "@/src/api/showcase-read-access";
 import {
@@ -72,11 +73,16 @@ export async function GET(
     );
   }
 
+  const reconciledLifecycleState = await reconcileScheduledLifecycle(prisma, showcase);
+  const responseShowcase = reconciledLifecycleState
+    ? { ...showcase, lifecycleState: reconciledLifecycleState }
+    : showcase;
+
   const policyDecision = await evaluateShowcaseReadPolicy({
     prisma,
-    showcaseId: showcase.id,
-    hostUserId: showcase.hostUserId,
-    listenerScope: showcase.listenerScope,
+    showcaseId: responseShowcase.id,
+    hostUserId: responseShowcase.hostUserId,
+    listenerScope: responseShowcase.listenerScope,
     userId,
   });
 
@@ -86,7 +92,7 @@ export async function GET(
 
   const responseBody: ShowcaseDetailResponse = {
     ok: true,
-    data: toShowcaseDetailData(showcase),
+    data: toShowcaseDetailData(responseShowcase),
   };
 
   return NextResponse.json(responseBody, { status: 200 });
