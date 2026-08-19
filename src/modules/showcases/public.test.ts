@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { toShowcaseCardViewModels } from "@/src/modules/showcases/public";
+import {
+  getShowcaseSectionsForRole,
+  resolveShowcaseViewerRole,
+  toShowcaseCardViewModels,
+} from "@/src/modules/showcases/public";
 import type { ShowcaseDetailData } from "@/src/api/contracts/showcases";
 
 function createShowcase(overrides: Partial<ShowcaseDetailData>): ShowcaseDetailData {
@@ -92,5 +96,87 @@ describe("toShowcaseCardViewModels", () => {
       ["Voided", "outline"],
       ["Canceled", "outline"],
     ]);
+  });
+});
+
+describe("resolveShowcaseViewerRole", () => {
+  it("prioritizes host over participant and voter", () => {
+    const role = resolveShowcaseViewerRole({
+      hostUserId: "user-1",
+      userId: "user-1",
+      isParticipant: true,
+      isVoter: true,
+    });
+
+    expect(role).toBe("host");
+  });
+
+  it("prioritizes participant over voter", () => {
+    const role = resolveShowcaseViewerRole({
+      hostUserId: "user-host",
+      userId: "user-1",
+      isParticipant: true,
+      isVoter: true,
+    });
+
+    expect(role).toBe("participant");
+  });
+
+  it("resolves voter when not a host or participant", () => {
+    const role = resolveShowcaseViewerRole({
+      hostUserId: "user-host",
+      userId: "user-1",
+      isParticipant: false,
+      isVoter: true,
+    });
+
+    expect(role).toBe("voter");
+  });
+
+  it("falls back to listener otherwise", () => {
+    const role = resolveShowcaseViewerRole({
+      hostUserId: "user-host",
+      userId: "user-1",
+      isParticipant: false,
+      isVoter: false,
+    });
+
+    expect(role).toBe("listener");
+  });
+});
+
+describe("getShowcaseSectionsForRole", () => {
+  it("always includes submission for hosts, regardless of the submit-entry policy", () => {
+    expect(getShowcaseSectionsForRole("host", false)).toEqual([
+      "submission",
+      "entries",
+      "listening",
+      "participants",
+      "voting",
+    ]);
+  });
+
+  it("includes submission for a listener when the submit-entry policy allows it", () => {
+    // e.g. an open showcase where any authenticated user can submit before joining as a participant
+    expect(getShowcaseSectionsForRole("listener", true)).toEqual([
+      "submission",
+      "entries",
+      "listening",
+      "participants",
+    ]);
+  });
+
+  it("omits submission for a listener when the submit-entry policy disallows it", () => {
+    expect(getShowcaseSectionsForRole("listener", false)).toEqual([
+      "entries",
+      "listening",
+      "participants",
+    ]);
+  });
+
+  it("includes voting for participants and voters but not listeners", () => {
+    expect(getShowcaseSectionsForRole("participant", true)).toContain("voting");
+    expect(getShowcaseSectionsForRole("voter", false)).toContain("voting");
+    expect(getShowcaseSectionsForRole("listener", false)).not.toContain("voting");
   });
 });
