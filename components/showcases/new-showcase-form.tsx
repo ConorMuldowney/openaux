@@ -89,6 +89,24 @@ const SHOWCASE_CREATE_FORM_SCHEMA = z
 
 type ShowcaseFormData = z.infer<typeof SHOWCASE_CREATE_FORM_SCHEMA>;
 
+function toLocalDateTimeInputValue(value: string): string {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+  const pad = (part: number) => String(part).padStart(2, "0");
+
+  return [
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
+    `${pad(date.getHours())}:${pad(date.getMinutes())}`,
+  ].join("T");
+}
+
+function toUtcDateTimeValue(value: string): string {
+  return value ? new Date(value).toISOString() : "";
+}
+
 interface NewShowcaseFormProps {
   onSuccess?: () => void;
   showcaseId?: string;
@@ -664,20 +682,8 @@ export function NewShowcaseForm({
                         <Input
                           type="datetime-local"
                           {...field}
-                          value={
-                            field.value
-                              ? new Date(field.value).toISOString().slice(0, 16)
-                              : ""
-                          }
-                          onChange={(e) => {
-                            if (!e.target.value) {
-                              field.onChange("");
-                              return;
-                            }
-                            const [date, time] = e.target.value.split("T");
-                            const isoString = `${date}T${time}:00Z`;
-                            field.onChange(isoString);
-                          }}
+                          value={toLocalDateTimeInputValue(field.value)}
+                          onChange={(event) => field.onChange(toUtcDateTimeValue(event.target.value))}
                         />
                       </FormControl>
                       <FormMessage />
@@ -695,20 +701,8 @@ export function NewShowcaseForm({
                         <Input
                           type="datetime-local"
                           {...field}
-                          value={
-                            field.value
-                              ? new Date(field.value).toISOString().slice(0, 16)
-                              : ""
-                          }
-                          onChange={(e) => {
-                            if (!e.target.value) {
-                              field.onChange("");
-                              return;
-                            }
-                            const [date, time] = e.target.value.split("T");
-                            const isoString = `${date}T${time}:00Z`;
-                            field.onChange(isoString);
-                          }}
+                          value={toLocalDateTimeInputValue(field.value)}
+                          onChange={(event) => field.onChange(toUtcDateTimeValue(event.target.value))}
                         />
                       </FormControl>
                       <FormMessage />
@@ -726,20 +720,8 @@ export function NewShowcaseForm({
                         <Input
                           type="datetime-local"
                           {...field}
-                          value={
-                            field.value
-                              ? new Date(field.value).toISOString().slice(0, 16)
-                              : ""
-                          }
-                          onChange={(e) => {
-                            if (!e.target.value) {
-                              field.onChange("");
-                              return;
-                            }
-                            const [date, time] = e.target.value.split("T");
-                            const isoString = `${date}T${time}:00Z`;
-                            field.onChange(isoString);
-                          }}
+                          value={toLocalDateTimeInputValue(field.value)}
+                          onChange={(event) => field.onChange(toUtcDateTimeValue(event.target.value))}
                         />
                       </FormControl>
                       <FormMessage />
@@ -757,20 +739,8 @@ export function NewShowcaseForm({
                         <Input
                           type="datetime-local"
                           {...field}
-                          value={
-                            field.value
-                              ? new Date(field.value).toISOString().slice(0, 16)
-                              : ""
-                          }
-                          onChange={(e) => {
-                            if (!e.target.value) {
-                              field.onChange("");
-                              return;
-                            }
-                            const [date, time] = e.target.value.split("T");
-                            const isoString = `${date}T${time}:00Z`;
-                            field.onChange(isoString);
-                          }}
+                          value={toLocalDateTimeInputValue(field.value)}
+                          onChange={(event) => field.onChange(toUtcDateTimeValue(event.target.value))}
                         />
                       </FormControl>
                       <FormMessage />
