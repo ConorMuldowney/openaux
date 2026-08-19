@@ -180,6 +180,8 @@ export async function PATCH(
       submissionClosesAt: true,
       votingOpensAt: true,
       votingClosesAt: true,
+      listenerScope: true,
+      voterScope: true,
     },
   });
 
@@ -208,6 +210,36 @@ export async function PATCH(
   }
 
   const data = parsedRequest.data;
+
+  const listenerScope =
+    data.listenerScope ?? (existingShowcase.listenerScope === "PUBLIC" ? "public" : "invite-only");
+  const voterScope =
+    data.voterScope ??
+    (existingShowcase.voterScope === "PUBLIC"
+      ? "public-authenticated"
+      : "invite-only-authenticated");
+
+  if (listenerScope === "invite-only" && voterScope === "public-authenticated") {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: {
+          code: "validation-error",
+          message: "Request validation failed.",
+          details: {
+            validationIssues: [
+              {
+                path: "voterScope",
+                message: "voterScope must be invite-only-authenticated when listenerScope is invite-only.",
+                issueCode: "custom",
+              },
+            ],
+          },
+        },
+      },
+      { status: 400 },
+    );
+  }
 
   if (data.hostControl) {
     const action = data.hostControl;
