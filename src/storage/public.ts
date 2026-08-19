@@ -59,3 +59,19 @@ export async function createEntryUploadUrl(
     expiresInSeconds: UPLOAD_URL_EXPIRY_SECONDS,
   };
 }
+
+export type EntryStorageKeyOwnershipInput = {
+  storageKey: string;
+  showcaseId: string;
+  participantId: string;
+};
+
+// Confirms a client-submitted storageKey actually points at the presigned location
+// issued for this participant, rather than an arbitrary/other participant's object.
+export function isEntryStorageKeyOwnedByParticipant(
+  input: EntryStorageKeyOwnershipInput,
+): boolean {
+  const bucketName = getR2BucketName();
+  const expectedPrefix = `s3://${bucketName}/${ORIGINALS_PREFIX}/${input.showcaseId}/${input.participantId}/`;
+  return input.storageKey.startsWith(expectedPrefix);
+}
