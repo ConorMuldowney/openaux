@@ -226,6 +226,22 @@ export async function POST(request: Request) {
       select: { id: true },
     });
 
+    if (invite.scope === InviteScope.PARTICIPATION) {
+      await tx.participant.upsert({
+        where: {
+          showcaseId_userId: {
+            showcaseId: invite.showcaseId,
+            userId: authResult.session.user.sub,
+          },
+        },
+        create: {
+          showcaseId: invite.showcaseId,
+          userId: authResult.session.user.sub,
+        },
+        update: {},
+      });
+    }
+
     return {
       ok: true as const,
       auditEventId: auditEvent.id,

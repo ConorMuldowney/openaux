@@ -403,9 +403,9 @@ describe("POST /api/lifecycle/transition — final snapshot publication", () => 
     const p2 = await createParticipant(prisma, { showcaseId: showcase.id });
     const p3 = await createParticipant(prisma, { showcaseId: showcase.id });
 
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id, isValid: true });
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id, isValid: true });
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p3.id, isValid: true });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p3.id });
 
     const ballot1 = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-1" });
     const version1 = await createBallotVersion(prisma, {
@@ -484,8 +484,8 @@ describe("POST /api/lifecycle/transition — final snapshot publication", () => 
     const p1 = await createParticipant(prisma, { showcaseId: showcase.id });
     const p2 = await createParticipant(prisma, { showcaseId: showcase.id });
 
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id, isValid: true });
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id, isValid: true });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id });
 
     const ballot = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-stale" });
     // Version 1 (stale): prefers p2
@@ -514,7 +514,7 @@ describe("POST /api/lifecycle/transition — final snapshot publication", () => 
     expect(standings[0].points).toBe(2);
   });
 
-  it("excludes invalid entries from final standings and recomputes points from compressed ballots", async () => {
+  it("includes every submitted entry in final standings", async () => {
     const showcase = await createShowcase(prisma, {
       hostUserId,
       lifecycleState: "VOTING_OPEN",
@@ -523,27 +523,26 @@ describe("POST /api/lifecycle/transition — final snapshot publication", () => 
 
     const p1 = await createParticipant(prisma, { showcaseId: showcase.id });
     const p2 = await createParticipant(prisma, { showcaseId: showcase.id });
-    const disqualified = await createParticipant(prisma, { showcaseId: showcase.id });
+    const p3 = await createParticipant(prisma, { showcaseId: showcase.id });
 
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id, isValid: true });
-    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id, isValid: true });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p1.id });
+    await createEntry(prisma, { showcaseId: showcase.id, participantId: p2.id });
     await createEntry(prisma, {
       showcaseId: showcase.id,
-      participantId: disqualified.id,
-      isValid: false,
+      participantId: p3.id,
     });
 
     const ballot1 = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-1" });
     const version1 = await createBallotVersion(prisma, {
       ballotId: ballot1.id,
-      rankedParticipantIds: [p1.id, disqualified.id, p2.id],
+      rankedParticipantIds: [p1.id, p3.id, p2.id],
     });
     await prisma.ballot.update({ where: { id: ballot1.id }, data: { currentVersionId: version1.id } });
 
     const ballot2 = await createBallot(prisma, { showcaseId: showcase.id, voterUserId: "voter-2" });
     const version2 = await createBallotVersion(prisma, {
       ballotId: ballot2.id,
-      rankedParticipantIds: [p2.id, disqualified.id, p1.id],
+      rankedParticipantIds: [p2.id, p3.id, p1.id],
     });
     await prisma.ballot.update({ where: { id: ballot2.id }, data: { currentVersionId: version2.id } });
 
@@ -555,8 +554,8 @@ describe("POST /api/lifecycle/transition — final snapshot publication", () => 
     });
 
     const standings = finalStandings!.standings as Array<{ participantId: string; points: number }>;
-    expect(standings).toHaveLength(2);
-    expect(standings.every((standing) => standing.participantId !== disqualified.id)).toBe(true);
-    expect(standings.map((standing) => standing.points)).toEqual([5, 5]);
+    expect(standings).toHaveLength(3);
+    expect(standings.map((standing) => standing.participantId)).toContain(p3.id);
+    expect(standings.map((standing) => standing.points)).toEqual([4, 4, 4]);
   });
 });

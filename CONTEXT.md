@@ -1,6 +1,6 @@
 # OpenAux
 
-OpenAux is a platform where hosts run time-boxed showcases using required samples, and audiences listen and vote under configured access scopes.
+OpenAux is a platform where hosts run time-boxed showcases using optional reference samples, and audiences listen and vote under configured access scopes.
 
 ## Language
 
@@ -21,9 +21,9 @@ _Avoid_: Competitor, producer
 A Participant's submitted track for a specific showcase.
 _Avoid_: Song upload, submission artifact
 
-**Required Sample**:
-A sample that must be used for an Entry to be considered valid.
-_Avoid_: Optional sample, bonus sample
+**Reference Sample**:
+Optional audio that a Host provides as creative guidance for a Showcase.
+_Avoid_: Mandatory sample, bonus sample
 
 **Invite**:
 A private access grant (link or in-app) that requires authentication before acceptance.

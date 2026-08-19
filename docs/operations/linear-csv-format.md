@@ -92,7 +92,7 @@ The following epics are the authoritative parent tickets for OpenAux feature are
 |---|---|---|---|---|---|
 | **AUX-5** | Open Aux lifecycle and state machine | `lifecycle` | High | 8 | Epic. Implement explicit lifecycle states (Creation, Submission Open, Voting Open, Finalized), guarded transitions, and immutable finalization behavior from ADR 0008. |
 | **AUX-6** | Access control identities and invites | `access` | High | 8 | Epic. Implement authentication/verification requirements and invite-gated access model from ADR 0002 and ADR 0003. |
-| **AUX-7** | Entry submission and required sample validation | `submission` | High | 8 | Epic. Implement entry ownership, draft replacement, required-sample validity, and voiding conditions from ADR 0005. |
+| **AUX-7** | Entry submission and showcase participation | `submission` | High | 8 | Epic. Implement entry ownership, draft replacement, and showcase progression conditions from ADR 0005. |
 | **AUX-8** | Ranked ballots scoring tie-break and disqualification | `ballots` | High | 8 | Epic. Implement ranked ballot validation, Borda scoring, tie-break logic, and disqualification recomputation from ADR 0006 and ADR 0007. |
 | **AUX-9** | Blind judging and post-results identity reveal | `visibility` | Medium | 5 | Epic. Implement identity masking during active phases and reveal on publish according to rules and ADR 0003. |
 | **AUX-10** | Host controls cancel and deadline extension | `host-controls` | Medium | 5 | Epic. Implement host controls for cancellation and deadline extension with lifecycle guards from ADR 0008 and ADR 0009. |

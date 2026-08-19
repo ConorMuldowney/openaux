@@ -1,7 +1,7 @@
 /**
  * Spec-gap tests for submission-close void enforcement at the lifecycle transition route.
  *
- * PRD rule (ADR-0005): "If fewer than two valid entries exist at submission close,
+ * PRD rule (ADR-0005): "If fewer than two entries exist at submission close,
  * the showcase is void and does not proceed to voting."
  *
  * Current gap: POST /api/lifecycle/transition does not enforce the void condition
@@ -38,6 +38,6 @@ describe("POST /api/lifecycle/transition — submission-close void enforcement (
   );
 
   it.todo(
-    "counts only valid entries (isValid: true) when evaluating the void threshold at submission close",
+    "counts all entries when evaluating the void threshold at submission close",
   );
 });

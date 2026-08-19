@@ -5,7 +5,6 @@
 
 import { PrismaClient } from "@prisma/client";
 import type {
-  Prisma,
   Showcase,
   Participant,
   Entry,
@@ -229,8 +228,6 @@ export interface CreateEntryInput {
   participantId: string;
   storageKey?: string;
   submittedAt?: Date;
-  isValid?: boolean;
-  validationDetails?: Prisma.InputJsonValue;
 }
 
 export async function createEntry(
@@ -247,8 +244,6 @@ export async function createEntry(
       participantId: input.participantId,
       storageKey,
       submittedAt: input.submittedAt,
-      isValid: input.isValid !== false,
-      validationDetails: input.validationDetails,
     },
   });
 }
@@ -355,7 +350,6 @@ export async function createShowcaseWithSubmissions(
     const entry = await createEntry(prisma, {
       showcaseId: showcase.id,
       participantId: participant.id,
-      isValid: true,
     });
 
     participants.push({ user, participant, entry });
@@ -403,7 +397,6 @@ export async function createShowcaseWithVoting(
     const entry = await createEntry(prisma, {
       showcaseId: showcase.id,
       participantId: participant.id,
-      isValid: true,
     });
 
     participants.push({ user, participant, entry });
@@ -489,7 +482,6 @@ export async function createFinalizedShowcase(
     const entry = await createEntry(prisma, {
       showcaseId: showcase.id,
       participantId: participant.id,
-      isValid: true,
     });
 
     participants.push({ user, participant, entry });

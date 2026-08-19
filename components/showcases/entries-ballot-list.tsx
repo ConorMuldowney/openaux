@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { GripVertical, ArrowUp, ArrowDown, CircleAlert, Upload } from "lucide-react";
+import { GripVertical, ArrowUp, ArrowDown, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,6 @@ export type ShowcaseEntryListItem = {
   participantId: string | null;
   participantAlias: string | null;
   audioDownloadUrl: string | null;
-  isValidForRequiredSamples: boolean;
 };
 
 type EntriesBallotListProps = {
@@ -43,9 +42,7 @@ function buildInitialOrder(
   entries: ShowcaseEntryListItem[],
   initialRankedEntryIds: string[],
 ): string[] {
-  const votableEntryIds = new Set(
-    entries.filter((entry) => entry.isValidForRequiredSamples).map((entry) => entry.entryId),
-  );
+  const votableEntryIds = new Set(entries.map((entry) => entry.entryId));
   const ranked = initialRankedEntryIds.filter((entryId) => votableEntryIds.has(entryId));
   const rankedSet = new Set(ranked);
   const remaining = entries
@@ -69,8 +66,6 @@ export function EntriesBallotList({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const entriesById = new Map(entries.map((entry) => [entry.entryId, entry]));
-  const invalidEntries = entries.filter((entry) => !entry.isValidForRequiredSamples);
-
   function reorder(fromIndex: number, toIndex: number) {
     setOrder((current) => moveItem(current, fromIndex, toIndex));
     setStatus("idle");
@@ -196,16 +191,6 @@ export function EntriesBallotList({
             })}
           </ol>
         )}
-
-        {invalidEntries.length > 0 ? (
-          <div className="flex items-start gap-2 rounded-lg border border-dashed p-3 text-sm text-foreground/75">
-            <CircleAlert className="mt-0.5 size-4 shrink-0" />
-            <p>
-              {invalidEntries.length} entr{invalidEntries.length === 1 ? "y" : "ies"} did not use all required
-              samples and {invalidEntries.length === 1 ? "is" : "are"} excluded from ranking.
-            </p>
-          </div>
-        ) : null}
 
         {canVote ? (
           <div className="flex items-center gap-3">

@@ -23,8 +23,7 @@ OpenAux will provide showcases with separate scopes for participation, listening
 8. As a host, I want to allow private listening, so that I can keep some showcases visible only to invited listeners.
 9. As a host, I want to choose whether voting is public or private, so that I can open the vote to all eligible users or restrict it to invited users.
 10. As a host, I want to set the maximum number of ranked picks on a ballot, so that I can control how broad or narrow voting is.
-11. As a host, I want to define the required samples for a showcase, so that every valid entry follows the same creative constraint.
-12. As a host, I want to review submissions for required-sample compliance when submissions close, so that invalid entries are caught before voting.
+11. As a host, I want to provide optional reference samples for a showcase, so that participants have creative guidance.
 13. As a host, I want to cancel a showcase before voting opens, so that I can stop a showcase that is no longer viable.
 14. As a host, I want to extend submission time while submissions are open, so that I can give participants more time when needed.
 15. As a host, I want to extend voting time while voting is open, so that I can accommodate late participation without reopening submissions.
@@ -32,8 +31,7 @@ OpenAux will provide showcases with separate scopes for participation, listening
 17. As a participant, I want to accept an invite only after authenticating, so that private entry access is tied to a real account.
 18. As a participant, I want to submit exactly one final entry per showcase, so that judging stays simple and fair.
 19. As a participant, I want to replace my draft submission until submissions close, so that I can refine my track before locking it in.
-20. As a participant, I want to know whether my entry uses all required samples, so that I can confirm that my entry is valid before submission closes.
-21. As a participant, I want to know whether a showcase has too few valid entries to proceed, so that I am not waiting for a meaningless voting phase.
+20. As a participant, I want to know whether a showcase has enough entries to proceed, so that I am not waiting for a meaningless voting phase.
 22. As a listener, I want to listen anonymously when a showcase allows public listening, so that I can discover showcases without creating an account.
 23. As a listener, I want to listen only when I have invite access in a private showcase, so that private showcases remain private to the intended audience.
 24. As an authenticated user, I want to vote in public showcases when voting is open to all eligible users, so that I can participate in showcases I am allowed to judge.
@@ -63,8 +61,8 @@ OpenAux will provide showcases with separate scopes for participation, listening
 - Keep voting-related settings and blind-judging settings locked when submissions open.
 - Allow listener scope changes after submissions open if needed.
 - Model each participant as having one final entry per showcase, with draft replacement allowed until submissions close.
-- Require all mandatory samples to be present for an entry to be valid.
-- Void showcases with fewer than two valid entries at submission close.
+- Allow hosts to provide optional reference samples for participants.
+- Do not infer sample usage or exclude entries based on reference samples.
 - Use ranked ballots with a host-defined maximum rank count.
 - Allow partial ballots, but require contiguous ranks and forbid duplicate Participants on a ballot.
 - Score ballots with Borda-style points based on rank order.

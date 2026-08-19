@@ -78,7 +78,7 @@ export async function POST(
     );
   }
 
-  const participant = await prisma.participant.findUnique({
+  let participant = await prisma.participant.findUnique({
     where: { showcaseId_userId: { showcaseId, userId } },
     select: { id: true },
   });
@@ -91,6 +91,15 @@ export async function POST(
 
   if (!policyDecision.allowed) {
     return policyDeniedResponse(policyDeniedMessage(policyDecision.reason), policyDecision.reason);
+  }
+
+  if (!participant && showcase.participationScope === "PUBLIC") {
+    participant = await prisma.participant.upsert({
+      where: { showcaseId_userId: { showcaseId, userId } },
+      create: { showcaseId, userId },
+      update: {},
+      select: { id: true },
+    });
   }
 
   if (!participant) {

@@ -22,9 +22,9 @@ const FAQ_ITEMS = [
       "Participation Scope controls who may submit an Entry. Listener Scope controls who may listen and comment. Voter Scope controls which authenticated users may cast a Ranked Ballot. Each scope can be configured independently.",
   },
   {
-    question: "What is a Required Sample?",
+    question: "What is a Reference Sample?",
     answer:
-      "A Required Sample is a sample that must be used for an Entry to be considered valid. Hosts add these requirements when they create or edit a showcase.",
+      "A Reference Sample is optional audio that a Host provides as creative guidance. It does not determine whether an Entry can be ranked.",
   },
   {
     question: "How does ranking work?",

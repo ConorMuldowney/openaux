@@ -99,6 +99,12 @@ describe("POST /api/invites/accept - integration", () => {
     expect(persistedInvite?.acceptedByUserId).toBe(actorUserId);
     expect(persistedInvite?.acceptedAt).not.toBeNull();
 
+    await expect(
+      prisma.participant.findUnique({
+        where: { showcaseId_userId: { showcaseId: showcase.id, userId: actorUserId } },
+      }),
+    ).resolves.toMatchObject({ showcaseId: showcase.id, userId: actorUserId });
+
     const auditRecords = await prisma.inviteAcceptanceAuditEvent.findMany({
       where: { inviteId: invite.id },
     });

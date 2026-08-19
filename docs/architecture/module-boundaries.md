@@ -12,7 +12,7 @@ This document defines v1 boundaries for the modular monolith in Next.js App Rout
 
 - `lifecycle`: State transitions (`creation`, `submission-open`, `voting-open`, `finalized`) and finalization invariants.
 - `policy`: Participation Scope, Listener Scope, and Voter Scope decisions.
-- `submissions`: Entry draft replacement and Required Sample validity checks.
+- `submissions`: Entry draft replacement and Entry ownership rules.
 - `ballots`: Ranked Ballot validation rules and ballot-shape invariants.
 - `scoring`: Deterministic tally logic and tie-break ordering primitives.
 - `visibility`: Blind Judging visibility rules and identity reveal behavior.
