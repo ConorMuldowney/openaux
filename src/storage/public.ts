@@ -152,3 +152,42 @@ export async function createSampleDownloadUrl(
     expiresInSeconds: DOWNLOAD_URL_EXPIRY_SECONDS,
   };
 }
+
+// Parses the object key out of a `s3://<bucket>/<key>` storageKey issued by createEntryUploadUrl.
+function parseEntryStorageKey(storageKey: string): string | null {
+  const bucketName = getR2BucketName();
+  const expectedPrefix = `s3://${bucketName}/${ORIGINALS_PREFIX}/`;
+  if (!storageKey.startsWith(expectedPrefix)) {
+    return null;
+  }
+  return storageKey.slice(`s3://${bucketName}/`.length);
+}
+
+export type CreateEntryDownloadUrlResult = {
+  downloadUrl: string;
+  expiresInSeconds: number;
+};
+
+// Presigned GET for a previously uploaded Entry audio file; returns null for non-entry storageKeys.
+export async function createEntryDownloadUrl(
+  storageKey: string,
+): Promise<CreateEntryDownloadUrlResult | null> {
+  const objectKey = parseEntryStorageKey(storageKey);
+  if (!objectKey) {
+    return null;
+  }
+
+  const command = new GetObjectCommand({
+    Bucket: getR2BucketName(),
+    Key: objectKey,
+  });
+
+  const downloadUrl = await getSignedUrl(getR2Client(), command, {
+    expiresIn: DOWNLOAD_URL_EXPIRY_SECONDS,
+  });
+
+  return {
+    downloadUrl,
+    expiresInSeconds: DOWNLOAD_URL_EXPIRY_SECONDS,
+  };
+}

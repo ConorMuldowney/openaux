@@ -76,6 +76,7 @@ export default async function ShowcasePage({
       showcase={toShowcaseDetailData(showcase)}
       role={role}
       sections={getShowcaseSectionsForRole(role)}
+      userId={session.user.sub}
     />
   );
 }

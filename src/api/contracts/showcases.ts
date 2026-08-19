@@ -243,10 +243,27 @@ export const SHOWCASE_READ_ENTRY_SCHEMA = z.object({
   participantId: z.string().uuid().nullable(),
   participantAlias: z.string().min(1).nullable(),
   storageKey: z.string().min(1),
+  audioDownloadUrl: z.string().url().nullable(),
   submittedAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   isValidForRequiredSamples: z.boolean(),
 });
+
+export const SHOWCASE_BALLOT_REQUEST_SCHEMA = z.object({
+  rankedEntryIds: z.array(z.string().uuid()),
+});
+
+export const SHOWCASE_BALLOT_DATA_SCHEMA = z.object({
+  rankedEntryIds: z.array(z.string()),
+});
+
+export const SHOWCASE_BALLOT_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
+  SHOWCASE_BALLOT_DATA_SCHEMA,
+);
+
+export type ShowcaseBallotRequest = z.infer<typeof SHOWCASE_BALLOT_REQUEST_SCHEMA>;
+export type ShowcaseBallotData = z.infer<typeof SHOWCASE_BALLOT_DATA_SCHEMA>;
+export type ShowcaseBallotResponse = ApiRouteResponse<ShowcaseBallotData>;
 
 export const SHOWCASE_READ_ENTRIES_DATA_SCHEMA = z.object({
   showcaseId: z.string().uuid(),
