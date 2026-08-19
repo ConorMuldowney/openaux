@@ -15,6 +15,7 @@ import { requireVerifiedEmailSession } from "@/src/api/auth";
 import { prisma } from "@/src/db/prisma";
 import { observeSignal, observeException } from "@/src/observability/server";
 import { isAtOrAfterUtcInstant, isBeforeUtcInstant } from "@/src/domain/time/public";
+import { reconcileScheduledLifecycle } from "@/src/api/lifecycle/schedule";
 
 export async function POST(request: Request) {
   const authResult = await requireVerifiedEmailSession(request);
@@ -34,10 +35,13 @@ export async function POST(request: Request) {
   const showcase = await prisma.showcase.findUnique({
     where: { id: showcaseId },
     select: {
+      id: true,
       lifecycleState: true,
       voterScope: true,
       votingOpensAt: true,
       votingClosesAt: true,
+      submissionOpensAt: true,
+      submissionClosesAt: true,
       maxRankedPicks: true,
       participants: {
         where: { userId: voterId },
@@ -58,8 +62,10 @@ export async function POST(request: Request) {
     return stateInvalidResponse("Showcase not found.");
   }
 
+  const reconciledLifecycleState = await reconcileScheduledLifecycle(prisma, showcase);
+
   // Check voting state
-  if (showcase.lifecycleState !== "VOTING_OPEN") {
+  if ((reconciledLifecycleState ?? showcase.lifecycleState) !== "VOTING_OPEN") {
     return stateInvalidResponse("Voting is not currently open for this showcase.");
   }
 

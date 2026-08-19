@@ -97,6 +97,35 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
     });
   });
 
+  it("opens submissions when the scheduled start has passed", async () => {
+    const showcase = await createShowcase(prisma, {
+      lifecycleState: ShowcaseLifecycleState.CREATION,
+      participationScope: AccessScope.PUBLIC,
+      submissionOpensAt: new Date(Date.now() - 60_000),
+      votingOpensAt: new Date(Date.now() + 60 * 60_000),
+    });
+    const participant = await createParticipant(prisma, { showcaseId: showcase.id });
+    mockSession(participant.userId);
+
+    const response = await confirmEntry(
+      postRequest({
+        storageKey: storageKeyFor(showcase.id, participant.id),
+        usedSampleIds: [],
+      }),
+      { params: Promise.resolve({ showcaseId: showcase.id }) },
+    );
+
+    expect(response.status).toBe(201);
+    await expect(
+      prisma.showcase.findUnique({ where: { id: showcase.id }, select: { lifecycleState: true } }),
+    ).resolves.toMatchObject({ lifecycleState: ShowcaseLifecycleState.SUBMISSION_OPEN });
+    await expect(
+      prisma.transitionAuditEvent.findFirst({
+        where: { showcaseId: showcase.id, toState: ShowcaseLifecycleState.SUBMISSION_OPEN },
+      }),
+    ).resolves.toMatchObject({ metadata: { trigger: "schedule" } });
+  });
+
   it("returns 409 when the storageKey was not issued to this participant", async () => {
     const showcase = await createShowcase(prisma, {
       lifecycleState: ShowcaseLifecycleState.SUBMISSION_OPEN,

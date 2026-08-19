@@ -18,6 +18,7 @@ import {
 } from "@/src/api/route-handler";
 import { shouldRevealParticipantIdentity } from "@/src/modules/visibility/public";
 import { fromPrismaLifecycleState } from "@/src/modules/lifecycle/public";
+import { reconcileScheduledLifecycle } from "@/src/api/lifecycle/schedule";
 import { evaluateSubmitEntryPolicy } from "@/src/modules/policy/public";
 import { isEntryValidForRequiredSamples } from "@/src/modules/submissions/public";
 import { isEntryStorageKeyOwnedByParticipant, createEntryDownloadUrl } from "@/src/storage/public";
@@ -78,6 +79,8 @@ export async function GET(
       hostUserId: true,
       listenerScope: true,
       lifecycleState: true,
+      submissionOpensAt: true,
+      votingOpensAt: true,
       blindJudgingEnabled: true,
     },
   });
@@ -87,6 +90,8 @@ export async function GET(
       `Cannot read Entry list for Showcase '${parsedParams.showcaseId}' because it does not exist.`,
     );
   }
+
+  const reconciledLifecycleState = await reconcileScheduledLifecycle(prisma, showcase);
 
   const policyDecision = await evaluateShowcaseReadPolicy({
     prisma,
@@ -100,7 +105,7 @@ export async function GET(
     return policyDeniedResponse(policyDeniedMessage(policyDecision.reason), policyDecision.reason);
   }
 
-  const lifecycleState = fromPrismaLifecycleState(showcase.lifecycleState);
+  const lifecycleState = fromPrismaLifecycleState(reconciledLifecycleState ?? showcase.lifecycleState);
   if (!lifecycleState) {
     return stateInvalidResponse(
       `Cannot read entries from unsupported persisted state '${showcase.lifecycleState}'.`,
@@ -190,7 +195,14 @@ export async function POST(
 
   const showcase = await prisma.showcase.findUnique({
     where: { id: showcaseId },
-    select: { id: true, participationScope: true, lifecycleState: true, requiredSampleIds: true },
+    select: {
+      id: true,
+      participationScope: true,
+      lifecycleState: true,
+      submissionOpensAt: true,
+      votingOpensAt: true,
+      requiredSampleIds: true,
+    },
   });
 
   if (!showcase) {
@@ -199,7 +211,9 @@ export async function POST(
     );
   }
 
-  const lifecycleState = fromPrismaLifecycleState(showcase.lifecycleState);
+  const reconciledLifecycleState = await reconcileScheduledLifecycle(prisma, showcase);
+
+  const lifecycleState = fromPrismaLifecycleState(reconciledLifecycleState ?? showcase.lifecycleState);
   if (lifecycleState !== "submission-open") {
     return stateInvalidResponse(
       `Cannot confirm an Entry because Showcase '${showcaseId}' is not open for submissions.`,

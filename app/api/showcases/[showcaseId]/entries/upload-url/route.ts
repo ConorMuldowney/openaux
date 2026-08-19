@@ -6,6 +6,7 @@ import { requireAuthenticatedSession } from "@/src/api/auth";
 import { parseJsonBody, policyDeniedMessage, policyDeniedResponse, stateInvalidResponse } from "@/src/api/route-handler";
 import { prisma } from "@/src/db/prisma";
 import { fromPrismaLifecycleState } from "@/src/modules/lifecycle/public";
+import { reconcileScheduledLifecycle } from "@/src/api/lifecycle/schedule";
 import { evaluateSubmitEntryPolicy } from "@/src/modules/policy/public";
 import { createEntryUploadUrl } from "@/src/storage/public";
 
@@ -53,7 +54,13 @@ export async function POST(
 
   const showcase = await prisma.showcase.findUnique({
     where: { id: showcaseId },
-    select: { id: true, participationScope: true, lifecycleState: true },
+    select: {
+      id: true,
+      participationScope: true,
+      lifecycleState: true,
+      submissionOpensAt: true,
+      votingOpensAt: true,
+    },
   });
 
   if (!showcase) {
@@ -62,7 +69,9 @@ export async function POST(
     );
   }
 
-  const lifecycleState = fromPrismaLifecycleState(showcase.lifecycleState);
+  const reconciledLifecycleState = await reconcileScheduledLifecycle(prisma, showcase);
+
+  const lifecycleState = fromPrismaLifecycleState(reconciledLifecycleState ?? showcase.lifecycleState);
   if (lifecycleState !== "submission-open") {
     return stateInvalidResponse(
       `Cannot request an upload URL because Showcase '${showcaseId}' is not open for submissions.`,

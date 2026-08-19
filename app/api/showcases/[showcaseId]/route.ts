@@ -17,6 +17,7 @@ import {
 } from "@/src/api/route-handler";
 import { requireVerifiedEmailSession } from "@/src/api/auth";
 import { prisma } from "@/src/db/prisma";
+import { reconcileScheduledLifecycle } from "@/src/api/lifecycle/schedule";
 import {
   isShowcaseSettingsLocked,
   SHOWCASE_DETAIL_SELECT,
@@ -133,10 +134,15 @@ export async function GET(
     );
   }
 
+  const reconciledLifecycleState = await reconcileScheduledLifecycle(prisma, showcase);
+  const responseShowcase = reconciledLifecycleState
+    ? { ...showcase, lifecycleState: reconciledLifecycleState }
+    : showcase;
+
   const policyDecision = evaluateHostUpdatePolicy({
     isAuthenticated: true,
     isVerifiedEmail: true,
-    isHostOfShowcase: showcase.hostUserId === authResult.session.user.sub,
+    isHostOfShowcase: responseShowcase.hostUserId === authResult.session.user.sub,
   });
 
   if (!policyDecision.allowed) {
@@ -145,7 +151,7 @@ export async function GET(
 
   const responseBody: ShowcaseDetailResponse = {
     ok: true,
-    data: toShowcaseDetailData(showcase),
+    data: toShowcaseDetailData(responseShowcase),
   };
 
   return NextResponse.json(responseBody, { status: 200 });
