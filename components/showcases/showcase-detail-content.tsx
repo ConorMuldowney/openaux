@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StandardPageLayout } from "@/components/layout/standard-page-layout";
 import { NewShowcaseForm } from "@/components/showcases/new-showcase-form";
 import { SamplePreview } from "@/components/showcases/sample-preview";
@@ -6,11 +6,13 @@ import {
   EntriesBallotList,
   type ShowcaseEntryListItem,
 } from "@/components/showcases/entries-ballot-list";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import type { ShowcaseDetailData } from "@/src/api/contracts/showcases";
 import type { ShowcaseSection, ShowcaseViewerRole } from "@/src/modules/showcases/public";
 import { createSampleDownloadUrl, createEntryDownloadUrl } from "@/src/storage/public";
 import { shouldRevealParticipantIdentity } from "@/src/modules/visibility/public";
 import { prisma } from "@/src/db/prisma";
+import { ChevronDown } from "lucide-react";
 
 type ShowcaseDetailContentProps = {
   showcase: ShowcaseDetailData;
@@ -44,11 +46,16 @@ async function ShowcaseInfo({ showcase }: { showcase: ShowcaseDetailData }) {
   );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Showcase information</CardTitle>
-      </CardHeader>
-      <CardContent className="grid gap-4 sm:grid-cols-2">
+    <Collapsible defaultOpen>
+      <Card>
+        <CardHeader>
+          <CollapsibleTrigger className="group flex w-full items-center justify-between text-left">
+            <span className="text-base leading-snug font-medium">Showcase information</span>
+            <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
+        </CardHeader>
+        <CollapsibleContent>
+          <CardContent className="grid gap-4 sm:grid-cols-2">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-foreground/75">Lifecycle</p>
           <p className="mt-1 font-medium capitalize">{showcase.lifecycleState.replaceAll("-", " ")}</p>
@@ -87,8 +94,10 @@ async function ShowcaseInfo({ showcase }: { showcase: ShowcaseDetailData }) {
             <p className="mt-1 text-sm text-foreground/75">No required samples configured.</p>
           )}
         </div>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   );
 }
 

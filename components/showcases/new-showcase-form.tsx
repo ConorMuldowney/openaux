@@ -17,6 +17,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Form,
   FormControl,
@@ -29,7 +30,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import { SamplePreview } from "@/components/showcases/sample-preview";
-import { AlertCircle, FileAudio, Link2, Upload, X } from "lucide-react";
+import { AlertCircle, ChevronDown, FileAudio, Link2, Upload, X } from "lucide-react";
 
 const ALLOWED_SAMPLE_CONTENT_TYPES = [
   "audio/mpeg",
@@ -293,35 +294,40 @@ export function NewShowcaseForm({
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
-        <div className="space-y-1.5">
-          <CardTitle>{showcaseId ? "Edit Showcase" : "Create New Showcase"}</CardTitle>
-          <CardDescription>
-            Configure the settings and schedule for your new showcase.
-          </CardDescription>
-        </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            form.reset();
-            if (alwaysOpen) {
-              router.push("/showcases");
-            } else {
-              setShowForm(false);
-            }
-            setError(null);
-          }}
-          className="h-6 w-6 shrink-0"
-        >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {error && (
+    <Collapsible defaultOpen>
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+          <CollapsibleTrigger className="group flex flex-1 items-start justify-between gap-2 text-left">
+            <div className="space-y-1.5">
+              <CardTitle>{showcaseId ? "Edit Showcase" : "Create New Showcase"}</CardTitle>
+              <CardDescription>
+                Configure the settings and schedule for your new showcase.
+              </CardDescription>
+            </div>
+            <ChevronDown className="mt-1 size-4 shrink-0 text-foreground/50 transition-transform group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              form.reset();
+              if (alwaysOpen) {
+                router.push("/showcases");
+              } else {
+                setShowForm(false);
+              }
+              setError(null);
+            }}
+            className="h-6 w-6 shrink-0"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </Button>
+        </CardHeader>
+        <CollapsibleContent>
+        <CardContent>
+          {error && (
           <Alert variant="destructive" className="mb-6">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
@@ -796,6 +802,8 @@ export function NewShowcaseForm({
           </form>
         </Form>
       </CardContent>
+      </CollapsibleContent>
     </Card>
+    </Collapsible>
   );
 }
