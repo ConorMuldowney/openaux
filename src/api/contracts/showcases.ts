@@ -264,6 +264,27 @@ export type ShowcaseEntryUploadUrlRequest = z.infer<
 export type ShowcaseEntryUploadUrlData = z.infer<typeof SHOWCASE_ENTRY_UPLOAD_URL_DATA_SCHEMA>;
 export type ShowcaseEntryUploadUrlResponse = ApiRouteResponse<ShowcaseEntryUploadUrlData>;
 
+export const SHOWCASE_CONFIRM_ENTRY_REQUEST_SCHEMA = z.object({
+  storageKey: z.string().min(1),
+  usedSampleIds: z.array(z.string().trim().min(1)),
+});
+
+export const SHOWCASE_CONFIRM_ENTRY_DATA_SCHEMA = z.object({
+  entryId: z.string().uuid(),
+  storageKey: z.string().min(1),
+  submittedAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  isValidForRequiredSamples: z.boolean(),
+});
+
+export const SHOWCASE_CONFIRM_ENTRY_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
+  SHOWCASE_CONFIRM_ENTRY_DATA_SCHEMA,
+);
+
+export type ShowcaseConfirmEntryRequest = z.infer<typeof SHOWCASE_CONFIRM_ENTRY_REQUEST_SCHEMA>;
+export type ShowcaseConfirmEntryData = z.infer<typeof SHOWCASE_CONFIRM_ENTRY_DATA_SCHEMA>;
+export type ShowcaseConfirmEntryResponse = ApiRouteResponse<ShowcaseConfirmEntryData>;
+
 export const SHOWCASE_RESULT_STANDING_SCHEMA = z.object({
   rank: z.number().int().positive(),
   participantId: z.string().uuid(),
