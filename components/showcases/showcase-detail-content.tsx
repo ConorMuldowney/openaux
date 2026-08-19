@@ -116,6 +116,8 @@ async function ShowcaseEntriesSection({
     where: { showcaseId: showcase.showcaseId },
     select: {
       id: true,
+      title: true,
+      description: true,
       storageKey: true,
       isValid: true,
       participant: { select: { id: true } },
@@ -131,6 +133,8 @@ async function ShowcaseEntriesSection({
   const items: ShowcaseEntryListItem[] = await Promise.all(
     entries.map(async (entry, index) => ({
       entryId: entry.id,
+      title: entry.title,
+      description: entry.description,
       participantId: revealIdentity ? entry.participant.id : null,
       participantAlias: revealIdentity ? null : `Participant ${index + 1}`,
       audioDownloadUrl: (await createEntryDownloadUrl(entry.storageKey))?.downloadUrl ?? null,

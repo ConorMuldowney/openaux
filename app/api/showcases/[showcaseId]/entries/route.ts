@@ -116,6 +116,8 @@ export async function GET(
     where: { showcaseId: showcase.id },
     select: {
       id: true,
+      title: true,
+      description: true,
       storageKey: true,
       submittedAt: true,
       updatedAt: true,
@@ -145,6 +147,8 @@ export async function GET(
       entries: await Promise.all(
         entries.map(async (entry, index) => ({
           entryId: entry.id,
+          title: entry.title,
+          description: entry.description,
           participantId: revealIdentity ? entry.participant.id : null,
           participantAlias: revealIdentity ? null : `Participant ${index + 1}`,
           storageKey: entry.storageKey,
@@ -224,6 +228,8 @@ export async function POST(
   }
 
   const { storageKey, usedSampleIds } = parsedBody.data;
+  const title = parsedBody.data.title ?? "Untitled submission";
+  const description = parsedBody.data.description ?? "";
 
   if (!isEntryStorageKeyOwnedByParticipant({ storageKey, showcaseId, participantId: participant.id })) {
     return stateInvalidResponse(
@@ -244,11 +250,15 @@ export async function POST(
     create: {
       showcaseId,
       participantId: participant.id,
+      title,
+      description,
       storageKey,
       isValid,
       validationDetails: { usedSampleIds },
     },
     update: {
+      title,
+      description,
       storageKey,
       isValid,
       validationDetails: { usedSampleIds },

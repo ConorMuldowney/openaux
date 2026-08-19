@@ -108,7 +108,7 @@ export function EntriesBallotList({
         <CardTitle>Submissions</CardTitle>
         {canSubmit ? (
           <Button asChild size="sm">
-            <Link href="/submissions">
+            <Link href={`/submissions/new?showcaseId=${showcaseId}`}>
               <Upload />
               Upload submission
             </Link>

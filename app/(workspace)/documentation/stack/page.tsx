@@ -26,7 +26,7 @@ const STACK_GROUPS = [
     title: "Data and identity",
     icon: DatabaseIcon,
     items: [
-      ["Supabase Postgres", "Hosted PostgreSQL database and storage foundation."],
+      ["Neon Postgres", "Hosted PostgreSQL database and storage foundation."],
       ["Prisma", "Type-safe database access, migrations, and seed data."],
       ["Auth0", "Authentication and account identity."],
     ],
