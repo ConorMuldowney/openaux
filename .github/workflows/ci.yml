@@ -62,10 +62,6 @@ jobs:
       TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/openaux_test
       # Playwright needs a base URL; the webServer in playwright.config.ts starts next dev
       PLAYWRIGHT_BASE_URL: http://localhost:3000
-      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-      AUTH0_SECRET: ${{ secrets.AUTH0_SECRET }}
 
     steps:
       - name: Checkout
