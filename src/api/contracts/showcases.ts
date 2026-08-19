@@ -240,6 +240,8 @@ export const SHOWCASE_LIST_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
 
 export const SHOWCASE_READ_ENTRY_SCHEMA = z.object({
   entryId: z.string().uuid(),
+  title: z.string(),
+  description: z.string(),
   participantId: z.string().uuid().nullable(),
   participantAlias: z.string().min(1).nullable(),
   storageKey: z.string().min(1),
@@ -352,6 +354,8 @@ export type ShowcaseSampleDownloadUrlData = z.infer<
 export type ShowcaseSampleDownloadUrlResponse = ApiRouteResponse<ShowcaseSampleDownloadUrlData>;
 
 export const SHOWCASE_CONFIRM_ENTRY_REQUEST_SCHEMA = z.object({
+  title: z.string().trim().min(1).max(160).optional(),
+  description: z.string().trim().max(2000).optional(),
   storageKey: z.string().min(1),
   usedSampleIds: z.array(z.string().trim().min(1)),
 });
