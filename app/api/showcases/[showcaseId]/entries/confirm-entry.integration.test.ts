@@ -126,6 +126,27 @@ describe("POST /api/showcases/[showcaseId]/entries", () => {
     ).resolves.toMatchObject({ metadata: { trigger: "schedule" } });
   });
 
+  it("enrolls a public participant before validating the uploaded entry", async () => {
+    const showcase = await createShowcase(prisma, {
+      lifecycleState: ShowcaseLifecycleState.SUBMISSION_OPEN,
+      participationScope: AccessScope.PUBLIC,
+    });
+    const userId = "auth0|public-participant";
+    mockSession(userId);
+
+    const response = await confirmEntry(
+      postRequest({ storageKey: "s3://openaux-test/originals/not-owned.wav", usedSampleIds: [] }),
+      { params: Promise.resolve({ showcaseId: showcase.id }) },
+    );
+
+    expect(response.status).toBe(409);
+    await expect(
+      prisma.participant.findUnique({
+        where: { showcaseId_userId: { showcaseId: showcase.id, userId } },
+      }),
+    ).resolves.toMatchObject({ showcaseId: showcase.id, userId });
+  });
+
   it("returns 409 when the storageKey was not issued to this participant", async () => {
     const showcase = await createShowcase(prisma, {
       lifecycleState: ShowcaseLifecycleState.SUBMISSION_OPEN,
