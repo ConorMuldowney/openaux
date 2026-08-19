@@ -62,22 +62,23 @@ const NAV_ITEMS = [
 ] as const;
 
 const PAGE_ITEMS = [
-  { href: "/showcases", label: "Showcases", icon: PanelTopIcon },
-  { label: "Submissions", href: "/submissions", icon: FileTextIcon },
-  { label: "Invitations", href: "/invitations", icon: MailBadgeIcon },
-  { label: "Friends", href: "/friends", icon: UsersRoundIcon },
+  { href: "/showcases", label: "Showcases", icon: PanelTopIcon, disabled: false },
+  { label: "Submissions", href: "/submissions", icon: FileTextIcon, disabled: false },
+  { label: "Invitations", href: "/invitations", icon: MailBadgeIcon, disabled: true },
+  { label: "Friends", href: "/friends", icon: UsersRoundIcon, disabled: true },
 ] as const;
 
 const UTILITY_ITEMS = [
-  { label: "Documentation", href: "/documentation", icon: BookOpenIcon },
-  { label: "Settings", href: "/settings", icon: Settings2Icon },
+  { label: "Documentation", href: "/documentation", icon: BookOpenIcon, disabled: false },
+  { label: "Settings", href: "/settings", icon: Settings2Icon, disabled: true },
 ] as const;
 
-function AppShellNavItem({ href, label, icon: Icon, isActive }: {
+function AppShellNavItem({ href, label, icon: Icon, isActive, disabled }: {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   isActive: boolean;
+  disabled?: boolean;
 }) {
   const { isMobile, setOpenMobile } = useSidebar();
 
@@ -85,6 +86,17 @@ function AppShellNavItem({ href, label, icon: Icon, isActive }: {
     if (isMobile) {
       setOpenMobile(false);
     }
+  }
+
+  if (disabled) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton disabled tooltip={label}>
+          <Icon className="h-4 w-4" />
+          <span>{label}</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
   }
 
   return (
@@ -203,6 +215,7 @@ export function AppShell({ children, userName, userEmail }: AppShellProps) {
                     label={item.label}
                     icon={item.icon}
                     isActive={pathname === item.href}
+                    disabled={item.disabled}
                   />
                 ))}
               </SidebarMenu>
@@ -220,6 +233,7 @@ export function AppShell({ children, userName, userEmail }: AppShellProps) {
                     label={item.label}
                     icon={item.icon}
                     isActive={pathname === item.href}
+                    disabled={item.disabled}
                   />
                 ))}
               </SidebarMenu>

@@ -20,7 +20,7 @@ import { shouldRevealParticipantIdentity } from "@/src/modules/visibility/public
 import { fromPrismaLifecycleState } from "@/src/modules/lifecycle/public";
 import { evaluateSubmitEntryPolicy } from "@/src/modules/policy/public";
 import { isEntryValidForRequiredSamples } from "@/src/modules/submissions/public";
-import { isEntryStorageKeyOwnedByParticipant } from "@/src/storage/public";
+import { isEntryStorageKeyOwnedByParticipant, createEntryDownloadUrl } from "@/src/storage/public";
 
 const SHOWCASE_ID_PARAMS_SCHEMA = z.object({
   showcaseId: z.string().uuid(),
@@ -142,15 +142,18 @@ export async function GET(
       showcaseId: showcase.id,
       lifecycleState,
       blindJudgingEnabled: showcase.blindJudgingEnabled,
-      entries: entries.map((entry, index) => ({
-        entryId: entry.id,
-        participantId: revealIdentity ? entry.participant.id : null,
-        participantAlias: revealIdentity ? null : `Participant ${index + 1}`,
-        storageKey: entry.storageKey,
-        submittedAt: entry.submittedAt,
-        updatedAt: entry.updatedAt,
-        isValidForRequiredSamples: entry.isValid,
-      })),
+      entries: await Promise.all(
+        entries.map(async (entry, index) => ({
+          entryId: entry.id,
+          participantId: revealIdentity ? entry.participant.id : null,
+          participantAlias: revealIdentity ? null : `Participant ${index + 1}`,
+          storageKey: entry.storageKey,
+          audioDownloadUrl: (await createEntryDownloadUrl(entry.storageKey))?.downloadUrl ?? null,
+          submittedAt: entry.submittedAt,
+          updatedAt: entry.updatedAt,
+          isValidForRequiredSamples: entry.isValid,
+        })),
+      ),
     },
   };
 

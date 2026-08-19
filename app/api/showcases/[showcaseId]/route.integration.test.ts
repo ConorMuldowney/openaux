@@ -1,4 +1,4 @@
-import { ShowcaseLifecycleState } from "@prisma/client";
+import { AccessScope, ShowcaseLifecycleState } from "@prisma/client";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { verifiedEmailRequiredResponse } from "@/src/api/route-handler";
 import { createShowcase, createUser } from "@/src/test/fixtures/factories";
@@ -192,6 +192,48 @@ describe("showcase detail and update route integration", () => {
       blindJudgingEnabled: false,
       maxRankedPicks: 6,
       requiredSampleIds: ["sample-new-a", "sample-new-b"],
+    });
+  });
+
+  it("rejects public voting when stored listening access is invite-only", async () => {
+    const hostUser = createUser({ name: "Showcase Host" });
+
+    vi.mocked(requireVerifiedEmailSession).mockResolvedValue({
+      ok: true,
+      session: {
+        user: {
+          sub: hostUser.id,
+          email_verified: true,
+        },
+      },
+    } as never);
+
+    const showcase = await createShowcase(testPrisma, {
+      hostUserId: hostUser.id,
+      lifecycleState: ShowcaseLifecycleState.CREATION,
+      listenerScope: AccessScope.PRIVATE,
+      voterScope: AccessScope.PRIVATE,
+    });
+
+    const response = await PATCH(
+      new Request(`http://localhost/api/showcases/${showcase.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ voterScope: "public-authenticated" }),
+      }),
+      {
+        params: Promise.resolve({ showcaseId: showcase.id }),
+      },
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: {
+        code: "validation-error",
+        details: {
+          validationIssues: [{ path: "voterScope" }],
+        },
+      },
     });
   });
 

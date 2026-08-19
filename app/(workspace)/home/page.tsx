@@ -78,11 +78,11 @@ export default async function HomePage() {
                 <Link href="/showcases"><span>Browse showcases</span><ArrowUpRightIcon /></Link>
               </Button>
               <Button asChild variant="outline" className="justify-between">
-                <Link href="/showcases"><span>Review submissions</span><ArrowUpRightIcon /></Link>
+                <Link href="/submissions"><span>Review submissions</span><ArrowUpRightIcon /></Link>
               </Button>
-              <Button asChild variant="outline" className="justify-between">
+              {/* <Button asChild variant="outline" className="justify-between">
                 <Link href="/showcases"><span>Manage invitations</span><ArrowUpRightIcon /></Link>
-              </Button>
+              </Button> */}
             </div>
           </CardContent>
         </Card>
