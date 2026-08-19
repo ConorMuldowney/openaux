@@ -62,6 +62,13 @@ jobs:
       TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/openaux_test
       # Playwright needs a base URL; the webServer in playwright.config.ts starts next dev
       PLAYWRIGHT_BASE_URL: http://localhost:3000
+      # Dummy Auth0 config so `next dev` (started by Playwright's webServer) can boot;
+      # proxy.ts calls auth0.middleware() on every request and Auth0Client throws if unset.
+      APP_BASE_URL: http://localhost:3000
+      AUTH0_DOMAIN: ci-placeholder.us.auth0.com
+      AUTH0_CLIENT_ID: ci-placeholder-client-id
+      AUTH0_CLIENT_SECRET: ci-placeholder-client-secret
+      AUTH0_SECRET: ci-placeholder-secret-that-is-at-least-32-characters-long
 
     steps:
       - name: Checkout
