@@ -20,6 +20,10 @@ vi.mock("@/src/auth/auth0", () => ({
   },
 }));
 
+vi.mock("@/src/storage/r2-client", () => ({
+  getR2BucketName: () => "openaux-test",
+}));
+
 const prisma = getTestPrisma();
 
 function mockNoSession() {
