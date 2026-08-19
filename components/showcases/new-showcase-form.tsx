@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -27,7 +28,17 @@ import {
 } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
-import { AlertCircle, X } from "lucide-react";
+import { SamplePreview } from "@/components/showcases/sample-preview";
+import { AlertCircle, FileAudio, Link2, Upload, X } from "lucide-react";
+
+const ALLOWED_SAMPLE_CONTENT_TYPES = [
+  "audio/mpeg",
+  "audio/wav",
+  "audio/x-wav",
+  "audio/flac",
+  "audio/aac",
+  "audio/mp4",
+];
 
 const SHOWCASE_CREATE_FORM_SCHEMA = z
   .object({
@@ -87,6 +98,9 @@ export function NewShowcaseForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [requiredSampleInput, setRequiredSampleInput] = useState("");
+  const [isUploadingSample, setIsUploadingSample] = useState(false);
+  const [sampleAudioUrls, setSampleAudioUrls] = useState<Record<string, string>>({});
+  const requiredSampleFileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ShowcaseFormData>({
     resolver: zodResolver(SHOWCASE_CREATE_FORM_SCHEMA),
@@ -105,6 +119,39 @@ export function NewShowcaseForm({
     control: form.control,
     name: "requiredSampleIds",
   });
+
+  // Fetches playback URLs for previously uploaded samples (e.g. when editing an existing showcase).
+  useEffect(() => {
+    const missingUploadedSampleIds = requiredSampleIds.filter(
+      (sampleId) => sampleId.startsWith("s3://") && !sampleAudioUrls[sampleId],
+    );
+    if (missingUploadedSampleIds.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void Promise.all(
+      missingUploadedSampleIds.map(async (storageKey) => {
+        const response = await fetch("/api/showcases/samples/download-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ storageKey }),
+        });
+        if (!response.ok) return null;
+        const { data } = await response.json();
+        return [storageKey, data.downloadUrl] as const;
+      }),
+    ).then((results) => {
+      if (cancelled) return;
+      const resolved = Object.fromEntries(results.filter((result) => result !== null));
+      setSampleAudioUrls((current) => ({ ...current, ...resolved }));
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [requiredSampleIds, sampleAudioUrls]);
 
   async function onSubmit(data: ShowcaseFormData) {
     try {
@@ -145,20 +192,9 @@ export function NewShowcaseForm({
     const trimmed = requiredSampleInput.trim();
     if (!trimmed) return;
 
-    const currentIds = form.getValues("requiredSampleIds");
-    if (currentIds.includes(trimmed)) {
-      setError("This sample url is already added");
-      return;
+    if (addRequiredSampleValue(trimmed)) {
+      setRequiredSampleInput("");
     }
-
-    if (currentIds.length >= 50) {
-      setError("Maximum 50 samples allowed");
-      return;
-    }
-
-    form.setValue("requiredSampleIds", [...currentIds, trimmed]);
-    setRequiredSampleInput("");
-    setError(null);
   }
 
   function removeRequiredSample(id: string) {
@@ -167,6 +203,68 @@ export function NewShowcaseForm({
       "requiredSampleIds",
       currentIds.filter((s) => s !== id),
     );
+  }
+
+  function addRequiredSampleValue(value: string) {
+    const currentIds = form.getValues("requiredSampleIds");
+    if (currentIds.includes(value)) {
+      setError("This sample is already added");
+      return false;
+    }
+
+    if (currentIds.length >= 50) {
+      setError("Maximum 50 samples allowed");
+      return false;
+    }
+
+    form.setValue("requiredSampleIds", [...currentIds, value]);
+    setError(null);
+    return true;
+  }
+
+  async function uploadRequiredSampleFile(file: File) {
+    if (!ALLOWED_SAMPLE_CONTENT_TYPES.includes(file.type)) {
+      setError("Unsupported audio file type. Use MP3, WAV, FLAC, AAC, or M4A.");
+      return;
+    }
+
+    try {
+      setIsUploadingSample(true);
+      setError(null);
+
+      const uploadUrlResponse = await fetch("/api/showcases/samples/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contentType: file.type }),
+      });
+
+      if (!uploadUrlResponse.ok) {
+        const errorData = await uploadUrlResponse.json();
+        throw new Error(errorData.error?.message || "Failed to prepare the upload");
+      }
+
+      const { data: upload } = await uploadUrlResponse.json();
+
+      const putResponse = await fetch(upload.uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      if (!putResponse.ok) {
+        throw new Error("Failed to upload the audio file");
+      }
+
+      setSampleAudioUrls((current) => ({
+        ...current,
+        [upload.storageKey]: URL.createObjectURL(file),
+      }));
+      addRequiredSampleValue(upload.storageKey);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload sample file");
+    } finally {
+      setIsUploadingSample(false);
+    }
   }
 
   if (!showForm && !alwaysOpen) {
@@ -306,10 +404,10 @@ export function NewShowcaseForm({
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="public-authenticated">
-                            Public (Authenticated)
+                            Public - Anyone can vote
                           </SelectItem>
                           <SelectItem value="invite-only-authenticated">
-                            Invite Only (Authenticated)
+                            Invite Only
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -381,50 +479,115 @@ export function NewShowcaseForm({
               name="requiredSampleIds"
               render={() => (
                 <FormItem>
-                  <FormLabel>Required Samples</FormLabel>
+                  <FormLabel>Required Samples (optional)</FormLabel>
                   <FormDescription>
-                    Samples that must be used in submitted entries
+                    Samples that must be used in submitted entries. Upload an audio file or paste
+                    a link (YouTube, SoundCloud, direct URL, etc.).
                   </FormDescription>
 
                   <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Sample URL"
-                        value={requiredSampleInput}
-                        onChange={(e) => setRequiredSampleInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            addRequiredSample();
-                          }
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={addRequiredSample}
-                        disabled={!requiredSampleInput.trim()}
-                      >
-                        Add
-                      </Button>
-                    </div>
+                    <Tabs defaultValue="link" className="w-full flex-col gap-0 overflow-hidden rounded-lg border">
+                      <TabsList className="w-full max-w-none rounded-none border-b bg-muted/50 p-1">
+                        <TabsTrigger value="link" className="py-1.5">
+                          <Link2 className="h-3.5 w-3.5" />
+                          Link
+                        </TabsTrigger>
+                        <TabsTrigger value="upload" className="py-1.5">
+                          <Upload className="h-3.5 w-3.5" />
+                          Upload
+                        </TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="link" className="mt-0 rounded-none border-0 bg-muted/20 p-4">
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <div className="min-w-0 flex-1">
+                            <Input
+                              placeholder="Paste a YouTube, SoundCloud, or audio URL"
+                              value={requiredSampleInput}
+                              onChange={(e) => setRequiredSampleInput(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  addRequiredSample();
+                                }
+                              }}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={addRequiredSample}
+                            disabled={!requiredSampleInput.trim()}
+                            className="w-full sm:w-auto"
+                          >
+                            <Link2 />
+                            Add link
+                          </Button>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="upload" className="mt-0 rounded-none border-0 bg-muted/20 p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex min-w-0 items-center gap-3">
+                            <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-background text-muted-foreground shadow-xs ring-1 ring-border">
+                              <FileAudio className="size-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium">Upload an audio sample</p>
+                              <p className="truncate text-xs text-muted-foreground">
+                                MP3, WAV, FLAC, AAC, or M4A
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => requiredSampleFileInputRef.current?.click()}
+                            disabled={isUploadingSample}
+                            className="w-full sm:w-auto"
+                          >
+                            {isUploadingSample ? (
+                              <Spinner className="h-4 w-4" />
+                            ) : (
+                              <Upload className="h-4 w-4" />
+                            )}
+                            Choose file
+                          </Button>
+                          <input
+                            ref={requiredSampleFileInputRef}
+                            type="file"
+                            accept="audio/*"
+                            aria-label="Upload a required sample audio file"
+                            className="sr-only"
+                            disabled={isUploadingSample}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              e.target.value = "";
+                              if (file) {
+                                void uploadRequiredSampleFile(file);
+                              }
+                            }}
+                          />
+                        </div>
+                      </TabsContent>
+                    </Tabs>
 
                     {requiredSampleIds.length > 0 && (
-                      <div className="space-y-2">
-                        {requiredSampleIds.map((sampleId) => (
-                          <div
-                            key={sampleId}
-                            className="flex items-center justify-between rounded-lg border bg-muted p-2.5"
-                          >
-                            <code className="text-sm">{sampleId}</code>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeRequiredSample(sampleId)}
-                            >
-                              Remove
-                            </Button>
+                      <div className="space-y-3">
+                        {requiredSampleIds.map((sampleId, index) => (
+                          <div key={sampleId} className="space-y-2 rounded-lg border bg-muted/40 p-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="text-xs font-medium text-muted-foreground">Sample {index + 1}</p>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeRequiredSample(sampleId)}
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                            <SamplePreview sample={sampleId} audioFileUrl={sampleAudioUrls[sampleId]} />
                           </div>
                         ))}
                       </div>

@@ -2,8 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StandardPageLayout } from "@/components/layout/standard-page-layout";
 import { NewShowcaseForm } from "@/components/showcases/new-showcase-form";
+import { SamplePreview } from "@/components/showcases/sample-preview";
 import type { ShowcaseDetailData } from "@/src/api/contracts/showcases";
 import type { ShowcaseSection, ShowcaseViewerRole } from "@/src/modules/showcases/public";
+import { createSampleDownloadUrl } from "@/src/storage/public";
 
 type ShowcaseDetailContentProps = {
   showcase: ShowcaseDetailData;
@@ -25,7 +27,13 @@ function formatDate(value: Date | null) {
     : "Not scheduled";
 }
 
-function ShowcaseInfo({ showcase }: { showcase: ShowcaseDetailData }) {
+async function ShowcaseInfo({ showcase }: { showcase: ShowcaseDetailData }) {
+  const sampleDownloadUrls = await Promise.all(
+    showcase.requiredSampleIds.map((sample) =>
+      sample.startsWith("s3://") ? createSampleDownloadUrl(sample) : null,
+    ),
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -55,21 +63,14 @@ function ShowcaseInfo({ showcase }: { showcase: ShowcaseDetailData }) {
         <div className="sm:col-span-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-foreground/75">Required samples</p>
           {showcase.requiredSampleIds.length > 0 ? (
-            <ul className="mt-2 space-y-1">
-              {showcase.requiredSampleIds.map((sample) => (
-                <li key={sample} className="break-all text-sm">
-                  {sample.startsWith("http://") || sample.startsWith("https://") ? (
-                    <a
-                      href={sample}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-accent underline underline-offset-2"
-                    >
-                      {sample}
-                    </a>
-                  ) : (
-                    sample
-                  )}
+            <ul className="mt-3 space-y-3">
+              {showcase.requiredSampleIds.map((sample, index) => (
+                <li key={sample} className="rounded-lg border bg-muted/40 p-3">
+                  <p className="mb-2 text-xs font-medium text-muted-foreground">Sample {index + 1}</p>
+                  <SamplePreview
+                    sample={sample}
+                    audioFileUrl={sampleDownloadUrls[index]?.downloadUrl}
+                  />
                 </li>
               ))}
             </ul>

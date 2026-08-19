@@ -264,6 +264,54 @@ export type ShowcaseEntryUploadUrlRequest = z.infer<
 export type ShowcaseEntryUploadUrlData = z.infer<typeof SHOWCASE_ENTRY_UPLOAD_URL_DATA_SCHEMA>;
 export type ShowcaseEntryUploadUrlResponse = ApiRouteResponse<ShowcaseEntryUploadUrlData>;
 
+export const SHOWCASE_SAMPLE_UPLOAD_URL_REQUEST_SCHEMA = z.object({
+  contentType: z.enum([
+    "audio/mpeg",
+    "audio/wav",
+    "audio/x-wav",
+    "audio/flac",
+    "audio/aac",
+    "audio/mp4",
+  ]),
+});
+
+export const SHOWCASE_SAMPLE_UPLOAD_URL_DATA_SCHEMA = z.object({
+  uploadUrl: z.string().url(),
+  storageKey: z.string().min(1),
+  expiresInSeconds: z.number().int().positive(),
+});
+
+export const SHOWCASE_SAMPLE_UPLOAD_URL_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
+  SHOWCASE_SAMPLE_UPLOAD_URL_DATA_SCHEMA,
+);
+
+export type ShowcaseSampleUploadUrlRequest = z.infer<
+  typeof SHOWCASE_SAMPLE_UPLOAD_URL_REQUEST_SCHEMA
+>;
+export type ShowcaseSampleUploadUrlData = z.infer<typeof SHOWCASE_SAMPLE_UPLOAD_URL_DATA_SCHEMA>;
+export type ShowcaseSampleUploadUrlResponse = ApiRouteResponse<ShowcaseSampleUploadUrlData>;
+
+export const SHOWCASE_SAMPLE_DOWNLOAD_URL_REQUEST_SCHEMA = z.object({
+  storageKey: z.string().min(1),
+});
+
+export const SHOWCASE_SAMPLE_DOWNLOAD_URL_DATA_SCHEMA = z.object({
+  downloadUrl: z.string().url(),
+  expiresInSeconds: z.number().int().positive(),
+});
+
+export const SHOWCASE_SAMPLE_DOWNLOAD_URL_SUCCESS_RESPONSE_SCHEMA = apiSuccessResponseSchema(
+  SHOWCASE_SAMPLE_DOWNLOAD_URL_DATA_SCHEMA,
+);
+
+export type ShowcaseSampleDownloadUrlRequest = z.infer<
+  typeof SHOWCASE_SAMPLE_DOWNLOAD_URL_REQUEST_SCHEMA
+>;
+export type ShowcaseSampleDownloadUrlData = z.infer<
+  typeof SHOWCASE_SAMPLE_DOWNLOAD_URL_DATA_SCHEMA
+>;
+export type ShowcaseSampleDownloadUrlResponse = ApiRouteResponse<ShowcaseSampleDownloadUrlData>;
+
 export const SHOWCASE_CONFIRM_ENTRY_REQUEST_SCHEMA = z.object({
   storageKey: z.string().min(1),
   usedSampleIds: z.array(z.string().trim().min(1)),
