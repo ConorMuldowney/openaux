@@ -82,10 +82,12 @@ export default async function ShowcasePage({
     isVoter: voterInvite !== null || ballot !== null,
   });
 
+  const showcaseDetailData = toShowcaseDetailData(showcase);
+
   const canSubmit = canSubmitEntry({
-    participationScope: showcase.participationScope,
-    listenerScope: showcase.listenerScope,
-    voterScope: showcase.voterScope,
+    participationScope: showcaseDetailData.participationScope,
+    listenerScope: showcaseDetailData.listenerScope,
+    voterScope: showcaseDetailData.voterScope,
     isAuthenticated: true,
     isInvited: participant !== null || participantInvite !== null,
     isParticipantInShowcase: participant !== null,
@@ -93,7 +95,7 @@ export default async function ShowcasePage({
 
   return (
     <ShowcaseDetailContent
-      showcase={toShowcaseDetailData(showcase)}
+      showcase={showcaseDetailData}
       role={role}
       sections={getShowcaseSectionsForRole(role, canSubmit)}
       userId={session.user.sub}
