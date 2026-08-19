@@ -12,6 +12,7 @@ locals {
     "http://localhost:3000",
     "https://openaux-*.vercel.app",
     "https://app.openaux.net",
+    "https://www.openaux.net",
   ]
 }
 
