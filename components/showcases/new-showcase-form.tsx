@@ -76,6 +76,14 @@ const SHOWCASE_CREATE_FORM_SCHEMA = z
       message: "Voting close must be after voting open",
       path: ["votingClosesAt"],
     },
+  )
+  .refine(
+    (data) =>
+      data.listenerScope !== "invite-only" || data.voterScope === "invite-only-authenticated",
+    {
+      message: "Invite-only listening requires invite-only voting.",
+      path: ["voterScope"],
+    },
   );
 
 type ShowcaseFormData = z.infer<typeof SHOWCASE_CREATE_FORM_SCHEMA>;
@@ -119,6 +127,19 @@ export function NewShowcaseForm({
     control: form.control,
     name: "requiredSampleIds",
   });
+  const listenerScope = useWatch({
+    control: form.control,
+    name: "listenerScope",
+  });
+
+  useEffect(() => {
+    if (listenerScope === "invite-only") {
+      form.setValue("voterScope", "invite-only-authenticated", {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [form, listenerScope]);
 
   // Fetches playback URLs for previously uploaded samples (e.g. when editing an existing showcase).
   useEffect(() => {
@@ -373,7 +394,18 @@ export function NewShowcaseForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Listener Scope</FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value: "public" | "invite-only") => {
+                          field.onChange(value);
+                          if (value === "invite-only") {
+                            form.setValue("voterScope", "invite-only-authenticated", {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+                          }
+                        }}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue />
@@ -396,7 +428,11 @@ export function NewShowcaseForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Voter Scope</FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={listenerScope === "invite-only"}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue />
@@ -411,7 +447,11 @@ export function NewShowcaseForm({
                           </SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormDescription>Who can vote</FormDescription>
+                      <FormDescription>
+                        {listenerScope === "invite-only"
+                          ? "Invite-only because listening is invite-only"
+                          : "Who can vote"}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -62,6 +62,17 @@ const SHOWCASE_SETTINGS_SCHEMA = z.object({
 export const SHOWCASE_CREATE_REQUEST_SCHEMA = SHOWCASE_SETTINGS_SCHEMA.and(
   SHOWCASE_SCHEDULE_SCHEMA,
 ).superRefine((value, ctx) => {
+  if (
+    value.listenerScope === "invite-only" &&
+    value.voterScope === "public-authenticated"
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["voterScope"],
+      message: "voterScope must be invite-only-authenticated when listenerScope is invite-only.",
+    });
+  }
+
   if (new Set(value.requiredSampleIds).size !== value.requiredSampleIds.length) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -144,6 +155,17 @@ export const SHOWCASE_UPDATE_OR_HOST_CONTROL_REQUEST_SCHEMA = z
           message: "requiredSampleIds must not contain duplicates.",
         });
       }
+    }
+
+    if (
+      value.listenerScope === "invite-only" &&
+      value.voterScope === "public-authenticated"
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["voterScope"],
+        message: "voterScope must be invite-only-authenticated when listenerScope is invite-only.",
+      });
     }
 
     if (value.hostControl) {

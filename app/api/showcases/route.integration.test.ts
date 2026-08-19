@@ -125,6 +125,44 @@ describe("showcase create route integration", () => {
     expect(createdShowcase?.requiredSampleIds).toEqual(["sample-kick", "sample-bass"]);
   });
 
+  it("rejects public voting when listening is invite-only", async () => {
+    vi.mocked(requireVerifiedEmailSession).mockResolvedValue({
+      ok: true,
+      session: {
+        user: {
+          sub: "auth0|host-showcase-create",
+          email_verified: true,
+        },
+      },
+    } as never);
+
+    const response = await POST(
+      new Request("http://localhost/api/showcases", {
+        method: "POST",
+        body: JSON.stringify({
+          ...createShowcasePayload(),
+          listenerScope: "invite-only",
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      error: {
+        code: "validation-error",
+        details: {
+          validationIssues: [
+            {
+              path: "voterScope",
+              message: "voterScope must be invite-only-authenticated when listenerScope is invite-only.",
+            },
+          ],
+        },
+      },
+    });
+  });
+
   it("rejects non-UTC schedule timestamps", async () => {
     vi.mocked(requireVerifiedEmailSession).mockResolvedValue({
       ok: true,
