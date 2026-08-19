@@ -17,7 +17,7 @@ Canonical terms include:
 - Host
 - Participant
 - Entry
-- Required Sample
+- Reference Sample
 - Invite
 - Participation Scope
 - Listener Scope

@@ -1,12 +1,12 @@
 # OpenAux
 
 OpenAux is a focused space for running time-boxed music showcases. Hosts set a
-creative constraint, participants make an entry from the required samples, and
+optional reference material, participants make an entry, and
 listeners discover and rank the results.
 
 ## How a showcase works
 
-1. A **Host** creates a showcase and defines its schedule, required samples,
+1. A **Host** creates a showcase and defines its schedule and optional reference samples,
    access rules, and ranked-ballot settings.
 2. **Participants** join publicly or by invitation and submit one final Entry.
    They can replace their draft until submissions close.
@@ -19,8 +19,7 @@ listeners discover and rank the results.
 ## Built for fair participation
 
 - Hosts can control participation, listening, and voting independently.
-- Every showcase has at least one Required Sample, and an Entry is valid only
-  when it uses all required samples.
+- Reference samples are optional guidance and do not determine Entry validity.
 - Blind judging is enabled by default to reduce popularity bias.
 - Voting uses ranked ballots, allowing voters to express an ordered preference
   instead of choosing only one Entry.

@@ -3,7 +3,7 @@ export const CANONICAL_DOMAIN_TERMS = [
   "Host",
   "Participant",
   "Entry",
-  "Required Sample",
+  "Reference Sample",
   "Invite",
   "Participation Scope",
   "Listener Scope",

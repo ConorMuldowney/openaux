@@ -7,20 +7,19 @@
 - Date: 2026-06-09
 
 ## Context
-Showcase entries must satisfy common creative constraints and support fair progression into voting.
+Showcase entries support fair progression into voting without requiring unverifiable audio analysis.
 
 ## Decision
 Adopt the following submission model:
 - Each participant can have exactly one final entry per showcase.
 - Draft replacement is allowed until submission close; latest version counts.
-- Each showcase must define at least one required sample.
-- An entry is valid only if all required samples are present.
-- If fewer than two valid entries exist at submission close, the showcase is void and does not proceed to voting.
+- Hosts may provide optional reference samples for participants.
+- Reference sample usage is not inferred or used to exclude Entries.
+- If fewer than two Entries exist at submission close, the showcase is void and does not proceed to voting.
 
 ## Consequences
 - Simplifies participant entry ownership and winner evaluation.
-- Enforces consistent creative constraints across entries.
-- Requires deterministic validity evaluation at submission close.
+- Keeps reference material separate from Entry eligibility.
 - Requires explicit handling of voided showcases in UX and lifecycle logic.
 
 ## Sources

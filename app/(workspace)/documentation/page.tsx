@@ -13,7 +13,7 @@ const DOCUMENTATION_PAGES = [
   },
   {
     title: "Frequently asked questions",
-    description: "Find quick answers about access scopes, Entries, Required Samples, voting, and finalization.",
+    description: "Find quick answers about access scopes, Entries, reference samples, voting, and finalization.",
     href: "/documentation/faq",
     action: "Browse the FAQ",
     icon: CircleHelpIcon,

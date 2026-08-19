@@ -18,7 +18,7 @@ const QUICK_START_STEPS = [
   {
     number: "01",
     title: "Create a showcase",
-    description: "Set a title, access scopes, required samples, and the submission and voting windows.",
+    description: "Set a title, access scopes, optional reference samples, and the submission and voting windows.",
     href: "/showcases/new",
     action: "Create showcase",
     icon: PanelTopIcon,
@@ -51,7 +51,7 @@ const WORKFLOW_DOCUMENTS = [
   },
   {
     title: "Participate in a showcase",
-    description: "Learn how invitations, Required Samples, and one final Entry fit together for Participants.",
+    description: "Learn how invitations and one final Entry fit together for Participants.",
     icon: UsersRoundIcon,
     href: "/showcases",
     linkLabel: "Browse showcases",
@@ -69,7 +69,7 @@ const SHOWCASE_TERMS = [
   ["Host", "The authenticated user who creates and configures a showcase."],
   ["Participant", "An invited authenticated user who submits one final Entry."],
   ["Entry", "A Participant's submitted track for a specific showcase."],
-  ["Required Sample", "A sample that must be used for an Entry to be valid."],
+  ["Reference Sample", "Optional audio that a Host provides as creative guidance."],
   ["Ranked Ballot", "A ballot where a voter ranks up to the configured number of Participants."],
   ["Blind Judging", "A mode that hides creator identities during active phases."],
 ] as const;

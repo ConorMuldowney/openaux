@@ -34,9 +34,8 @@ This document captures the agreed product rules for showcases in OpenAux. It is 
 
 - Each participant may submit exactly one final entry per showcase.
 - Participants may replace their draft submission until submission closes; the latest version counts.
-- Each showcase must define at least one required sample.
-- An entry is valid only if it uses all required samples.
-- Additional samples may be optional bonus material.
+- A showcase may provide reference samples for participants.
+- Reference samples are advisory and are not used to validate or exclude Entries.
 - If fewer than two valid entries exist at submission close, the showcase is void and no voting phase begins.
 
 ## Voting model

@@ -23,7 +23,7 @@ export const MODULE_BOUNDARIES: readonly ModuleBoundary[] = [
   {
     moduleName: "submissions",
     responsibility:
-      "Owns Entry draft replacement, Required Sample completeness, and valid Entry checks.",
+      "Owns Entry draft replacement and Entry ownership rules.",
   },
   {
     moduleName: "ballots",
