@@ -27,7 +27,7 @@ const COST_ROWS = [
     fallback: "A paid plan may be needed for usage or commercial-plan requirements",
   },
   {
-    service: "Supabase",
+    service: "Neon",
     purpose: "Database and storage",
     target: "$0 / month",
     fallback: "The paid plan starts at the provider's current published rate if free limits are exceeded",
@@ -44,21 +44,21 @@ const GROWTH_SCENARIOS = [
   {
     users: "Up to 1,000",
     vercel: "$0",
-    supabase: "$0",
+    neon: "$0",
     auth0: "$0",
     total: "$0 / user / month",
   },
   {
     users: "1,000–10,000",
     vercel: "$0–$20",
-    supabase: "$0–$25",
+    neon: "$0–$25",
     auth0: "$0+",
     total: "Up to ~$0.05 / user / month",
   },
   {
     users: "10,000+",
     vercel: "Review usage",
-    supabase: "$25+",
+    neon: "$25+",
     auth0: "Usage-based",
     total: "Provider-dependent / user",
   },
@@ -144,17 +144,17 @@ export default function CostsPage() {
                         <TableRow>
                           <TableHead>Monthly active users</TableHead>
                           <TableHead>Vercel</TableHead>
-                          <TableHead>Supabase</TableHead>
+                          <TableHead>Neon</TableHead>
                           <TableHead>Auth0</TableHead>
                           <TableHead>Estimated cost per user</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {GROWTH_SCENARIOS.map(({ users, vercel, supabase, auth0, total }) => (
+                        {GROWTH_SCENARIOS.map(({ users, vercel, neon, auth0, total }) => (
                           <TableRow key={users}>
                             <TableCell className="font-semibold">{users}</TableCell>
                             <TableCell>{vercel}</TableCell>
-                            <TableCell>{supabase}</TableCell>
+                            <TableCell>{neon}</TableCell>
                             <TableCell>{auth0}</TableCell>
                             <TableCell className="font-semibold text-primary">{total}</TableCell>
                           </TableRow>
@@ -208,7 +208,7 @@ export default function CostsPage() {
 
       <p className="text-sm text-muted-foreground">
         Provider prices and free allowances can change. This page describes our intended operating model, not a price
-        guarantee from Vercel, Supabase, or Auth0.
+                  guarantee from Vercel, Neon, or Auth0.
       </p>
     </main>
   );
