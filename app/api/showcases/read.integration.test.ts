@@ -199,10 +199,11 @@ describe("GET /api/showcases/[showcaseId]/read", () => {
   it("returns showcase lifecycle, scopes, and schedule when caller can listen", async () => {
     mockNoSession();
 
-    const submissionOpensAt = new Date("2026-07-01T00:00:00.000Z");
-    const submissionClosesAt = new Date("2026-07-05T00:00:00.000Z");
-    const votingOpensAt = new Date("2026-07-05T00:00:00.000Z");
-    const votingClosesAt = new Date("2026-07-10T00:00:00.000Z");
+    const now = Date.now();
+    const submissionOpensAt = new Date(now + 60 * 60 * 1000);
+    const submissionClosesAt = new Date(now + 2 * 60 * 60 * 1000);
+    const votingOpensAt = submissionClosesAt;
+    const votingClosesAt = new Date(now + 3 * 60 * 60 * 1000);
 
     const showcase = await createShowcase(prisma, {
       title: "Readable Public Showcase",
