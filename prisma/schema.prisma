@@ -60,6 +60,7 @@ model Showcase {
   transitionAuditEvents  TransitionAuditEvent[]
   disqualificationEvents DisqualificationEvent[]
   finalStandings         FinalStandings?
+  entryComments          EntryComment[]
 
   @@index([hostUserId])
   @@index([lifecycleState])
@@ -130,9 +131,26 @@ model Entry {
   showcase               Showcase                @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
   participant            Participant             @relation(fields: [participantId, showcaseId], references: [id, showcaseId], onDelete: Cascade)
   disqualificationEvents DisqualificationEvent[]
+  comments               EntryComment[]
 
   @@unique([participantId, showcaseId], map: "entry_one_final_per_participant")
   @@unique([id, showcaseId], map: "entry_id_showcase_unique")
+}
+
+model EntryComment {
+  id               String   @id @default(uuid()) @db.Uuid
+  entryId          String   @db.Uuid
+  showcaseId       String   @db.Uuid
+  authorUserId     String
+  timestampSeconds Float
+  body             String
+  createdAt        DateTime @default(now())
+
+  entry    Entry    @relation(fields: [entryId, showcaseId], references: [id, showcaseId], onDelete: Cascade)
+  showcase Showcase @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+
+  @@index([entryId, timestampSeconds])
+  @@index([showcaseId])
 }
 
 model Ballot {
