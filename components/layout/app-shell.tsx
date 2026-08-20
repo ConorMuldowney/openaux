@@ -247,7 +247,7 @@ export function AppShell({ children, userName, userEmail }: AppShellProps) {
             <SidebarMenuItem>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton className="h-10 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:p-1!" tooltip="Account">
+                  <SidebarMenuButton className="h-10 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0!" tooltip="Account">
                     <Avatar className="size-7 rounded-full group-data-[collapsible=icon]:size-8">
                       <AvatarImage alt={displayName} />
                       <AvatarFallback className="rounded-full bg-sidebar-foreground text-sidebar">{avatarFallback}</AvatarFallback>

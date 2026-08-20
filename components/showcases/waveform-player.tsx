@@ -10,20 +10,21 @@ import { cn } from "@/lib/utils";
 import type { EntryComment } from "@/src/api/contracts/entry-comments";
 
 type WaveformPlayerProps = {
-  showcaseId: string;
-  entryId: string;
+  showcaseId?: string;
+  entryId?: string;
   audioUrl: string;
   label: string;
   canComment: boolean;
   isCommentsExpanded: boolean;
-  onToggleCommentsExpanded: () => void;
+  onToggleCommentsExpanded?: () => void;
   isDraftActive: boolean;
-  onRequestCommentDraft: () => void;
-  onCloseCommentDraft: () => void;
+  onRequestCommentDraft?: () => void;
+  onCloseCommentDraft?: () => void;
 };
 
 const WAVEFORM_SAMPLE_COUNT = 220;
 const WAVEFORM_HEIGHT_PX = 72;
+const noop = () => undefined;
 
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) {
@@ -87,8 +88,8 @@ export function WaveformPlayer({
   isCommentsExpanded,
   onToggleCommentsExpanded,
   isDraftActive,
-  onRequestCommentDraft,
-  onCloseCommentDraft,
+  onRequestCommentDraft = noop,
+  onCloseCommentDraft = noop,
 }: WaveformPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -101,6 +102,7 @@ export function WaveformPlayer({
 
   const [comments, setComments] = useState<EntryComment[]>([]);
   const [commentsError, setCommentsError] = useState<string | null>(null);
+  const [internalCommentsExpanded, setInternalCommentsExpanded] = useState(false);
 
   const [draftTimestamp, setDraftTimestamp] = useState<number | null>(null);
   const [draftBody, setDraftBody] = useState("");
@@ -108,6 +110,9 @@ export function WaveformPlayer({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const colorsRef = useRef<{ track: string; progress: string; marker: string } | null>(null);
+  const commentsExpanded = onToggleCommentsExpanded
+    ? isCommentsExpanded
+    : internalCommentsExpanded;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -122,6 +127,10 @@ export function WaveformPlayer({
   }, [audioUrl]);
 
   useEffect(() => {
+    if (!showcaseId || !entryId) {
+      return;
+    }
+
     let cancelled = false;
 
     async function loadComments() {
@@ -287,8 +296,11 @@ export function WaveformPlayer({
 
   return (
     <Collapsible
-      open={isCommentsExpanded}
-      onOpenChange={onToggleCommentsExpanded}
+      open={commentsExpanded}
+      onOpenChange={(open) => {
+        setInternalCommentsExpanded(open);
+        onToggleCommentsExpanded?.();
+      }}
       className="block space-y-2"
     >
       <audio

@@ -22,8 +22,8 @@ export default async function LandingPage() {
 
       <Card className="relative z-10 w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">OpenAux</CardTitle>
-          <CardDescription>Sign in to your account or create a new one.</CardDescription>
+          <CardTitle className="text-2xl text-center font-black">OPENAUX</CardTitle>
+          <CardDescription className="text-center">Sign in to your account or create a new one.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           <Button asChild size="lg">
