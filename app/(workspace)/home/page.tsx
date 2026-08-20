@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowUpRightIcon, CheckCircle2Icon, CircleDashedIcon, Clock3Icon, PlusIcon } from "lucide-react";
+import { ArrowUpRightIcon, CheckCircle2Icon, CircleDashedIcon, Clock3Icon, PlusIcon, UploadIcon } from "lucide-react";
 import { getHomePageData } from "@/src/api/home";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,11 +24,8 @@ export default async function HomePage() {
     redirect("/");
   }
 
-  const { displayName, showcases } = homePageData;
-  const activeShowcases = showcases.filter(({ lifecycleState }) =>
-    lifecycleState === "submission-open" || lifecycleState === "voting-open",
-  ).length;
-  const completedShowcases = showcases.filter(({ lifecycleState }) => lifecycleState === "finalized").length;
+  const { displayName, showcases, totalShowcases, activeShowcases, completedShowcases, totalSubmissions, trend } =
+    homePageData;
 
   return (
     <main className="flex w-full flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
@@ -47,10 +44,10 @@ export default async function HomePage() {
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Total showcases" value={showcases.length.toString()} detail="Across your workspace" icon={CircleDashedIcon} />
+        <MetricCard label="Total showcases" value={totalShowcases.toString()} detail="Hosted by you" icon={CircleDashedIcon} />
         <MetricCard label="Active showcases" value={activeShowcases.toString()} detail="Open for participation" icon={Clock3Icon} />
         <MetricCard label="Completed" value={completedShowcases.toString()} detail="Finalized showcases" icon={CheckCircle2Icon} />
-        <MetricCard label="Participation" value={showcases.length ? "100%" : "--"} detail="Your recent activity" icon={ArrowUpRightIcon} />
+        <MetricCard label="Submissions" value={totalSubmissions.toString()} detail="Entries you submitted" icon={UploadIcon} />
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.75fr)]">
@@ -59,11 +56,11 @@ export default async function HomePage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="font-semibold">Showcase activity</h2>
-                <p className="mt-1 text-sm text-muted-foreground">Your showcase activity over the last 6 months.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Your showcase activity over the last 30 days.</p>
               </div>
-              <Badge variant="secondary">Last 6 months</Badge>
+              <Badge variant="secondary">Last 30 days</Badge>
             </div>
-            <DashboardTrendChart />
+            <DashboardTrendChart data={trend} />
           </CardContent>
         </Card>
 
