@@ -305,26 +305,35 @@ function ChartLegendContent({
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
 
           return (
-            <div
+            <button
               key={index}
+              type="button"
               className={cn(
-                "flex cursor-pointer items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
+                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
               )}
               onMouseEnter={() =>
                 onItemHover?.(typeof item.dataKey === "string" ? item.dataKey : null)
               }
               onMouseLeave={() => onItemHover?.(null)}
+              onFocus={() =>
+                onItemHover?.(typeof item.dataKey === "string" ? item.dataKey : null)
+              }
+              onBlur={() => onItemHover?.(null)}
             >
               {itemConfig?.icon && !hideIcon ? (
                 <itemConfig.icon />
               ) : (
                 <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
-                  style={{ backgroundColor: itemConfig?.color }}
+                  className="h-2 w-2 shrink-0 rounded-[2px] bg-(--color-bg)"
+                  style={
+                    {
+                      "--color-bg": itemConfig?.color,
+                    } as React.CSSProperties
+                  }
                 />
               )}
               {itemConfig?.label}
-            </div>
+            </button>
           )
         })}
     </div>
