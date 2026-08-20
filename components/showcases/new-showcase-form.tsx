@@ -30,7 +30,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import { SamplePreview } from "@/components/showcases/sample-preview";
-import { AlertCircle, ChevronDown, FileAudio, Link2, Upload, X } from "lucide-react";
+import { AlertCircle, ChevronDown, FileAudio, Link2, Upload } from "lucide-react";
 
 const ALLOWED_SAMPLE_CONTENT_TYPES = [
   "audio/mpeg",
@@ -310,24 +310,6 @@ export function NewShowcaseForm({
             </div>
             <ChevronDown className="mt-1 size-4 shrink-0 text-foreground/50 transition-transform group-data-[state=open]:rotate-180" />
           </CollapsibleTrigger>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              form.reset();
-              if (alwaysOpen) {
-                router.push("/showcases");
-              } else {
-                setShowForm(false);
-              }
-              setError(null);
-            }}
-            className="h-6 w-6 shrink-0"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
         </CardHeader>
         <CollapsibleContent>
         <CardContent>
