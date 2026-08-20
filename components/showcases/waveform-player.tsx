@@ -103,7 +103,6 @@ export function WaveformPlayer({
   const [commentsError, setCommentsError] = useState<string | null>(null);
 
   const [draftTimestamp, setDraftTimestamp] = useState<number | null>(null);
-  const [draftPositionRatio, setDraftPositionRatio] = useState(0);
   const [draftBody, setDraftBody] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -244,7 +243,6 @@ export function WaveformPlayer({
     if (canComment) {
       onRequestCommentDraft();
       setDraftTimestamp(timestampSeconds);
-      setDraftPositionRatio(ratio);
       setDraftBody("");
       setSubmitError(null);
     }
@@ -288,7 +286,11 @@ export function WaveformPlayer({
   }
 
   return (
-    <div className="space-y-2">
+    <Collapsible
+      open={isCommentsExpanded}
+      onOpenChange={onToggleCommentsExpanded}
+      className="block space-y-2"
+    >
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -301,19 +303,7 @@ export function WaveformPlayer({
         onPause={() => setIsPlaying(false)}
         onEnded={() => setIsPlaying(false)}
       />
-      <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="icon-sm"
-          onClick={togglePlayback}
-          aria-label={isPlaying ? `Pause ${label}` : `Play ${label}`}
-        >
-          {isPlaying ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
-        </Button>
-        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-          {formatTime(currentTime)} / {formatTime(duration)}
-        </span>
+      <div className="flex flex-col gap-2">
         <div className="relative min-w-0 flex-1">
           <canvas
             ref={canvasRef}
@@ -360,8 +350,7 @@ export function WaveformPlayer({
 
           {isDraftActive && draftTimestamp !== null ? (
             <div
-              className="absolute top-full z-10 mt-2 w-64 space-y-2 rounded-lg border bg-popover p-2.5 text-popover-foreground shadow-md"
-              style={{ left: `${draftPositionRatio * 100}%`, transform: "translateX(-50%)" }}
+              className="mt-2 w-full space-y-2 rounded-lg border bg-popover p-2.5 text-popover-foreground shadow-md"
             >
               <p className="text-xs font-medium">Comment at {formatTime(draftTimestamp)}</p>
               <Textarea
@@ -398,14 +387,30 @@ export function WaveformPlayer({
             </div>
           ) : null}
         </div>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            onClick={togglePlayback}
+            aria-label={isPlaying ? `Pause ${label}` : `Play ${label}`}
+          >
+            {isPlaying ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
+          </Button>
+          <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+            {formatTime(currentTime)} / {formatTime(duration)}
+          </span>
+          {canComment || comments.length > 0 ? (
+            <CollapsibleTrigger className="group ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+              <ChevronDown className="size-3.5 transition-transform group-data-[state=open]:rotate-180" />
+              Comments{comments.length > 0 ? ` (${comments.length})` : ""}
+            </CollapsibleTrigger>
+          ) : null}
+        </div>
       </div>
 
       {canComment || comments.length > 0 ? (
-        <Collapsible open={isCommentsExpanded} onOpenChange={onToggleCommentsExpanded}>
-          <CollapsibleTrigger className="group flex items-center gap-1 pl-9 text-xs text-muted-foreground hover:text-foreground">
-            <ChevronDown className="size-3.5 transition-transform group-data-[state=open]:rotate-180" />
-            Comments{comments.length > 0 ? ` (${comments.length})` : ""}
-          </CollapsibleTrigger>
+        <>
           <CollapsibleContent>
             {comments.length > 0 ? (
               <ul className="mt-1 space-y-1 pl-9">
@@ -431,9 +436,9 @@ export function WaveformPlayer({
               <p className="mt-1 pl-9 text-xs text-muted-foreground">No comments yet.</p>
             )}
           </CollapsibleContent>
-        </Collapsible>
+        </>
       ) : null}
       {commentsError ? <p className="pl-9 text-xs text-destructive">{commentsError}</p> : null}
-    </div>
+    </Collapsible>
   );
 }

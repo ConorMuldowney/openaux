@@ -24,6 +24,7 @@ import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandBackground } from "@/components/layout/brand-background";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -305,9 +306,14 @@ export function AppShell({ children, userName, userEmail }: AppShellProps) {
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="min-h-screen bg-background">
-        <WorkspaceHeader />
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+      <SidebarInset className="relative isolate min-h-screen min-w-0 bg-background">
+        <div className="opacity-[0.035]">
+          <BrandBackground />
+        </div>
+        <div className="relative z-10 flex min-h-screen flex-1 flex-col">
+          <WorkspaceHeader />
+          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
