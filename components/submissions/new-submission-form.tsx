@@ -2,9 +2,10 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, FileAudio, Upload } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { WaveformPlayer } from "@/components/showcases/waveform-player";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -167,19 +168,16 @@ export function NewSubmissionForm({ showcaseId }: NewSubmissionFormProps) {
             </div>
 
             {audioFile && audioPreviewUrl ? (
-              <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <FileAudio className="size-4 text-primary" />
-                  <span className="min-w-0 truncate">{audioFile.name}</span>
-                </div>
-                <audio
-                  className="w-full"
-                  controls
-                  preload="metadata"
-                  aria-label={`Preview of ${audioFile.name}`}
-                  src={audioPreviewUrl}
-                />
-              </div>
+              <WaveformPlayer
+                audioUrl={audioPreviewUrl}
+                label={audioFile.name}
+                canComment={false}
+                isCommentsExpanded={false}
+                onToggleCommentsExpanded={() => undefined}
+                isDraftActive={false}
+                onRequestCommentDraft={() => undefined}
+                onCloseCommentDraft={() => undefined}
+              />
             ) : null}
 
             <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t pt-4">

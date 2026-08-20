@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRightIcon, FileTextIcon } from "lucide-react";
 import { StandardPageLayout } from "@/components/layout/standard-page-layout";
+import { SubmissionAudioItem } from "@/components/submissions/submission-audio-item";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { auth0 } from "@/src/auth/auth0";
@@ -18,7 +19,7 @@ export default async function SubmissionsPage() {
           description: true,
           storageKey: true,
           submittedAt: true,
-          showcase: { select: { title: true } },
+          showcase: { select: { id: true, title: true } },
         },
         orderBy: { submittedAt: "desc" },
       })
@@ -37,27 +38,17 @@ export default async function SubmissionsPage() {
               const audio = await createEntryDownloadUrl(submission.storageKey);
 
               return (
-                <article className="space-y-3 rounded-lg border bg-muted/30 p-4" key={submission.id}>
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <h2 className="font-semibold">{submission.title}</h2>
-                    <p className="text-sm text-muted-foreground">{submission.showcase.title}</p>
-                  </div>
-                  <time className="text-xs text-muted-foreground" dateTime={submission.submittedAt.toISOString()}>
-                    {submission.submittedAt.toLocaleDateString()}
-                  </time>
-                </div>
-                {submission.description ? <p className="text-sm text-foreground/75">{submission.description}</p> : null}
-                {audio ? (
-                  <audio
-                    className="w-full"
-                    controls
-                    preload="none"
-                    aria-label={`Audio preview for ${submission.title}`}
-                    src={audio.downloadUrl}
-                  />
-                ) : null}
-                </article>
+                <SubmissionAudioItem
+                  key={submission.id}
+                  title={submission.title}
+                  description={submission.description}
+                  showcaseId={submission.showcase.id}
+                  showcaseTitle={submission.showcase.title}
+                  entryId={submission.id}
+                  submittedAt={submission.submittedAt.toISOString()}
+                  submittedAtLabel={submission.submittedAt.toLocaleDateString()}
+                  audioUrl={audio?.downloadUrl ?? null}
+                />
               );
             })
           ) : (
