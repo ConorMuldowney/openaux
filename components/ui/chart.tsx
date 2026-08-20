@@ -278,9 +278,11 @@ function ChartLegendContent({
   payload,
   verticalAlign = "bottom",
   nameKey,
+  onItemHover,
 }: React.ComponentProps<"div"> & {
   hideIcon?: boolean
   nameKey?: string
+  onItemHover?: (dataKey: string | null) => void
 } & RechartsPrimitive.DefaultLegendContentProps) {
   const { config } = useChart()
 
@@ -306,14 +308,19 @@ function ChartLegendContent({
             <div
               key={index}
               className={cn(
-                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
+                "flex cursor-pointer items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
               )}
+              onMouseEnter={() =>
+                onItemHover?.(typeof item.dataKey === "string" ? item.dataKey : null)
+              }
+              onMouseLeave={() => onItemHover?.(null)}
             >
               {itemConfig?.icon && !hideIcon ? (
                 <itemConfig.icon />
               ) : (
                 <div
-                  className="h-2 w-2 shrink-0 rounded-[2px] bg-muted-foreground"
+                  className="h-2 w-2 shrink-0 rounded-[2px]"
+                  style={{ backgroundColor: itemConfig?.color }}
                 />
               )}
               {itemConfig?.label}
