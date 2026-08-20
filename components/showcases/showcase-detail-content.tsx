@@ -46,7 +46,7 @@ async function ShowcaseInfo({ showcase }: { showcase: ShowcaseDetailData }) {
   );
 
   return (
-    <Collapsible defaultOpen>
+    <Collapsible>
       <Card>
         <CardHeader>
           <CollapsibleTrigger className="group flex w-full items-center justify-between text-left">
