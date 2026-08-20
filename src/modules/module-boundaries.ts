@@ -5,7 +5,8 @@ export type ModuleBoundary = {
     | "submissions"
     | "ballots"
     | "scoring"
-    | "visibility";
+    | "visibility"
+    | "comments";
   responsibility: string;
 };
 
@@ -39,5 +40,10 @@ export const MODULE_BOUNDARIES: readonly ModuleBoundary[] = [
     moduleName: "visibility",
     responsibility:
       "Owns identity reveal behavior based on Blind Judging and lifecycle state.",
+  },
+  {
+    moduleName: "comments",
+    responsibility:
+      "Owns Entry timestamped comment validation and anonymous author alias assignment.",
   },
 ] as const;
