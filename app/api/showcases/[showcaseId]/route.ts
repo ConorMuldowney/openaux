@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ShowcaseLifecycleState } from "@prisma/client";
+import { AccessScope, ShowcaseLifecycleState } from "@prisma/client";
 import { z } from "zod";
 import { evaluateHostUpdatePolicy } from "@/src/modules/policy/public";
 import {
@@ -217,34 +217,38 @@ export async function PATCH(
 
   const data = parsedRequest.data;
 
-  const listenerScope =
-    data.listenerScope ?? (existingShowcase.listenerScope === "PUBLIC" ? "public" : "invite-only");
-  const voterScope =
-    data.voterScope ??
-    (existingShowcase.voterScope === "PUBLIC"
-      ? "public-authenticated"
-      : "invite-only-authenticated");
+  // Validate listener/voter scope constraint before processing any updates
+  if (!data.hostControl) {
+    // Determine the effective scopes (from request or existing showcase)
+    const effectiveListenerScope = data.listenerScope ?? 
+      (existingShowcase.listenerScope === AccessScope.PUBLIC ? "public" : "invite-only");
+    const effectiveVoterScope = data.voterScope ?? 
+      (existingShowcase.voterScope === AccessScope.PUBLIC ? "public-authenticated" : "invite-only-authenticated");
 
-  if (listenerScope === "invite-only" && voterScope === "public-authenticated") {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: {
-          code: "validation-error",
-          message: "Request validation failed.",
-          details: {
-            validationIssues: [
-              {
-                path: "voterScope",
-                message: "voterScope must be invite-only-authenticated when listenerScope is invite-only.",
-                issueCode: "custom",
-              },
-            ],
+    // Validate: if listenerScope is invite-only, voterScope must also be invite-only-authenticated
+    if (
+      effectiveListenerScope === "invite-only" &&
+      effectiveVoterScope === "public-authenticated"
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: {
+            code: "validation-error",
+            message: "voterScope must be invite-only-authenticated when listenerScope is invite-only.",
+            details: {
+              validationIssues: [
+                {
+                  path: "voterScope",
+                  message: "voterScope must be invite-only-authenticated when listenerScope is invite-only.",
+                },
+              ],
+            },
           },
         },
-      },
-      { status: 400 },
-    );
+        { status: 400 },
+      );
+    }
   }
 
   if (data.hostControl) {
@@ -449,12 +453,8 @@ export async function PATCH(
     where: { id: existingShowcase.id },
     data: {
       ...(data.title !== undefined ? { title: data.title } : {}),
-      ...(data.participationScope !== undefined
-        ? { participationScope: toPrismaAccessScope(data.participationScope) }
-        : {}),
-      ...(data.listenerScope !== undefined
-        ? { listenerScope: toPrismaAccessScope(data.listenerScope) }
-        : {}),
+      ...(data.participationScope !== undefined ? { participationScope: toPrismaAccessScope(data.participationScope) } : {}),
+      ...(data.listenerScope !== undefined ? { listenerScope: toPrismaAccessScope(data.listenerScope) } : {}),
       ...(data.voterScope !== undefined ? { voterScope: toPrismaVoterScope(data.voterScope) } : {}),
       ...(data.blindJudgingEnabled !== undefined
         ? { blindJudgingEnabled: data.blindJudgingEnabled }

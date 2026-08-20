@@ -147,14 +147,40 @@ export function EntriesBallotList({
                     reorder(fromIndex, index);
                     setDraggedEntryId(null);
                   }}
-                  className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3"
+                  className="rounded-lg border bg-muted/30 p-3"
                 >
-                  {canVote ? <GripVertical className="size-4 shrink-0 text-foreground/50" /> : null}
-                  <Badge variant={isRanked ? "default" : "outline"} className="shrink-0">
-                    {isRanked ? `#${index + 1}` : "Unranked"}
-                  </Badge>
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <p className="truncate text-sm font-medium">{entryLabel(entry, index)}</p>
+                  <div className="flex items-center gap-3">
+                    {canVote ? <GripVertical className="size-4 shrink-0 text-foreground/50" /> : null}
+                    <Badge variant={isRanked ? "default" : "outline"} className="shrink-0">
+                      {isRanked ? `#${index + 1}` : "Unranked"}
+                    </Badge>
+                    <p className="min-w-0 flex-1 truncate text-sm font-medium">{entryLabel(entry, index)}</p>
+                    {canVote ? (
+                      <div className="flex shrink-0 gap-1 lg:flex-col">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Move up"
+                          disabled={index === 0}
+                          onClick={() => reorder(index, index - 1)}
+                        >
+                          <ArrowUp className="size-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Move down"
+                          disabled={index === order.length - 1}
+                          onClick={() => reorder(index, index + 1)}
+                        >
+                          <ArrowDown className="size-4" />
+                        </Button>
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="mt-3 min-w-0">
                     {entry.audioDownloadUrl ? (
                       <WaveformPlayer
                         showcaseId={showcaseId}
@@ -180,30 +206,6 @@ export function EntriesBallotList({
                       <p className="text-xs text-muted-foreground">Preparing preview...</p>
                     )}
                   </div>
-                  {canVote ? (
-                    <div className="flex shrink-0 flex-col gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Move up"
-                        disabled={index === 0}
-                        onClick={() => reorder(index, index - 1)}
-                      >
-                        <ArrowUp className="size-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Move down"
-                        disabled={index === order.length - 1}
-                        onClick={() => reorder(index, index + 1)}
-                      >
-                        <ArrowDown className="size-4" />
-                      </Button>
-                    </div>
-                  ) : null}
                 </li>
               );
             })}

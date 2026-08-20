@@ -15,12 +15,6 @@ import {
 
 const COST_ROWS = [
   {
-    service: "OpenAux users",
-    purpose: "Access to the app",
-    target: "$0",
-    fallback: "No subscriptions, donations, or paid user access",
-  },
-  {
     service: "Vercel",
     purpose: "App hosting and deployment",
     target: "$0 / month",
@@ -38,29 +32,57 @@ const COST_ROWS = [
     target: "$0 / month",
     fallback: "Usage-based pricing may apply after the free allowance",
   },
+  {
+    service: "Cloudflare R2",
+    purpose: "Private media storage in the dev and prod buckets",
+    target: "$0 / month",
+    fallback: "Storage and request volume may be billed; egress is currently free",
+  },
+  {
+    service: "Terraform Cloud",
+    purpose: "Remote state for infrastructure provisioning",
+    target: "$0 / month",
+    fallback: "The free tier covers the current workspace; paid features or usage may change this",
+  },
+  {
+    service: "Sentry",
+    purpose: "Error monitoring and optional performance traces",
+    target: "$0 / month",
+    fallback: "Issue volume, trace volume, and retention may exceed the free allowance",
+  },
+  {
+    service: "GitHub Actions",
+    purpose: "Continuous integration and infrastructure deployment",
+    target: "$0 / month",
+    fallback: "Private-repository minutes and artifact storage may be billed after the included allowance",
+  },
 ] as const;
 
-const GROWTH_SCENARIOS = [
+const COST_DRIVERS = [
   {
-    users: "Up to 1,000",
-    vercel: "$0",
-    neon: "$0",
-    auth0: "$0",
-    total: "$0 / user / month",
+    driver: "Application traffic",
+    services: "Vercel, Neon",
+    effect: "Requests, bandwidth, compute time, and database egress can move usage beyond free allowances.",
   },
   {
-    users: "1,000–10,000",
-    vercel: "$0–$20",
-    neon: "$0–$25",
-    auth0: "$0+",
-    total: "Up to ~$0.05 / user / month",
+    driver: "Authenticated users",
+    services: "Auth0",
+    effect: "Monthly active users and authentication features determine usage-based charges.",
   },
   {
-    users: "10,000+",
-    vercel: "Review usage",
-    neon: "$25+",
-    auth0: "Usage-based",
-    total: "Provider-dependent / user",
+    driver: "Media volume",
+    services: "Cloudflare R2",
+    effect: "Stored audio, upload/download requests, and retained normalized files drive storage usage.",
+  },
+  {
+    driver: "Observability volume",
+    services: "Sentry",
+    effect: "Errors, performance traces, and retention determine whether monitoring remains within free limits.",
+  },
+  {
+    driver: "Automation volume",
+    services: "GitHub Actions, Terraform Cloud",
+    effect: "Workflow minutes, artifact storage, Terraform runs, and state-management features may incur charges.",
   },
 ] as const;
 
@@ -126,37 +148,33 @@ export default function CostsPage() {
             <CircleHelpIcon className="size-5 text-primary" />
             <CardTitle className="mt-2">What affects the bill?</CardTitle>
             <CardDescription>
-              User count alone does not set the cost. Traffic, database size, storage, deployments, and monthly active
-              users determine whether a provider&apos;s free allowance is enough.
+              The model includes only services that can generate an operating bill. Free allowances are targets, not
+              guarantees, and usage is reviewed before a paid plan is needed.
             </CardDescription>
           </CardHeader>
             <CardContent>
               <Accordion type="single" collapsible>
                 <AccordionItem value="growth-scenarios">
-                  <AccordionTrigger>Show cost scenarios by monthly active users</AccordionTrigger>
+                  <AccordionTrigger>Show the main cost drivers</AccordionTrigger>
                   <AccordionContent>
                     <p className="mb-4 leading-6 text-muted-foreground">
-                      These are planning ranges, not provider quotes. Monthly active users are signed-in users who use
-                      the app during a month; traffic and storage can move the numbers earlier or later.
+                      Provider billing is driven by resource usage, not by a single user-count threshold. These are
+                      planning categories, not provider quotes.
                     </p>
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Monthly active users</TableHead>
-                          <TableHead>Vercel</TableHead>
-                          <TableHead>Neon</TableHead>
-                          <TableHead>Auth0</TableHead>
-                          <TableHead>Estimated cost per user</TableHead>
+                          <TableHead>Driver</TableHead>
+                          <TableHead>Services</TableHead>
+                          <TableHead>What can increase cost</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {GROWTH_SCENARIOS.map(({ users, vercel, neon, auth0, total }) => (
-                          <TableRow key={users}>
-                            <TableCell className="font-semibold">{users}</TableCell>
-                            <TableCell>{vercel}</TableCell>
-                            <TableCell>{neon}</TableCell>
-                            <TableCell>{auth0}</TableCell>
-                            <TableCell className="font-semibold text-primary">{total}</TableCell>
+                        {COST_DRIVERS.map(({ driver, services, effect }) => (
+                          <TableRow key={driver}>
+                            <TableCell className="font-semibold">{driver}</TableCell>
+                            <TableCell>{services}</TableCell>
+                            <TableCell>{effect}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -208,7 +226,7 @@ export default function CostsPage() {
 
       <p className="text-sm text-muted-foreground">
         Provider prices and free allowances can change. This page describes our intended operating model, not a price
-                  guarantee from Vercel, Neon, or Auth0.
+        guarantee from any provider listed above.
       </p>
     </main>
   );

@@ -30,7 +30,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import { SamplePreview } from "@/components/showcases/sample-preview";
-import { AlertCircle, ChevronDown, FileAudio, Link2, Upload, X } from "lucide-react";
+import { AlertCircle, ChevronDown, FileAudio, Link2, Upload } from "lucide-react";
 
 const ALLOWED_SAMPLE_CONTENT_TYPES = [
   "audio/mpeg",
@@ -133,33 +133,19 @@ export function NewShowcaseForm({
     resolver: zodResolver(SHOWCASE_CREATE_FORM_SCHEMA),
     defaultValues: {
       title: "",
-      participationScope: "invite-only",
-      listenerScope: "public",
-      voterScope: "invite-only-authenticated",
       blindJudgingEnabled: true,
       maxRankedPicks: 3,
       requiredSampleIds: [],
       ...initialValues,
+      participationScope: "public",
+      listenerScope: "public",
+      voterScope: "public-authenticated",
     },
   });
   const requiredSampleIds = useWatch({
     control: form.control,
     name: "requiredSampleIds",
   });
-  const listenerScope = useWatch({
-    control: form.control,
-    name: "listenerScope",
-  });
-
-  useEffect(() => {
-    if (listenerScope === "invite-only") {
-      form.setValue("voterScope", "invite-only-authenticated", {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }
-  }, [form, listenerScope]);
-
   // Fetches playback URLs for previously uploaded samples (e.g. when editing an existing showcase).
   useEffect(() => {
     const missingUploadedSampleIds = requiredSampleIds.filter(
@@ -312,7 +298,7 @@ export function NewShowcaseForm({
   }
 
   return (
-    <Collapsible defaultOpen>
+    <Collapsible defaultOpen={!showcaseId}>
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
           <CollapsibleTrigger className="group flex flex-1 items-start justify-between gap-2 text-left">
@@ -324,24 +310,6 @@ export function NewShowcaseForm({
             </div>
             <ChevronDown className="mt-1 size-4 shrink-0 text-foreground/50 transition-transform group-data-[state=open]:rotate-180" />
           </CollapsibleTrigger>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              form.reset();
-              if (alwaysOpen) {
-                router.push("/showcases");
-              } else {
-                setShowForm(false);
-              }
-              setError(null);
-            }}
-            className="h-6 w-6 shrink-0"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
         </CardHeader>
         <CollapsibleContent>
         <CardContent>
@@ -395,7 +363,7 @@ export function NewShowcaseForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Participation Scope</FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} disabled>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue />
@@ -403,10 +371,9 @@ export function NewShowcaseForm({
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="public">Public - Anyone can submit</SelectItem>
-                          <SelectItem value="invite-only">Invite Only</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormDescription>Who can submit</FormDescription>
+                      <FormDescription>Public until invitations are available</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -418,18 +385,7 @@ export function NewShowcaseForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Listener Scope</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={(value: "public" | "invite-only") => {
-                          field.onChange(value);
-                          if (value === "invite-only") {
-                            form.setValue("voterScope", "invite-only-authenticated", {
-                              shouldDirty: true,
-                              shouldValidate: true,
-                            });
-                          }
-                        }}
-                      >
+                      <Select value={field.value} onValueChange={field.onChange} disabled>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue />
@@ -437,10 +393,9 @@ export function NewShowcaseForm({
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="public">Public - Anyone can listen</SelectItem>
-                          <SelectItem value="invite-only">Invite Only</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormDescription>Who can listen</FormDescription>
+                      <FormDescription>Public until invitations are available</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -455,7 +410,7 @@ export function NewShowcaseForm({
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
-                        disabled={listenerScope === "invite-only"}
+                        disabled
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -466,16 +421,9 @@ export function NewShowcaseForm({
                           <SelectItem value="public-authenticated">
                             Public - Anyone can vote
                           </SelectItem>
-                          <SelectItem value="invite-only-authenticated">
-                            Invite Only
-                          </SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormDescription>
-                        {listenerScope === "invite-only"
-                          ? "Invite-only because listening is invite-only"
-                          : "Who can vote"}
-                      </FormDescription>
+                      <FormDescription>Public until invitations are available</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
