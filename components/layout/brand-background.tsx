@@ -8,8 +8,21 @@ const ROW_OVERSCAN = 1.15;
 const DEFAULT_ROWS = 80;
 const DEFAULT_WORDS_PER_ROW = 24;
 
-const WORD_TEXT = "OPENAUX";
+const WORD_PARTS = ["OPEN", "AUX"] as const;
 const wordClassName = "font-black text-[clamp(2.75rem,7.5vw,8rem)] uppercase leading-none";
+
+function Wordmark({ row }: { row: number }) {
+  return (
+    <>
+      {WORD_PARTS.map((part, index) => (
+        <span key={part} className={(row + index) % 2 === 0 ? "text-primary" : ""}>
+          {part}
+        </span>
+      ))}
+      {" "}
+    </>
+  );
+}
 
 function useTileCounts() {
   const measureRef = useRef<HTMLSpanElement>(null);
@@ -57,20 +70,16 @@ export function BrandBackground() {
         ref={measureRef}
         className={`${wordClassName} invisible absolute inline-block whitespace-nowrap`}
       >
-        {WORD_TEXT}{" "}
+        <Wordmark row={0} />
       </span>
 
       <div className={`absolute -inset-[36vmax] ${wordClassName} tracking-normal text-foreground`}>
         {Array.from({ length: rows }, (_, row) => (
           <div key={row} className={`whitespace-nowrap leading-none ${row === 0 ? "" : "-mt-[0.22em]"}`}>
             {Array.from({ length: cols }, (_, col) => {
-              const isAccent = (col + (row % 2)) % 2 === 0;
               return (
-                <span
-                  key={col}
-                  className={`inline-block whitespace-nowrap ${isAccent ? "text-primary" : ""}`}
-                >
-                  {WORD_TEXT}{" "}
+                <span key={col} className="inline-block whitespace-nowrap">
+                  <Wordmark row={row} />
                 </span>
               );
             })}
