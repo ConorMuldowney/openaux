@@ -298,7 +298,7 @@ export function NewShowcaseForm({
   }
 
   return (
-    <Collapsible defaultOpen>
+    <Collapsible defaultOpen={!showcaseId}>
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
           <CollapsibleTrigger className="group flex flex-1 items-start justify-between gap-2 text-left">
