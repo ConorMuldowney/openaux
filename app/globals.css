@@ -198,3 +198,11 @@
     letter-spacing: var(--tracking-normal);
   }
 }
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
