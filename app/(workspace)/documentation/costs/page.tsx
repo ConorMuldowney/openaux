@@ -48,7 +48,7 @@ const COST_ROWS = [
     service: "Sentry",
     purpose: "Error monitoring and optional performance traces",
     target: "$0 / month",
-    fallback: "Event volume, trace volume, and retention may exceed the free allowance",
+    fallback: "Issue volume, trace volume, and retention may exceed the free allowance",
   },
   {
     service: "GitHub Actions",
