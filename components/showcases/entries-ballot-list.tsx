@@ -6,6 +6,7 @@ import { GripVertical, ArrowUp, ArrowDown, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { WaveformPlayer } from "@/components/showcases/waveform-player";
 
 export type ShowcaseEntryListItem = {
   entryId: string;
@@ -64,6 +65,10 @@ export function EntriesBallotList({
   const [draggedEntryId, setDraggedEntryId] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Only one entry's comments can be expanded, and only one entry's comment draft can be
+  // open, at a time.
+  const [expandedCommentsEntryId, setExpandedCommentsEntryId] = useState<string | null>(null);
+  const [activeCommentDraftEntryId, setActiveCommentDraftEntryId] = useState<string | null>(null);
 
   const entriesById = new Map(entries.map((entry) => [entry.entryId, entry]));
   function reorder(fromIndex: number, toIndex: number) {
@@ -151,12 +156,25 @@ export function EntriesBallotList({
                   <div className="min-w-0 flex-1 space-y-1">
                     <p className="truncate text-sm font-medium">{entryLabel(entry, index)}</p>
                     {entry.audioDownloadUrl ? (
-                      <audio
-                        controls
-                        preload="none"
-                        aria-label={`Audio preview for ${entryLabel(entry, index)}`}
-                        className="w-full"
-                        src={entry.audioDownloadUrl}
+                      <WaveformPlayer
+                        showcaseId={showcaseId}
+                        entryId={entry.entryId}
+                        audioUrl={entry.audioDownloadUrl}
+                        label={entryLabel(entry, index)}
+                        canComment
+                        isCommentsExpanded={expandedCommentsEntryId === entry.entryId}
+                        onToggleCommentsExpanded={() =>
+                          setExpandedCommentsEntryId((current) =>
+                            current === entry.entryId ? null : entry.entryId,
+                          )
+                        }
+                        isDraftActive={activeCommentDraftEntryId === entry.entryId}
+                        onRequestCommentDraft={() => setActiveCommentDraftEntryId(entry.entryId)}
+                        onCloseCommentDraft={() =>
+                          setActiveCommentDraftEntryId((current) =>
+                            current === entry.entryId ? null : current,
+                          )
+                        }
                       />
                     ) : (
                       <p className="text-xs text-muted-foreground">Preparing preview...</p>
