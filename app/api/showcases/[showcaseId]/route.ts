@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ShowcaseLifecycleState } from "@prisma/client";
+import { AccessScope, ShowcaseLifecycleState } from "@prisma/client";
 import { z } from "zod";
 import { evaluateHostUpdatePolicy } from "@/src/modules/policy/public";
 import {
@@ -217,6 +217,40 @@ export async function PATCH(
 
   const data = parsedRequest.data;
 
+  // Validate listener/voter scope constraint before processing any updates
+  if (!data.hostControl) {
+    // Determine the effective scopes (from request or existing showcase)
+    const effectiveListenerScope = data.listenerScope ?? 
+      (existingShowcase.listenerScope === AccessScope.PUBLIC ? "public" : "invite-only");
+    const effectiveVoterScope = data.voterScope ?? 
+      (existingShowcase.voterScope === AccessScope.PUBLIC ? "public-authenticated" : "invite-only-authenticated");
+
+    // Validate: if listenerScope is invite-only, voterScope must also be invite-only-authenticated
+    if (
+      effectiveListenerScope === "invite-only" &&
+      effectiveVoterScope === "public-authenticated"
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: {
+            code: "validation-error",
+            message: "voterScope must be invite-only-authenticated when listenerScope is invite-only.",
+            details: {
+              validationIssues: [
+                {
+                  path: "voterScope",
+                  message: "voterScope must be invite-only-authenticated when listenerScope is invite-only.",
+                },
+              ],
+            },
+          },
+        },
+        { status: 400 },
+      );
+    }
+  }
+
   if (data.hostControl) {
     const action = data.hostControl;
     const actorUserId = authResult.session.user.sub;
@@ -419,9 +453,9 @@ export async function PATCH(
     where: { id: existingShowcase.id },
     data: {
       ...(data.title !== undefined ? { title: data.title } : {}),
-      participationScope: toPrismaAccessScope("public"),
-      listenerScope: toPrismaAccessScope("public"),
-      voterScope: toPrismaVoterScope("public-authenticated"),
+      ...(data.participationScope !== undefined ? { participationScope: toPrismaAccessScope(data.participationScope) } : {}),
+      ...(data.listenerScope !== undefined ? { listenerScope: toPrismaAccessScope(data.listenerScope) } : {}),
+      ...(data.voterScope !== undefined ? { voterScope: toPrismaVoterScope(data.voterScope) } : {}),
       ...(data.blindJudgingEnabled !== undefined
         ? { blindJudgingEnabled: data.blindJudgingEnabled }
         : {}),
