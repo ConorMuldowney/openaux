@@ -51,6 +51,20 @@ export function buildHomeShowcaseWhere(userId: string): Prisma.ShowcaseWhereInpu
           },
         },
       },
+      {
+        participants: {
+          some: {
+            userId,
+          },
+        },
+      },
+      {
+        ballots: {
+          some: {
+            voterUserId: userId,
+          },
+        },
+      },
     ],
   };
 }
