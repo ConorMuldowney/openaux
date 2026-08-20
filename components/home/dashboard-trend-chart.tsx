@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import {
   ChartContainer,
@@ -27,6 +28,8 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function DashboardTrendChart({ data }: { data: HomeTrendPoint[] }) {
+  const [activeSeries, setActiveSeries] = useState<string | null>(null);
+
   return (
     <ChartContainer config={chartConfig} className="h-[260px] w-full">
       <AreaChart accessibilityLayer data={data} margin={{ left: 0, right: 12, top: 12 }}>
@@ -47,7 +50,7 @@ export function DashboardTrendChart({ data }: { data: HomeTrendPoint[] }) {
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-        <ChartLegend content={<ChartLegendContent />} />
+        <ChartLegend content={<ChartLegendContent onItemHover={setActiveSeries} />} />
         <Area
           dataKey="showcases"
           type="linear"
@@ -55,6 +58,7 @@ export function DashboardTrendChart({ data }: { data: HomeTrendPoint[] }) {
           fillOpacity={1}
           stroke="var(--color-showcases)"
           strokeWidth={2}
+          opacity={activeSeries && activeSeries !== "showcases" ? 0.25 : 1}
           dot={false}
         />
         <Area
@@ -64,6 +68,7 @@ export function DashboardTrendChart({ data }: { data: HomeTrendPoint[] }) {
           fillOpacity={1}
           stroke="var(--color-submissions)"
           strokeWidth={2}
+          opacity={activeSeries && activeSeries !== "submissions" ? 0.25 : 1}
           dot={false}
         />
         <Area
@@ -73,6 +78,7 @@ export function DashboardTrendChart({ data }: { data: HomeTrendPoint[] }) {
           fillOpacity={1}
           stroke="var(--color-voted)"
           strokeWidth={2}
+          opacity={activeSeries && activeSeries !== "voted" ? 0.25 : 1}
           dot={false}
         />
       </AreaChart>

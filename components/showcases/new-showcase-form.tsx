@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { endOfDay, format, startOfDay } from "date-fns";
+import type { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -27,10 +29,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import { SamplePreview } from "@/components/showcases/sample-preview";
-import { AlertCircle, ChevronDown, FileAudio, Link2, Upload } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  AlertCircle,
+  CalendarIcon,
+  ChevronDown,
+  FileAudio,
+  Link2,
+  Upload,
+} from "lucide-react";
 
 const ALLOWED_SAMPLE_CONTENT_TYPES = [
   "audio/mpeg",
@@ -89,22 +101,81 @@ const SHOWCASE_CREATE_FORM_SCHEMA = z
 
 type ShowcaseFormData = z.infer<typeof SHOWCASE_CREATE_FORM_SCHEMA>;
 
-function toLocalDateTimeInputValue(value: string): string {
-  if (!value) {
-    return "";
-  }
-
-  const date = new Date(value);
-  const pad = (part: number) => String(part).padStart(2, "0");
-
-  return [
-    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
-    `${pad(date.getHours())}:${pad(date.getMinutes())}`,
-  ].join("T");
+interface ScheduleRangeFieldProps {
+  form: UseFormReturn<ShowcaseFormData>;
+  label: string;
+  opensAtName: "submissionOpensAt" | "votingOpensAt";
+  closesAtName: "submissionClosesAt" | "votingClosesAt";
 }
 
-function toUtcDateTimeValue(value: string): string {
-  return value ? new Date(value).toISOString() : "";
+// Lets users pick whole calendar days; open/close times are pinned to day start/end.
+function ScheduleRangeField({ form, label, opensAtName, closesAtName }: ScheduleRangeFieldProps) {
+  const opensAt = useWatch({ control: form.control, name: opensAtName });
+  const closesAt = useWatch({ control: form.control, name: closesAtName });
+  const opensError = form.formState.errors[opensAtName]?.message;
+  const closesError = form.formState.errors[closesAtName]?.message;
+
+  const range: DateRange | undefined = opensAt
+    ? { from: new Date(opensAt), to: closesAt ? new Date(closesAt) : undefined }
+    : undefined;
+
+  function handleSelect(selected: DateRange | undefined) {
+    let next = selected;
+
+    if (range?.from && range?.to && selected?.from && selected?.to) {
+      // A complete range was already picked, so react-day-picker's default
+      // behavior would extend/shrink it instead of starting fresh. Treat this
+      // click as the start of a brand new range.
+      const clickedDay =
+        selected.from.getTime() !== range.from.getTime() ? selected.from : selected.to;
+      next = { from: clickedDay, to: undefined };
+    }
+
+    form.setValue(opensAtName, next?.from ? startOfDay(next.from).toISOString() : "", {
+      shouldValidate: Boolean(next?.from && next?.to),
+      shouldDirty: true,
+    });
+    form.setValue(closesAtName, next?.to ? endOfDay(next.to).toISOString() : "", {
+      shouldValidate: Boolean(next?.from && next?.to),
+      shouldDirty: true,
+    });
+  }
+
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-medium leading-none">{label}</label>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !range?.from && "text-muted-foreground",
+            )}
+          >
+            <CalendarIcon className="h-4 w-4" />
+            {range?.from ? (
+              range.to ? (
+                <>
+                  {format(range.from, "LLL d, y")} - {format(range.to, "LLL d, y")}
+                </>
+              ) : (
+                format(range.from, "LLL d, y")
+              )
+            ) : (
+              <span>Pick a date range</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar mode="range" selected={range} onSelect={handleSelect} autoFocus />
+        </PopoverContent>
+      </Popover>
+      {opensError && <p className="text-sm font-medium text-destructive">{String(opensError)}</p>}
+      {closesError && <p className="text-sm font-medium text-destructive">{String(closesError)}</p>}
+    </div>
+  );
 }
 
 interface NewShowcaseFormProps {
@@ -620,80 +691,18 @@ export function NewShowcaseForm({
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="submissionOpensAt"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Submission Opens</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="datetime-local"
-                          {...field}
-                          value={toLocalDateTimeInputValue(field.value)}
-                          onChange={(event) => field.onChange(toUtcDateTimeValue(event.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <ScheduleRangeField
+                  form={form}
+                  label="Submission Window"
+                  opensAtName="submissionOpensAt"
+                  closesAtName="submissionClosesAt"
                 />
 
-                <FormField
-                  control={form.control}
-                  name="submissionClosesAt"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Submission Closes</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="datetime-local"
-                          {...field}
-                          value={toLocalDateTimeInputValue(field.value)}
-                          onChange={(event) => field.onChange(toUtcDateTimeValue(event.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="votingOpensAt"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Voting Opens</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="datetime-local"
-                          {...field}
-                          value={toLocalDateTimeInputValue(field.value)}
-                          onChange={(event) => field.onChange(toUtcDateTimeValue(event.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="votingClosesAt"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Voting Closes</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="datetime-local"
-                          {...field}
-                          value={toLocalDateTimeInputValue(field.value)}
-                          onChange={(event) => field.onChange(toUtcDateTimeValue(event.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <ScheduleRangeField
+                  form={form}
+                  label="Voting Window"
+                  opensAtName="votingOpensAt"
+                  closesAtName="votingClosesAt"
                 />
               </div>
             </div>
