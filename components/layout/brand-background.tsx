@@ -8,19 +8,14 @@ const ROW_OVERSCAN = 1.15;
 const DEFAULT_ROWS = 80;
 const DEFAULT_WORDS_PER_ROW = 24;
 
-const WORD_PARTS = ["OPEN", "AUX"] as const;
+const WORD_PAIR = ["AUXOPEN", "OPENAUX"] as const;
 const wordClassName = "font-black text-[clamp(2.75rem,7.5vw,8rem)] uppercase leading-none";
 
-function Wordmark({ row }: { row: number }) {
+function Wordmark({ row, col }: { row: number; col: number }) {
+  const word = WORD_PAIR[row % 2];
+
   return (
-    <>
-      {WORD_PARTS.map((part, index) => (
-        <span key={part} className={(row + index) % 2 === 0 ? "text-primary" : ""}>
-          {part}
-        </span>
-      ))}
-      {" "}
-    </>
+    <span className={(row + col) % 2 === 0 ? "text-primary" : ""}>{word} </span>
   );
 }
 
@@ -70,7 +65,7 @@ export function BrandBackground() {
         ref={measureRef}
         className={`${wordClassName} invisible absolute inline-block whitespace-nowrap`}
       >
-        <Wordmark row={0} />
+        <Wordmark row={0} col={0} />
       </span>
 
       <div className={`absolute -inset-[36vmax] ${wordClassName} tracking-normal text-foreground`}>
@@ -79,7 +74,7 @@ export function BrandBackground() {
             {Array.from({ length: cols }, (_, col) => {
               return (
                 <span key={col} className="inline-block whitespace-nowrap">
-                  <Wordmark row={row} />
+                  <Wordmark row={row} col={col} />
                 </span>
               );
             })}
