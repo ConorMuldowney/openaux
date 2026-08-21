@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in · OpenAux</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap"
+    rel="stylesheet"
+  />
+  {%- auth0:head -%}
+  <style>
+    :root {
+      --background: #f4f6f7;
+      --foreground: #4b4b4b;
+      --primary: #eab8c6;
+      --primary-foreground: #000000;
+      --border: #dcdcdc;
+    }
+
+    @supports (color: oklch(0 0 0)) {
+      :root {
+        --background: oklch(0.9809 0.0025 228.7836);
+        --foreground: oklch(0.3211 0 0);
+        --primary: oklch(0.8677 0.0735 7.0855);
+        --primary-foreground: oklch(0 0 0);
+        --border: oklch(0.8699 0 0);
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #23262e;
+        --foreground: #ebebeb;
+        --primary: #e8a8c9;
+        --primary-foreground: #000000;
+        --border: #5c5c5c;
+      }
+
+      @supports (color: oklch(0 0 0)) {
+        :root {
+          --background: oklch(0.2303 0.0125 264.2926);
+          --foreground: oklch(0.9219 0 0);
+          --primary: oklch(0.8027 0.1355 349.2347);
+          --border: oklch(0.3867 0 0);
+        }
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--background);
+      color: var(--foreground);
+      font-family: Poppins, ui-sans-serif, sans-serif, system-ui;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    /* Diagonal tiled wordmark, mirrors components/layout/brand-background.tsx */
+    .brand-background {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      z-index: 0;
+      width: 340vmax;
+      height: 340vmax;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      overflow: hidden;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .brand-background__grid {
+      position: absolute;
+      inset: -36vmax;
+      color: var(--foreground);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1;
+      letter-spacing: normal;
+      font-size: clamp(2.75rem, 7.5vw, 8rem);
+    }
+
+    .brand-background__row {
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .brand-background__row:not(:first-child) {
+      margin-top: -0.22em;
+    }
+
+    .brand-background__word {
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .brand-background__word--accent {
+      color: var(--primary);
+    }
+
+  </style>
+</head>
+<body class="_widget-auto-layout">
+  <div class="brand-background" aria-hidden="true">
+    <div class="brand-background__grid" id="brand-background-grid"></div>
+  </div>
+
+  {%- auth0:widget -%}
+
+  <script>
+    (function () {
+      var WORD_PAIR = ["AUXOPEN", "OPENAUX"];
+      var TILE_AREA_VMAX = 340 + 36 * 2;
+      var ROW_OVERSCAN = 1.15;
+      var DEFAULT_ROWS = 80;
+      var DEFAULT_WORDS_PER_ROW = 24;
+
+      var grid = document.getElementById("brand-background-grid");
+
+      function buildRow(rowIndex, cols) {
+        var row = document.createElement("div");
+        row.className = "brand-background__row";
+        var word = WORD_PAIR[rowIndex % 2];
+
+        for (var col = 0; col < cols; col++) {
+          var span = document.createElement("span");
+          span.className =
+            "brand-background__word" +
+            ((rowIndex + col) % 2 === 0 ? " brand-background__word--accent" : "");
+          span.textContent = word + " ";
+          row.appendChild(span);
+        }
+
+        return row;
+      }
+
+      function render(rows, cols) {
+        grid.innerHTML = "";
+        var fragment = document.createDocumentFragment();
+        for (var row = 0; row < rows; row++) {
+          fragment.appendChild(buildRow(row, cols));
+        }
+        grid.appendChild(fragment);
+      }
+
+      function measureAndRender() {
+        var probe = document.createElement("span");
+        probe.className = "brand-background__word";
+        probe.style.visibility = "hidden";
+        probe.style.position = "absolute";
+        probe.textContent = WORD_PAIR[0] + " ";
+        grid.appendChild(probe);
+
+        var width = probe.offsetWidth;
+        var height = probe.offsetHeight;
+        grid.removeChild(probe);
+
+        if (width <= 0 || height <= 0) {
+          render(DEFAULT_ROWS, DEFAULT_WORDS_PER_ROW);
+          return;
+        }
+
+        var tileAreaPx =
+          (TILE_AREA_VMAX / 100) * Math.max(window.innerWidth, window.innerHeight);
+        var rowHeightPx = height * 0.78;
+        var rows = Math.max(Math.ceil((tileAreaPx * ROW_OVERSCAN) / rowHeightPx), 1);
+        var cols = Math.max(Math.ceil((tileAreaPx * ROW_OVERSCAN) / width), 1);
+
+        render(rows, cols);
+      }
+
+      var resizeTimer;
+      window.addEventListener("resize", function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(measureAndRender, 150);
+      });
+
+      measureAndRender();
+    })();
+  </script>
+</body>
+</html>
