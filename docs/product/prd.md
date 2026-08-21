@@ -86,7 +86,7 @@ OpenAux will provide showcases with separate scopes for participation, listening
 - Authentication: Auth0 (verified email required for host and voter actions).
 - Hosting: Vercel.
 - Object storage: Cloudflare R2.
-- Media strategy: Compress uploads to normalized streaming assets; keep originals for 30 days, then retain normalized versions unless under dispute.
+- Media strategy: Run a one-time FFmpeg normalization after upload, serve the smaller streaming asset, and keep originals for 30 days before deleting them unless they are under dispute. The system should accept the small processing cost to reduce the recurring R2 storage footprint rather than aggressively optimizing worker runtime.
 - Jobs/orchestration: Async queue workers via Inngest.
 - Authorization model: Domain policy engine per action/resource.
 - Lifecycle model: Explicit state machine with guarded transitions and transition audit events.

@@ -1,7 +1,7 @@
 # ADR 0010: V1 Architecture and Platform Stack
 
 - Owner: Platform Engineering
-- Last reviewed: 2026-06-11
+- Last reviewed: 2026-08-22
 
 - Status: Accepted
 - Date: 2026-06-09
@@ -31,13 +31,15 @@ Additional system decisions:
 - Lifecycle via explicit state machine with guarded transitions and transition audit events
 - Scoring as live deterministic compute during voting with immutable final snapshot at finalization
 - Invite tokens are single-use and bound to accepted identity
-- Media strategy: normalize uploads for streaming, keep originals for 30 days, retain normalized versions unless under dispute
+- Media strategy: normalize uploads once for streaming, keep originals for 30 days, and retain normalized versions unless under dispute
+- Media processing: use FFmpeg for a one-time post-upload transcode; serve normalized assets to listeners rather than originals
+- Cost strategy: accept the one-time worker compute cost to reduce the recurring R2 storage footprint; use a reliable preset instead of aggressively optimizing worker runtime
 - Deferred decision: runtime platform for FFmpeg/transcoding workers
 
 ## Consequences
 - Speeds initial delivery with one deployable system while preserving modular boundaries.
 - Aligns product rules to explicit technical seams for policy, lifecycle, and scoring.
-- Leaves worker-runtime selection open and requires a follow-up ADR.
+- Leaves worker-runtime selection open and requires a follow-up ADR. The selected runtime must support FFmpeg, temporary working files, retries, and asynchronous execution.
 
 ## Sources
 - docs/product/prd.md
