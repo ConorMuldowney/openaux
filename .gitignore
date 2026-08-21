@@ -79,6 +79,9 @@ temp/
 .vercel
 .env*
 
+# Auth0 CLI local config
+.config/
+
 # Playwright
 playwright-report/
 e2e/.artifacts/
