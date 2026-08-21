@@ -39,7 +39,9 @@ function formatTime(seconds: number): string {
 // Downsamples decoded PCM data into peak magnitudes so the canvas can draw a waveform
 // that honestly reflects the track's actual amplitude, rather than a generic placeholder shape.
 async function decodeWaveformPeaks(audioUrl: string, signal: AbortSignal): Promise<number[]> {
-  const response = await fetch(audioUrl, { signal });
+  // no-store avoids conditional (If-None-Match) requests: R2's 304 responses drop CORS
+  // headers present on the original 200, which Chrome then reports as ERR_FAILED.
+  const response = await fetch(audioUrl, { signal, cache: "no-store" });
   const arrayBuffer = await response.arrayBuffer();
   const AudioContextClass =
     window.AudioContext ??
